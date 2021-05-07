@@ -74,7 +74,7 @@ DLA <- function (input, ID, calib, ngram=2, wordsinrow=FALSE, docincol = FALSE){
   
 }
 
-
+#da
 wf_out <- wordfish(TM, fixtwo = FALSE, dir = c(1, 2), wordsincol = FALSE, tol = 1e-04)
 omega <- wf_out$documents[, "omega"]
 beta <- wf_out$words[, "b"]
