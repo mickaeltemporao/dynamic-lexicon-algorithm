@@ -15,72 +15,79 @@ DLA <- function (
   
   data<- input
   data_target_name<-data[,ID]#nom du target
-  data<-data[, !(colnames(data) %in% c(ID)), drop = FALSE]#on enleve le nom du target du data
+  (data_target_name)
+  data_without_target<-data[, !(colnames(data) %in% c(ID)), drop = FALSE]#on enleve le nom du target du data
   
   #on sépare le data en deux data, un avec les individus qui servent à calibrer (data_target) et l'autre le reste
   
-  data_users<-data[-calib,]
-  rownames(data_users)[0] <- "words" #on donne un nom a la première ligne
-  data_target<-data[calib,]
+  data_users<-data_without_target[-calib,]
+  print(data_users)
+  #rownames(data_users)[0] <- "word" #on donne un nom a la première ligne
+  data_target<-data_without_target[calib,]
+  print(data_target)
   
 
   
   
 ###### trouvons les beta à fixer
   
-  data_target<-t(data_target) #on transpose pour faire le wordfish et avoir un FDM
-  words<-rownames(data_target) # les mots sont les nomes des lignes
+  t_data_target<-t(data_target) #on transpose pour faire le wordfish et avoir un FDM
+  t_data_target<-as.data.frame(t_data_target)
+  words<-rownames(t_data_target) # les mots sont les nomes des lignes
   
-  wf_out <- wordfish(data_target, fixtwo = FALSE, dir = c(1, 2), wordsincol = FALSE, tol = 1e-04)
+  wf_out <- wordfish(t_data_target, fixtwo = FALSE, dir = c(1, 2), wordsincol = FALSE, tol = 1e-04)
   omega <- wf_out$documents[, "omega"]
+  print(omega)
   beta <- wf_out$words[, "b"]
   psi <- wf_out$words[, "psi"]
+  print(psi)
 
 ### associer les mots et leurs poids respectifs  
   
   word_df <- data.frame(words,beta)
+  print(word_df)
   
 #### fixer les poids
-  data_users<-t(data_users)#on transpose pour pouvoir assembler les data
- 
-  #on les assemble
+  t_data_users<-t(data_users)#on transpose pour pouvoir assembler les data
+  t_data_users<-as.data.frame(t_data_users)
   
-  wordcountdata_users_weighted <- merge(data_users,word_df,by.x = " words" ,by.y = "words")
+  #on les assemble aux mots
+  
+  t_data_users[,"weight"]<-word_df[,2]
+  t_data_users[,"words"]<-word_df[,1]
+  wordcountdata_users_weighted <- t_data_users
   
   L <- dim(wordcountdata_users_weighted)[2] # nombre de colonnes
   
-  words_weighted    <- wordcountdata_users_weighted[,0] #les mots
-  TM_users_weighted <- wordcountdata_users_weighted[,1:(L-1)]#les occurences
-  beta_weighted     <- wordcountdata_users_weighted[,L]#les betas
+  words_weighted    <- wordcountdata_users_weighted[,L] #les mots
+  TM_users_weighted <- wordcountdata_users_weighted[,1:(L-2)]#les occurences
+  beta_weighted     <- wordcountdata_users_weighted[,L-1]#les betas
 
 #on refait le wordfish avec les betas fixés
+  
+  
+  #on refait le wordfish avec les betas fixés
+  
+  sum(rowSums(TM_users_weighted > 0) == 0)
+  sum(colSums(TM_users_weighted > 0) == 0)
+  dim(TM_users_weighted)
     
-    sum(rowSums(TM_users_weighted > 0) == 0)
-    sum(colSums(TM_users_weighted > 0) == 0)
-    dim(TM)
+   
 
     wf2_out <- wordfish2(beta_weighted,TM_users_weighted,fixtwo=FALSE,dir=c(1,2),wordsincol=FALSE,tol=1e-4)
     
 
 
     beta    <- beta_weighted
+    print(beta)
     opinions  <- wf2_out$documents[,'omega']
     words_weighted_df<-data.frame(words_weighted,beta_weighted)
-    opinions_df<-data.frame(rownames(data_users)[0],opinions)
+    print(words_weighted_df)
+    #opinions_df<-data.frame(rownames(data_users)[0],opinions)
+    opinions_df<-data.frame(rownames(data_users),opinions)
+    return(opinions_df)
 
 }
 
-#charger les deux csv et les fusuinner pour tester la fonction plus qu'a charger le csv tm2 gram
 
 
-setwd("C:/Users/fredo/OneDrive/Documents/Stage/CNRS/Stage/Code/Code Projet")
-pol<-read.csv2("DFM1.csv")
-users<-read.csv2("DFM2.csv")
-colnames(pol[1])
-data_comb<-merge(pol,users,all.x =TRUE,all.y=TRUE )
-data_comb1<-data_comb[1]
-
-calib_test<-data_comb[1:297]
-data_comb=t(data_comb)
-
-#random letter our crrer un random dfm
