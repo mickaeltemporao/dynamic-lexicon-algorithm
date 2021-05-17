@@ -30,7 +30,7 @@ data_users<-data.frame(a,b)
 data_users<-data_users[,-1]
 data_users<-as.data.frame(data_users)
 
-for(i in 2:1343){
+for(i in 2:dim(data_pol)[2]){
   data_users[,i]<-round(abs(c(rnorm(1000, mean=0.4, sd=3)))) # on rajoute autant qu'il y a de mots
 }
 
@@ -38,18 +38,20 @@ colnames(data_users)<-colnames(data_pol) # on mets les mêmes noms pour fusionne
 
 data<-rbind(data_pol, data_users)
 
-data[,1344]<-1
+data[,dim(data)[2]+1]<-1
 
-for(i in 1:1003){
+
+
+for(i in 1:dim(data)[1]){
   if(i<4){
-    data[i,1344]=1
+    data[i,dim(data)[2]]=1
   }
-else{data[i,1344]=0}
+else{data[i,dim(data)[2]]=0}
   }
 
-data[,1344]
+data[,dim(data)[2]]
 
-colnames(data)[1344] <- "ID"
+colnames(data)[2] <- "ID"
 
 
 class(colnames(data))
