@@ -56,5 +56,6 @@ class(colnames(data))
 
 db<-data# data finale
 
-plot(density(as.numeric(data[1,c(1:600)])))#loi
+plot(density(as.numeric(data[1,c(1:600)])))#loi de poisson
 
+write.csv(db,"C:/Users/fredo/OneDrive/Documents/Stage/CNRS/Stage/Code/Code Projet/vigilant-octo-invention\\Data_fixure.csv", row.names = TRUE)
