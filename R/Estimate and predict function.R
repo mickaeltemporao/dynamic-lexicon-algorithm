@@ -105,8 +105,7 @@ DLA <- function (
   
   #on refait le wordfish avec les betas fixés
   
-  
-  #on refait le wordfish avec les betas fixés
+
   
   sum(rowSums(TM_users_weighted > 0) == 0)
   sum(colSums(TM_users_weighted > 0) == 0)
