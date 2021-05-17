@@ -1,5 +1,5 @@
 ---
-title: "Suivi"
+title: "Markdown vignette DLA"
 author: "Louis FREDON"
 date: "05/05/2021"
 output:
@@ -14,16 +14,27 @@ knitr::opts_chunk$set(echo =FALSE)
 ```
 
 
+### Table des matières
+
+
+* [Introduction](#Introduction)
+* [Data Fixure](# Data Fixure)
+* [DFM genration process](# DFM genration process)
+* [Filtre data](# Filtre data)
+* [Estimation des poids et prévision de la target](#Estimation des poids et prévision de la target)
+
+
+
+
 ### __**Introduction<a class="anchor" id="Introduction"></a>**__
 
 Test de la fonction Wordfish sur un DLM choisi et comparaison avec les résultats pour s'assurer du bon fonctionnement de la fonction.
 
 Essai de l'algorithme sur param = desc au Quebec sur les politiciens.
 
-```{r}
+On lance l'algorithme déjà existant pour comparer les résultats et s'assurrer du bon fonctionnement de la fonction :
 
-```
-pouvoir entre le code 
+
 
 ```{r, include=FALSE, message=FALSE,warning=FALSE}
 
@@ -280,6 +291,7 @@ word_df
 
 
 Regardons si nous avons le même résultat avec le DLM choisi.
+
 Ici on charge le politiciens 2 gram, le politicians link et le initi pour pouvoir appliquer les filtres pour avoir les mêmes résultats :
 
 ```{r, include=FALSE, message=FALSE,warning=FALSE}
@@ -288,14 +300,17 @@ Ici on charge le politiciens 2 gram, le politicians link et le initi pour pouvoi
   #file_init     <- paste0(input_path, election, "/politicians_init.csv"))
 setwd("C:/Users/fredo/OneDrive/Documents/Stage/CNRS/Stage/Code")
 w<-read.csv2('DLM.csv') #on a choisi politique desc quebec donc politicians tm2gram
-z<-read.csv2('DLM2.csv') # 
-y<-read.csv2('DLM3.csv')
+z<-read.csv2('DLM2.csv') # tw_party_file
+y<-read.csv2('DLM3.csv')#file_init
 
+```
+Maintenant qu'on a chargé les données des occurences des mots on peu appliquer les filtres :
 
-
-w <- as.data.frame(w, stringsAsFactors = FALSE)
+```{r}
+w <- as.data.frame(w, stringsAsFactors = FALSE)#transforme en data frame pour plus de facilité
 z<- as.data.frame(z, stringsAsFactors = FALSE)
 y<- as.data.frame(y, stringsAsFactors = FALSE)
+
 ### 2- Filter PARTY DATA
   
   # Extract specific columns
@@ -326,23 +341,23 @@ y<- as.data.frame(y, stringsAsFactors = FALSE)
   kept_tweeters_party <- (colSums(w) > min_words_party)
   w <- w[, kept_tweeters_party]
   tweeters_party <- tweeters_party[kept_tweeters_party]
-  
-
-  sum(rowSums(w > 0) == 0)
+   sum(rowSums(w > 0) == 0)
   sum(colSums(w > 0) == 0)
   dim(w)
-  x <- wordfish(w, fixtwo = FALSE, dir = c(1, 2), wordsincol = FALSE, tol = 1e-04)
-dim(w)
-x$words
-dim(x$words)
-x$documents
-words
-beta<-x$words[,"b"]
-t<-data.frame(words,beta)
-#t egale a worddf donc ok
-
 ```
- On retrouve le même tableau.
+
+On peut run le wordfish pour s'assurer des mêmes résultats ( nottament du vecteur poids ) :
+
+```{r}
+  x <- wordfish(w, fixtwo = FALSE, dir = c(1, 2), wordsincol = FALSE, tol = 1e-04)
+
+beta<-x$words[,"b"] # on recupere les betas
+t<-data.frame(words,beta)# on les associe aux mots dans un data frame
+```
+
+Notre tableau correspond aux mêmes poids (beta) que l'algorithme existant donc on est ok.
+
+On retrouve le même tableau.
  
  Essayons avec un dfm autre et le package quanteda :
 
@@ -353,15 +368,348 @@ library(quanteda)
 library(quanteda.textstats)
 
 options(width = 110)
-toks_inaug <- tokens(data_corpus_inaugural, remove_punct = TRUE)
-dfmat_inaug <- dfm(toks_inaug)
+toks_inaug <- tokens(data_corpus_inaugural, remove_punct = TRUE)#importation de données textes
+dfmat_inaug <- dfm(toks_inaug)#création du dfm
 dfmat<-as.matrix(dfmat_inaug)# transformer en matrice
 dfmat<-t(dfmat)#trasnposer pour avoir un ter-documetn matrix
 dfmat
 dim(dfmat)
+```
 
+Maintenant regardons si la fonction wordfish fonctionne avec toute sorte de DFM :
+```{r}
 x1 <- wordfish(dfmat, fixtwo = FALSE, dir = c(1, 2), wordsincol = FALSE, tol = 1e-04)
 x1$words
 beta1<-x1$words[,"b"]
 t1<-data.frame(rownames(x1$words),beta1)# tableau des poids des mots asscoiés
 ```
+
+Nous avons en sorti un tableau de poids associés aux mots.
+
+
+### __**Data Fixure<a class="anchor" id="Data Fixure"></a>**__
+
+
+Maintenant nous allons créer une fonction qui va générer un DFM qui va nous servir comme base initiale pour vérifier nos résuktats prochainement.
+
+Nous prenons les mots des discours des présidents américains depuis 2011, soit trois présidents :
+
+```{r}
+library(quanteda)
+data_pol<-data_corpus_inaugural %>% corpus_subset(Year > 2011) %>%tokens()#on prends que depuis 2011
+data_pol<-dfm(data_pol)# on transforme en dfm
+data_pol<-dfm_keep(data_pol, min_nchar = 2)#on garde que les mots de plus de 2 lettres
+data_pol<-dfm_remove(data_pol, pattern = stopwords("en"))#on enleve les mots communs (ponctuation, et ..)
+data_pol<-as.data.frame(data_pol)#on le transforme en data frame
+rownames(data_pol)<-data_pol[,1]#on transforme la première colonne en nom des lignes
+data_pol<-data_pol[,-1]
+
+
+```
+
+
+
+Maintenant que nous avons crée un data avec les politiciens, nous allons créer aléatoirement des users et des occurences des mots utilisés par ces utilisateurs :
+
+```{r}
+a<-c((1:1000)) # colonnes des users et leurs noms
+
+
+b<-abs(c(rnorm(1000, mean=0.4, sd=3))) # occurences qui suit une loi normal
+b<-round(b)# on met en valeurs entières
+
+data_users<-data.frame(a,b)# on  transforme en data frame 
+data_users<-data_users[,-1]
+data_users<-as.data.frame(data_users)
+
+for(i in 2:1343){
+  data_users[,i]<-round(abs(c(rnorm(1000, mean=0.4, sd=3)))) # on rajoute autant qu'il y a de mots
+}
+
+
+```
+
+
+Maintenant nous pouvons fusionner les deux datas ( users et politiciens )
+```{r}
+colnames(data_users)<-colnames(data_pol) # on mets les mêmes noms pour fusionner avec les datas des politiciens
+data<-rbind(data_pol, data_users)#fusion
+```
+
+Nous allons rajouter une colonne permettant de différencier les politicens des uitilisateurs lambdas, nous allons appeler cette colonne ID, si ID = 1 alors c'est un politiciens.
+```{r}
+data[,1344]<-1 #rajout d'une colonne
+
+for(i in 1:1003){
+  if(i<4){
+    data[i,1344]=1  # si c'est les premières lignes c'est 1 donc politiciens
+  }
+else{data[i,1344]=0}
+  }
+
+data[,1344]
+
+colnames(data)[1344] <- "ID" # on appelle la colonne ID
+
+
+class(colnames(data))
+
+data # data finale
+
+```
+
+### __**DFM genration process<a class="anchor" id="DFM genration process"></a>**__
+
+
+Nous allons maintenant créer une fonction qui va créer le Documents-Features-Matrix pour les fonctions suivantes. 
+Pour cela on suppose que l'utilisateur donne en entrée un data frame avec le texte et les documents ainsi que le numéro des colonnes des textes et colonnes.
+
+```{r}
+dfm_generation<-function(
+  input, #2 col (text & users )
+  text,  #numéro de colonne ou il y a le text
+  doc,   #numéro de colonne ou il y a les ids
+  lg  # "en", "fr" etc..
+  ){
+```
+
+On va devoir créer un objet token pour decompter les mots dans le texte, on utilise la fonction du package quanteda :
+
+```{r}
+library(quanteda)
+library(dplyr)
+tok<-tokens(input[,text], remove_punct = TRUE,remove_symbols=TRUE,remove_numbers=TRUE,remove_url=TRUE,remove_separators=TRUE)
+```
+
+
+Maintenant que nous avons l'objet tokens on va pouvoir créer un DFM toujours à l'aide la fonction du même package :
+
+```{r}
+df<-dfm(tok)# On le convertit en dfm
+```
+
+
+On enleve les mots inutiles (ex mots de liaisons ou autres): 
+
+```{r}
+dfstop <- dfm_select(df, pattern = stopwords(lg), selection = "remove")
+```
+
+
+On garde que les mots plus long que 3 lettres :
+```{r}
+dfstop<-dfm_keep(dfstop, min_nchar = 3)
+```
+
+On peut avec les focntion disponible dans ce package appliqué les filtres utils à la bonn analyse textuelle, notamment garder que les mots cités au moins 5 fois :
+
+```{r}
+dfstop<- dfm_trim(dfstop, min_termfreq = 5)
+```
+
+
+Maintenant on fusionne les tweets des mêmes identifiants :
+```{r}
+DFM <- dfm_group(dfstop, groups = Tweet$user_id)
+
+```
+On le transforme en data frame pour l'analyse plus tard :
+
+```{r}
+DFM<-as.data.frame(DFM)
+```
+
+et on clos la fonction :
+```{r}
+cat("Finished \n")
+
+return(list(DFM = DFM))
+}
+```
+
+On aurait pu fusionner les identifiants comme cei mais cela nécessite plus de temps:
+
+```{r}
+df<-as.data.frame(dfstop) 
+df<-df[,-1]#on enleve la colonne id
+a<-Tweet$user_id
+df[,1491]<-a
+colnames(df)[1491]<-"user_id"
+
+dfM<-aggregate(df[,1:1490], by=list(user_id=df$user_id), FUN=sum)
+```
+
+
+
+
+
+
+### __**Filtre data<a class="anchor" id="Filtre data"></a>**__
+
+
+### __**Estimation des poids et prévision de la target<a class="anchor" id="Estimation des poids et prévision de la target"></a>**__
+
+
+Nous allons maintenant créer une fonction qui permets de calculer le sous ensemble des mots les plus significatifs afin de calculer la prévision du target. 
+Pour cela, on va calculer les betas sur le data de calibration, les fixer pour pouvoir prédire sur les users.
+Cette fonction prends donc en entrée un Document-Features-Matrix converti en data frame, un vecteur qui va nous permettre d'identifier les individus qui calibrent le sous espace, ainsi qu'un nom de colonne qui identifie ces utilisateurs:
+
+```{r}
+DLA <- function (
+  input,  # a data.frame
+  ID,    #a name of col
+  calib,  # a vector of rows
+  ngram=2, 
+  wordsinrow=FALSE, 
+  docincol = FALSE
+  ){
+    
+  #docsincol TRUE si les id/users sont la première colonne dans ce cas faut faire autrement
+  #wordsinrow TRUE  si les mots sont la première ligne
+  #On a considerer que les documents et features sont les noms des lignes colonnes
+```
+
+
+On va maintenant identifier et supprimer la colonne d'identification des utilisateurs :
+```{r}
+data<- input
+  data_target_name<-data[,ID]#nom du target
+ 
+  data_without_target<-data[, !(colnames(data) %in% c(ID)), drop = FALSE]#on enleve la colonne nom du target du data
+```
+
+  
+On va maintenant séparer le data en deux datas, un qui comprend les individus qui vont calibrer l'espace et un autre sur lequel on va prédire le target : 
+
+```{r}
+data_users<-data_without_target[-calib,]# data sur lequel on fait la prévision
+  print(data_users)
+
+  data_target<-data_without_target[calib,]#data sur lequel on effectue la calibration
+  print(data_target)
+```
+
+ 
+Utilisons la fonction wordfish pour trouver les betas (poids) des mots sur l'ensemble des individus dont on connait la target, donc eux qui calibrent (ici les politiciens):
+```{r}
+  
+###### trouvons les beta à fixer
+  
+  t_data_target<-t(data_target) #on transpose pour faire le wordfish et avoir un FDM
+  t_data_target<-as.data.frame(t_data_target)# on le remets en data frame 
+  words<-rownames(t_data_target) # les mots sont les noms des lignes
+  
+  wf_out <- wordfish(t_data_target, fixtwo = FALSE, dir = c(1, 2), wordsincol = FALSE, tol = 1e-04)# on fait la fonction 
+  omega <- wf_out$documents[, "omega"]# les omégas sont les positions estimé des individus
+  print(omega)
+  beta <- wf_out$words[, "b"]# les betas sont les poids des mots
+  psi <- wf_out$words[, "psi"]# les psi sont les effets des mots (pas interessant dans notre cas)
+  print(psi)
+```
+
+Maintenant créons un data frame avec les mots et leurs poids associés :
+```{r}
+### associer les mots et leurs poids respectifs  
+  
+  word_df <- data.frame(words,beta)
+  print(word_df)
+```
+
+Fixons maintenant les poids et calculons les positions (oméga) sur le deuxième data composé uniquement des individus dont on veut prédire la target.
+Pour cela on va refaire le wordfish sur le data avec le bétas fixé (la fonction est modifié de sorte que les bétas ne soit pas recalculés et prennent en entrée le vecteur poids).
+```{r}
+#### fixer les poids
+  t_data_users<-t(data_users)#on transpose pour pouvoir assembler les data
+  t_data_users<-as.data.frame(t_data_users)
+  
+  #on les assemble aux mots
+  
+  t_data_users[,"weight"]<-word_df[,2]#on ajoute les poids dasn le data
+  t_data_users[,"words"]<-word_df[,1]# on ajoute les mots dans le data
+  wordcountdata_users_weighted <- t_data_users
+  
+  L <- dim(wordcountdata_users_weighted)[2] # nombre de colonnes
+  
+  words_weighted    <- wordcountdata_users_weighted[,L] #les mots
+  TM_users_weighted <- wordcountdata_users_weighted[,1:(L-2)]#les occurences
+  beta_weighted     <- wordcountdata_users_weighted[,L-1]#les betas
+```
+
+
+On peut faire le wordfish sur ce data : 
+```{r}
+#on refait le wordfish avec les betas fixés
+
+  sum(rowSums(TM_users_weighted > 0) == 0)
+  sum(colSums(TM_users_weighted > 0) == 0)
+  dim(TM_users_weighted)
+  
+    wf2_out <- wordfish2(beta_weighted,TM_users_weighted,fixtwo=FALSE,dir=c(1,2),wordsincol=FALSE,tol=1e-4)
+    
+
+
+    beta    <- beta_weighted
+    print(beta)
+    opinions  <- wf2_out$documents[,'omega']
+  
+```
+
+On peut faire un tableau avec les opinions prédit des utilisateurs ainsi que les poids des mots associés:
+
+```{r}
+   words_weighted_df<-data.frame(words_weighted,beta_weighted)#data avec les mots et leurs poids
+    print(words_weighted_df)
+  
+    opinions_df<-data.frame(rownames(data_users),opinions)# data avec les utilisateurs et leurs target prédites
+    return(opinions_df)
+
+}
+
+```
+
+On peut maintenant essayer cette fonction sur notre data fixure : 
+```{r}
+calib<-c(1,2,3)
+ID<-"ID"
+
+
+DLA(data, "ID", c(1,2,3),ngram=2, 
+    wordsinrow=FALSE, 
+    docincol = FALSE
+)
+
+```
+
+    
+   
+
+### __**Validation<a class="anchor" id="Validation"></a>**__
+
+Maintenant que nous avons la target prédite nous voulons la comparer au résultat réel pour valider nos calculs.
+Pour cela nous allons calculer la corrélation de Pearson et la moyenne des écarts relatifs:
+
+```{r}
+function(input_1,input_2){
+  
+    data_estimation<-input_1# data des utilisateurs et leurs prédictions
+    data_vpl<-input_2#data des utilisateurs et leur veritable variable
+    
+    library(corrplot)
+    coeff_corr<-cor(data_estimation,data_vpl,method=c("Pearson"))#corr"lation de pearson
+    
+    for(i in 1:nrow(data_estimation)){
+      mat_ecart_relatif[i,1]<-(data_vpl[i,1] - data_estimation[i,1])/data_vpl[i,1]
+      
+    }#calcul des écarts relatifs
+  
+    
+    average_efficiency<-colSums(mat_ecart_relatif[,1])/nrow(mat_ecart_relatif)#moyenne des ecarts relatifs
+    
+}
+
+```
+
+
+
+
+

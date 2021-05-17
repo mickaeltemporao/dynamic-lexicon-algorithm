@@ -1,7 +1,7 @@
 #### Affecter filtre pour enlever les candidats ou users pas significatif (autre fonction)
 
 DLA <- function (
-  input,  # a data.frame
+  input,  # a data.frame avec lignes/user et col/text
   ID, 
   calib, 
   ngram=2, 
@@ -85,7 +85,7 @@ DLA <- function (
     print(words_weighted_df)
     #opinions_df<-data.frame(rownames(data_users)[0],opinions)
     opinions_df<-data.frame(rownames(data_users),opinions)
-    return(opinions_df)
+    return(list(opinions_df,words_weighted_df))
 
 }
 
