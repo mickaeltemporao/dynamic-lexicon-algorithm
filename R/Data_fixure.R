@@ -1,3 +1,5 @@
+
+
 library(quanteda)
 
 #On crée un data avec les politiciens, ici on prends des mots des présidents américains lors de leurs discours
@@ -51,7 +53,7 @@ else{data[i,dim(data)[2]]=0}
 
 data[,dim(data)[2]]
 
-colnames(data)[2] <- "ID"
+colnames(data)[dim(data)[2]] <- "ID"
 
 
 class(colnames(data))

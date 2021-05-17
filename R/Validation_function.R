@@ -14,6 +14,8 @@ Validation<-function(input_1,input_2){
     
     average_efficiency<-colSums(mat_ecart_relatif[,1])/nrow(mat_ecart_relatif)
     
-}
+    return(list(average_efficiency,coeff_corr))
+    
+  }
 
 

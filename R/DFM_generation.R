@@ -8,6 +8,22 @@ Tweet<-subset(Tweet, select = c("user_id","text"))#on garde que les tweets des u
 
 
 
+DFM_test<-dfm_generation(Tweet,2,1,"fr") # on crée le DFM avec notre fonction
+
+
+
+List_test<-DLA(DFM_test,"doc_id",c(1,2,45,78,234),ngram=2, wordsinrow=FALSE, docincol = FALSE)
+List_test[2]
+
+
+List_test2<-DLA(db,"ID",c(1,2,3),ngram=2, wordsinrow=FALSE, docincol = FALSE)
+
+List_test2[1]
+
+
+
+
+
 dfm_generation<-function(
   input, #2 col (text & users )
   text,  #numéro de colonne ou il y a le text
@@ -63,10 +79,10 @@ dfstop<- dfm_trim(dfstop, min_termfreq = 5)
 DFM <- dfm_group(dfstop, groups = Tweet$user_id)
 DFM<-as.data.frame(DFM)
 
+
+
 cat("Finished \n")
 
-return(list(DFM = DFM))
+ return(DFM)
 }
 
-dfm_generation(Tweet,2,1,"fr")
-DFM
