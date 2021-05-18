@@ -60,7 +60,7 @@ class(colnames(data))
 dfm_fixure<-data# data finale
 
 
-saveRDS(dfm_fixure,"data/data_fixure.rds", row.names = TRUE)
+saveRDS(dfm_fixure,"data/data_fixure.rds")
 
 
 
@@ -72,10 +72,10 @@ for(i in 1:dim(df_validation)[1]){
   df_validation[i,2]<-rnorm(1, mean=0.4, sd=3)
 }
 
-saveRDS(df_validation,"data/df_validation.rds", row.names = TRUE)
+saveRDS(df_validation,"data/df_validation.rds")
 
 return(list(dfm_fixure=dfm_fixure,df_validation=df_validation))
 
 }
 
-make_data_fixure(1000)
+
