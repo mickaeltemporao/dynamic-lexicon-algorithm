@@ -1,6 +1,6 @@
-#### Affecter filtre pour enlever les candidats ou users pas significatif (autre fonction)
 
-DLA <- function (
+
+Estimate_prediction<- function (
   input,  # a data.frame avec lignes/user et col/text
   ID, 
   calib, 
@@ -105,7 +105,6 @@ DLA <- function (
   
   #on refait le wordfish avec les betas fixés
   
-
   
   sum(rowSums(TM_users_weighted > 0) == 0)
   sum(colSums(TM_users_weighted > 0) == 0)
