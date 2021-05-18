@@ -1,0 +1,377 @@
+library(tidyverse)
+library(treemap)
+ 
+worddf <- word_df %>% arrange(desc(abs(beta)))
+worddf1<-worddf[1:50,]
+
+
+ 
+treemap(worddf1,index="words",vSize="beta1",vColor="beta1",type="value")                           
+library(plotly)
+install.packages("wordcloud")
+library("wordcloud")
+wordcloud::wordcloud(worddf$words,
+                     worddf$beta1, min.freq = 1)
+## heatmap
+ggplot(worddf,)
+
+#combinaison
+#heat
+#line correlation maximise en diminuant nombre de mot
+#on diminue 
+#regarder tout les checks necessaires (politiciens min 3 followers etc..)
+#creer fonction comme sur le tableu (entrée data set de user et mots sortie poids des mots pour estimer son idéologie)
+#Dans fonction wordfish simple 
+#pas besoin du for sur tout kes parametres
+
+
+
+###########Check à faire avant fonction ########
+#filtre sur le vecteur calib a faire : enlever les candidats dont les tweets n'incluent pas 5% dess termes politique 
+# du word count utiiser par twitter REST AOI
+
+#filtre ceux qui ont moins de trois politiciens dans l'échantillon
+
+# User options
+ # a user needs to tweet enough (example : 20 or 10)
+ # a word needs to belong to enough users (example: 4 or 3)
+# Candidates options
+ # a user needs to tweet enough (example : 25 or 15)
+ # a word needs to belong to enough users (example : 5 or 3)
+ # suppress unengaged politicians
+#users doivent au mois utiliser les bigram du data sinon valeurs absentes
+#compter le nombre de users avec valeurs absentes
+
+###########################################################
+
+
+  
+##################Essai wordfish###########
+
+### wordfish avec un dfm choisi de l'algo de Micka
+
+#essai avec une seul tm, ici tm_party, 2gram, quebec
+param<-subset(param_iter, ngram=="2gram" & elections=="2014-can-quebec"&in_min_docs_users=="10"&wf_modes=="wf" )
+
+for (i in 1){
+  message("Starting with options")
+  election          <- param[i,][['elections']]
+  wf_mode           <- param[i,][['wf_modes']]
+  user_mode         <- param[i,][['user_modes']]
+  ngram             <- param[i,][['ngram']]
+  chosen_dim        <- ""    # put at '' (allow debug with corresp. analysis)
+  
+  # User options
+  min_words_users   <- param[i,][['min_words_users']] # a user needs to tweet enough (example : 20 or 10)
+  in_min_docs_users <- param[i,][['in_min_docs_users']] # a word needs to belong to enough users (example: 4 or 3)
+  # Candidates options
+  min_words_party   <- param[i,][['min_words_party']] # a user needs to tweet enough (example : 25 or 15)
+  in_min_docs_party <- param[i,][['in_min_docs_party']] # a word needs to belong to enough users (example : 5 or 3)
+  suppress_other    <- T       # suppress unengaged politicians
+  
+  # Input files
+  input_path = "../data/raw/text/"
+  TM_file_users <- paste0(input_path, election, "/TM", ngram, ".csv")
+  TM_file_party <- paste0(input_path, election, "/politicians_TM", ngram, ".csv")
+  tw_users_file <- paste0(input_path, election, "/link.csv")
+  tw_party_file <- paste0(input_path, election, "/politicians_link.csv")
+  file_init     <- paste0(input_path, election, "/politicians_init.csv")
+  
+  ## Output files
+  if (param[i,][['params']] == "desc") {
+    path               <- paste0("../data/ideologies/", election, "/")
+    detail_path        <- paste0(path,'details/')
+    date               <- format(Sys.time(), "%Y-%m-%d_%I-%p")
+    global_name        <- paste0("text", "_", wf_mode, chosen_dim, "_",
+                                 ngram, "_", user_mode)
+    
+    tweeters_file      <- paste0(path, global_name, ".csv") # main file
+    parameters_file    <- paste0(detail_path, date, "_", global_name, "_parameters.csv")
+    words_file         <- paste0(detail_path, date, "_", global_name, "_words.csv")
+    tweeters_file_test <- paste0(detail_path, date, "_", global_name, ".csv")
+  }
+  ## Output files
+  if (param[i,][['params']] == "ml") {
+    path               <- paste0("../data/machine_learning/ideologies/", election, "/")
+    detail_path        <- paste0(path,'details/')
+    date               <- format(Sys.time(), "%Y-%m-%d_%I-%p")
+    global_name        <- paste0("text", "_", wf_mode, chosen_dim, "_",
+                                 ngram, "_", user_mode)
+    
+    tweeters_file      <- paste0(path, global_name, ".csv") # main file
+    parameters_file    <- paste0(detail_path, date, "_", global_name, "_parameters.csv")
+    words_file         <- paste0(detail_path, date, "_", global_name, "_words.csv")
+    tweeters_file_test <- paste0(detail_path, date, "_", global_name, ".csv")
+  }
+}
+
+  
+### Decide which file to load Loading parameters
+if (user_mode == "politicians") {
+  include_users <- F  # load user file
+  include_party <- T  # load party file
+} else if (user_mode == "users") {
+  include_users <- T  # load user file
+  include_party <- (wf_mode == "wgt" || wf_mode == "wgt2")
+}
+mix_tm <- F  # mix the two tm matrices (not used any more, set to False)
+
+##### 1- Filter USER DATA
+if (include_users && wf_mode != "wgt" && wf_mode != "wgt2") {
+  # Load tables
+  wordcountdata_users <- as.data.frame(data.table::fread(TM_file_users),  stringsAsFactors = FALSE)
+  tweeters_users <- read.csv(tw_users_file, stringsAsFactors = FALSE)
+  
+  # Extract specific columns
+  tweeters_users <- tweeters_users[, "Twitter_ID"]
+  words_users <- wordcountdata_users[, 1]
+  TM_users <- wordcountdata_users[, -1]
+  npol_users <- ncol(TM_users)
+  
+  # Check that initialization works
+  if (npol_users != length(tweeters_users)) {
+    stop("Dimension problem of users input files")
+  }
+  
+  
+  # a) Keep words that appear in enough users documents
+  kept_words_users <- (rowSums(TM_users > 0) > in_min_docs_users)
+  TM_users <- TM_users[kept_words_users, ]
+  words_users <- words_users[kept_words_users]
+  
+  # b) Keep users with enough specific words
+  kept_tweeters_users <- (colSums(TM_users) > min_words_users)
+  TM_users <- TM_users[, kept_tweeters_users]
+  tweeters_users <- tweeters_users[kept_tweeters_users]
+  
+  
+}
+
+### 2- Filter PARTY DATA
+if (include_party) {
+  # Load tables
+  wordcountdata_party <- as.data.frame(data.table::fread(TM_file_party), stringsAsFactors = FALSE)
+  tweeters_party <- read.csv(tw_party_file, stringsAsFactors = FALSE)
+  
+  # Extract specific columns
+  tweeters_party <- tweeters_party[, "Twitter_ID"]
+  words_party <- wordcountdata_party[, 1]
+  TM_party <- wordcountdata_party[, -1]
+  npol_party <- ncol(TM_party)
+  
+  # Check that initialization works
+  if (npol_party != length(tweeters_party)) {
+    stop("Dimension problem of parties input files")
+  }
+  
+  # Keep only parties with specific position in init
+  if (suppress_other) {
+    df_init <- read.csv(file_init, stringsAsFactors = FALSE)
+    engaged_parties <- tweeters_party %in% df_init$key
+    TM_party <- TM_party[, engaged_parties]
+    tweeters_party <- tweeters_party[engaged_parties]
+  }
+  
+  # a) Keep words that appear in enough party documents
+  kept_words_party <- (rowSums(TM_party > 0) > in_min_docs_party)
+  TM_party <- TM_party[kept_words_party, ]
+  words_party <- words_party[kept_words_party]
+  
+  # b) Keep parties with enough specific words
+  kept_tweeters_party <- (colSums(TM_party) > min_words_party)
+  TM_party <- TM_party[, kept_tweeters_party]
+  tweeters_party <- tweeters_party[kept_tweeters_party]
+  
+}
+
+
+### 3 - Choose between (Users, Parties or Users,Parties)
+if (mix_tm) {
+  mix_list <- mix.TM(TM_users, TM_party, words_users, words_party)
+  tweeters <- c(tweeters_users, tweeters_party)
+  words <- mix_list$words
+  TM <- mix_list$TM
+  in_min_docs <- c(in_min_docs_users, in_min_docs_party)
+  min_words_per_tweeter <- c(min_words_party, min_words_party)
+} else if (user_mode == "politicians" || (wf_mode == "wgt" || wf_mode == "wgt2")) {
+  tweeters <- tweeters_party
+  words <- words_party
+  TM <- TM_party
+  in_min_docs <- in_min_docs_party
+  min_words_per_tweeter <- min_words_party
+} else if (user_mode == "users") {
+  tweeters <- tweeters_users
+  words <- words_users
+  TM <- TM_users
+  in_min_docs <- in_min_docs_users
+  min_words_per_tweeter <- min_words_users
+} else {
+  stop("Include at least users or parties")
+}
+
+# Raise in_min_doc_users if these values are non-zeros
+sum(rowSums(TM > 0) == 0)
+sum(colSums(TM > 0) == 0)
+dim(TM)
+
+
+# Run Wordifsh -----------------------------------------------------------------
+if (wf_mode == "wf" || (wf_mode == "wgt" || wf_mode == "wgt2")) {
+  
+  wf_out <- wordfish(TM, fixtwo = FALSE, dir = c(1, 2), wordsincol = FALSE, tol = 1e-04)
+  omega <- wf_out$documents[, "omega"]
+  beta <- wf_out$words[, "b"]
+  psi <- wf_out$words[, "psi"]
+  
+} else if (wf_mode == "ca") {
+  TM_mat <- as.matrix(TM)
+  res <- ca::ca(TM_mat)
+  res_users <- data.frame(res$colcoord[, chosen_dim])
+  omega <- res_users[, 1]
+  
+} else {
+  stop("Problem with wf_mode")
+}
+
+# Handle users weight using politicians information
+if(user_mode == 'users' && (wf_mode == 'wgt' || wf_mode == 'wgt2') ){
+  
+  wordcountdata_users<- as.data.frame(data.table::fread(TM_file_users),stringsAsFactors=FALSE)
+  tweeters_users     <-read.csv(tw_users_file, stringsAsFactors=FALSE)
+  
+  # 1) Create word-weight dataframe
+  word_df <- data.frame(words,beta)
+  
+  # 2) Associate weights to words
+  wordcountdata_users_weighted <- merge(wordcountdata_users,word_df,by.x = "V1",by.y = "words")
+  L <- dim(wordcountdata_users_weighted)[2]
+  words_weighted    <- wordcountdata_users_weighted[,1]
+  TM_users_weighted <- wordcountdata_users_weighted[,2:(L-1)]
+  beta_weighted     <- wordcountdata_users_weighted[,L]
+  
+  # 3) Suppress columns with zeros
+  non_zero_idx <- (colSums(TM_users_weighted != 0) > min_words_users)
+  TM_users_weighted <- TM_users_weighted[, non_zero_idx]
+  tweeters_users_weighted <- tweeters_users[,'Twitter_ID']
+  tweeters_users_weighted <- tweeters_users_weighted[non_zero_idx]
+  
+  # 3bis) Suppress lines with zeros
+  kept_words_users_weighted <- (rowSums(TM_users_weighted > 0) > 0)
+  TM_users_weighted <- TM_users_weighted[kept_words_users_weighted,]
+  words_weighted     <- words_weighted[kept_words_users_weighted]
+  beta_weighted      <- beta_weighted[kept_words_users_weighted]
+  
+  
+  # 4) Compute opinion for each user
+  if(wf_mode == 'wgt'){
+    opinions <- (t(as.matrix(beta_weighted)) %*% as.matrix(TM_users_weighted))
+    opinions <- opinions[1,] / as.matrix(colSums(TM_users_weighted))
+    opinions <- as.numeric(opinions)
+  }else if(wf_mode == 'wgt2'){
+    sum(rowSums(TM_users_weighted > 0) == 0)
+    sum(colSums(TM_users_weighted > 0) == 0)
+    dim(TM)
+    wf2_out <- wordfish2(beta_weighted,TM_users_weighted,fixtwo=FALSE,dir=c(1,2),wordsincol=FALSE,tol=1e-4)
+    opinions  <- wf2_out$documents[,'omega']
+  }
+  
+  # 5) Adapt names to save convention
+  tweeters <- tweeters_users_weighted
+  omega    <- opinions
+  words    <- words_weighted
+  beta     <- beta_weighted
+  
+  # 6) Define a TM matrix
+  TM <- TM_users_weighted
+  
+}
+
+########
+###############################
+# on essai avec le dfm choisi dans les dossiers
+
+setwd("C:/Users/fredo/OneDrive/Documents/Stage/CNRS/Stage/Code")
+w<-read.csv2('DLM.csv') #on a choisi politique desc quebec donc politicians tm2gram
+z<-read.csv2('DLM2.csv') # 
+y<-read.csv2('DLM3.csv')
+
+
+
+w <- as.data.frame(w, stringsAsFactors = FALSE)
+z<- as.data.frame(z, stringsAsFactors = FALSE)
+y<- as.data.frame(y, stringsAsFactors = FALSE)
+### 2- Filter PARTY DATA
+  
+  # Extract specific columns
+  tweeters_party <- z[, "Twitter_ID"]
+  words_party <- w[, 1]
+  w <- w[, -1]
+  npol_party <- ncol(w)
+  
+  # Check that initialization works
+  if (npol_party != length(tweeters_party)) {
+    stop("Dimension problem of parties input files")
+  }
+  
+  # Keep only parties with specific position in init
+
+  
+    engaged_parties <- tweeters_party %in% y$ï..key
+    w <- w[, engaged_parties]
+    tweeters_party <- tweeters_party[engaged_parties]
+  
+  
+  # a) Keep words that appear in enough party documents
+  kept_words_party <- (rowSums(w > 0) > in_min_docs_party)
+  w <- w[kept_words_party, ]
+  words_party <- words_party[kept_words_party]
+  
+  # b) Keep parties with enough specific words
+  kept_tweeters_party <- (colSums(w) > min_words_party)
+  w <- w[, kept_tweeters_party]
+  tweeters_party <- tweeters_party[kept_tweeters_party]
+  
+
+  sum(rowSums(w > 0) == 0)
+  sum(colSums(w > 0) == 0)
+  dim(w)
+  w
+
+
+x <- wordfish(w, fixtwo = FALSE, dir = c(1, 2), wordsincol = FALSE, tol = 1e-04)
+dim(w)
+x$words
+dim(x$words)
+x$documents
+words
+beta<-x$words[,"b"]
+t<-data.frame(words,beta)
+#t egale a worddf donc ok
+
+################################################
+
+
+library(quanteda)
+library(quanteda.textstats)
+
+options(width = 110)
+toks_inaug <- tokens(data_corpus_inaugural, remove_punct = TRUE)
+dfmat_inaug <- dfm(toks_inaug)
+dfmat<-as.matrix(dfmat_inaug)
+dfmat<-t(dfmat)
+dfmat
+dim(dfmat)
+
+x1 <- wordfish(dfmat, fixtwo = FALSE, dir = c(1, 2), wordsincol = FALSE, tol = 1e-04)
+x1$words
+beta1<-x1$words[,"b"]
+t1<-data.frame(rownames(x1$words),beta1)
+
+############################################
+### wordfish sur l'extrait (politicians)
+
+## on fixe les betas trouvés et on fait wordfish avec beta fixés sur les users - les polititiciens
+
+####on a les beta 
+
+# on fait la corrélation

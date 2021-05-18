@@ -1,15 +1,18 @@
-Package: dla
-Title: What the Package Does (One Line, Title Case)
+Package: DLA
+Title: Dynamical-Lexicon-Approach
 Version: 0.0.0.9000
-Authors@R:
-    person(given = "Mickael",
-           family = "Temporão",
-           role = c("aut", "cre"),
-           email = "m.temporao@sciencespobordeaux.fr",
-           comment = c(ORCID = "0000-0003-4689-2852"))
+Authors@R: c(person("Mickael", "Temporão", role = c("aut", "cre"),
+                     email = "m.temporao@sciencespobordeaux.fr"),
+              person("Louis", "Fredon", role =c("aut", "cre"),
+              email = "louis.fredon@etu.u-bordeaux.fr"))
+Author: Mickael Temporão [aut, cre],
+  Louis Fredon [aut, cre]
+Maintainer: Mickael Temporão <m.temporao@sciencespobordeaux.fr>
 Description: What the package does (one paragraph).
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
+
+                
