@@ -1,26 +1,23 @@
-###### POUR L'ESSAI
-
-setwd("C:/Users/fredo/OneDrive/Documents/Stage/CNRS/Stage/Code")
-
-Tweet<-read.csv('Ex_Tweets.csv',encoding = 'UTF-8')#on charge le csv des tweets
-
-Tweet<-subset(Tweet, select = c("user_id","text"))#on garde que les tweets des user et leurs id
 
 
-
-DFM_test<-dfm_generation(Tweet,2,1,"fr") # on crée le DFM avec notre fonction
-
-
-
-List_test<-DLA(DFM_test,"doc_id",c(1,2,45,78,234),ngram=2, wordsinrow=FALSE, docincol = FALSE)
-List_test[2]
-
-
-List_test2<-DLA(db,"ID",c(1,2,3),ngram=2, wordsinrow=FALSE, docincol = FALSE)
-
-List_test2[1]
-
-
+#'  dfm_generation
+#'
+#'  Création d'une Documents-Features-Matrix à partir d'un data frame de 
+#'  texte et d'users
+#'
+#' @param input un data frame avec au moins une colonne représentant l'ID 
+#' de l'user et une colonne représentant le text/Tweet
+#' @param text le numéro de la colonne du text/Tweet
+#' @param doc le  numéro de la colonne ID
+#' @param lg le language des Tweets (une suele langue)
+#'
+#' @return la fonction renvoie le dfm
+#' @import dplyr
+#' @import quanteda
+#' @export
+#' @examples
+#' 
+#' 
 
 
 
@@ -31,15 +28,8 @@ dfm_generation<-function(
   lg  # "en", "fr" etc..
   ){
   
-library(quanteda)
-library(dplyr)
 
 
-
-#stemming
-  #stopwords option
-  #as.numeric(Sys.time()-start)
-  #sys.time()
 
 
 
