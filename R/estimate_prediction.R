@@ -1,5 +1,19 @@
 
 
+#' Estimate and predict
+#'
+#' @param input 
+#' @param ID 
+#' @param calib 
+#' @param ngram 
+#' @param wordsinrow 
+#' @param docincol 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+
 Estimate_prediction<- function (
   input,  # a data.frame avec lignes/user et col/text
   ID, 

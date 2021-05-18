@@ -1,7 +1,16 @@
 
+#' Make a Data fixure 
+#'
+#' @param nb_users 
+#'
+#' @return
+#' @import quanteda
+#' @export
+#'
+#' @examples
 make_data_fixure<-function(nb_users){
 
-library(quanteda)
+
 
 ########## Creation du DFM  
   

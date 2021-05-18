@@ -1,3 +1,13 @@
+#' Title
+#'
+#' @param input_1 
+#' @param input_2 
+#'
+#' @return
+#' @import corrplot
+#' @export
+#'
+#' @examples
 Validation<-function(input_1,input_2){
   
     data_estimation<-input_1
@@ -17,5 +27,4 @@ Validation<-function(input_1,input_2){
     return(list(average_efficiency,coeff_corr))
     
   }
-
 
