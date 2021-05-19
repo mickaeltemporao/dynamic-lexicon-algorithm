@@ -15,7 +15,6 @@
 #' @import dplyr
 #' @import quanteda
 #' @export
-#' @examples
 #' 
 #' 
 

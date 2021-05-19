@@ -10,6 +10,7 @@
 #' @param docincol 
 #'
 #' @return
+#' @import dplyr
 #' @export
 #'
 #' @examples
