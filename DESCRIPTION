@@ -8,7 +8,6 @@ Authors@R: c(person("Mickael", "Temporão", role = c("aut", "cre"),
 Author: Mickael Temporão [aut, cre],
   Louis Fredon [aut, cre]
 Maintainer: Mickael Temporão <m.temporao@sciencespobordeaux.fr>
-Louis Fredon <louis.fredon@etu.u-bordeaux.fr>
 Description: What the package does (one paragraph).
 License: GPL (>= 3)
 Encoding: UTF-8
