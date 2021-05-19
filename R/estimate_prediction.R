@@ -1,6 +1,8 @@
 
 
-#' Estimate and predict
+#' Estimate and predict function
+#' 
+#' Give de estimation of the target with calculcing the weight of words
 #'
 #' @param input 
 #' @param ID 

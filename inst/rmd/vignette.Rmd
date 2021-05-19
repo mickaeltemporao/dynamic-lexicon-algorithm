@@ -390,7 +390,7 @@ Nous avons en sorti un tableau de poids associés aux mots.
 ### __**Data Fixure<a class="anchor" id="Data Fixure"></a>**__
 
 
-Maintenant nous allons créer une fonction qui va générer un DFM qui va nous servir comme base initiale pour vérifier nos résuktats prochainement.
+Maintenant nous allons créer une fonction qui va générer un DFM qui va nous servir comme base initiale pour vérifier nos résultats prochainement.
 
 Nous prenons les mots des discours des présidents américains depuis 2011, soit trois présidents :
 

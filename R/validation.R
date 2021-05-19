@@ -1,4 +1,6 @@
-#' Title
+#' Validation functioon
+#' 
+#' 
 #'
 #' @param input_1 
 #' @param input_2 
