@@ -14,6 +14,11 @@
 #' @export
 #'
 #' @examples
+#' source("data/Ex_Tweets.csv")
+#' Tweet<-read.csv('Ex_Tweets.csv',encoding = 'UTF-8')
+#' Tweet<-subset(Tweet, select = c("user_id","text"))
+#' DFM_test<-dfm_generation(Tweet,2,1,"fr")
+#' List_test<-Estimate_prediction(DFM_test,"user_id",c(1,2,3))
 
 Estimate_prediction<- function (
   input,  # a data.frame avec lignes/user et col/text

@@ -9,6 +9,8 @@
 #' @export
 #'
 #' @examples
+#' Data_test<-make_data_fixure(1000)
+#' 
 make_data_fixure<-function(nb_users){
 
 

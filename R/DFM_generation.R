@@ -11,10 +11,18 @@
 #' @param doc le  numéro de la colonne ID
 #' @param lg le language des Tweets (une suele langue)
 #'
+#' 
 #' @return la fonction renvoie le dfm
+#' 
 #' @import dplyr
 #' @import quanteda
+#' @example 
+#' source("data/Ex_Tweets.csv")
+#' Tweet<-read.csv('Ex_Tweets.csv',encoding = 'UTF-8')
+#' Tweet<-subset(Tweet, select = c("user_id","text"))
+#' DFM_test<-dfm_generation(Tweet,2,1,"fr")
 #' @export
+#'
 #' 
 #' 
 
