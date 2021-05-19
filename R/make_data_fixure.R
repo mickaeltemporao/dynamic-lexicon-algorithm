@@ -5,6 +5,7 @@
 #'
 #' @return
 #' @import quanteda
+#' @import dplyr
 #' @export
 #'
 #' @examples
@@ -86,5 +87,4 @@ saveRDS(df_validation,"data/df_validation.rds")
 return(list(dfm_fixure=dfm_fixure,df_validation=df_validation))
 
 }
-
 
