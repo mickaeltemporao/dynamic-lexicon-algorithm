@@ -10,7 +10,7 @@
 #' @export
 #'
 #' @examples
-Validation<-function(input_1,input_2){
+validation<-function(input_1,input_2){
   
     data_estimation<-input_1
     data_vpl<-input_2

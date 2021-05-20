@@ -40,3 +40,4 @@ vignettes/*.pdf
 
 # Ingore data folder
 data/
+inst/doc
