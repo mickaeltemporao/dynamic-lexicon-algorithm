@@ -19,5 +19,3 @@ Suggests:
     knitr
 VignetteBuilder: knitr
 Imports: quanteda,dplyr,corrplot
-
-                

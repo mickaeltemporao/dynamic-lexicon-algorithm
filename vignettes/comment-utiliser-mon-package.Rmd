@@ -1,5 +1,5 @@
 ---
-title: "comment-utiliser-mon-package"
+title: "Dynamical-Lexicon-Approach"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{comment-utiliser-mon-package}
@@ -7,6 +7,16 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(DLAbis)
+```
 
 ### Table des matières
 * [Data Fixure](# Data Fixure)
@@ -16,50 +26,64 @@ vignette: >
 * [Annexes](#Annexes)
 
 
-
-
-
-
-
 ### __**Data Fixure<a class="anchor" id="Data Fixure"></a>**__
 
+Nous allons créer une fonction qui va générer un DFM qui va nous servir comme base initiale pour vérifier nos résultats prochainement.
 
-Maintenant nous allons créer une fonction qui va générer un DFM qui va nous servir comme base initiale pour vérifier nos résultats prochainement.
-
-Nous prenons les mots des discours des présidents américains depuis 2011, soit trois présidents :
+Nous prenons les mots des discours des présidents américains depuis 2011, soit trois présidents (disponible dans le package quanteda) :
 
 ```{r}
 make_data_fixure<-function(nb_users){
-  
-library(quanteda)
-data_pol<-data_corpus_inaugural %>% corpus_subset(Year > 2011) %>%tokens()#on prends que depuis 2011
-data_pol<-dfm(data_pol)# on transforme en dfm
-data_pol<-dfm_keep(data_pol, min_nchar = 2)#on garde que les mots de plus de 2 lettres
-data_pol<-dfm_remove(data_pol, pattern = stopwords("en"))#on enleve les mots communs (ponctuation, et ..)
-data_pol<-as.data.frame(data_pol)#on le transforme en data frame
-rownames(data_pol)<-data_pol[,1]#on transforme la première colonne en nom des lignes
-data_pol<-data_pol[,-1]
+  library(quanteda)
+  library(dplyr)
 
+data_pol<-data_corpus_inaugural %>% corpus_subset(Year > 2011) %>%tokens()
+```
+Maintenant nous transformons en Dcouments-Features-Matrix:
 
+```{r}
+data_pol<-dfm(data_pol)
+```
+
+On applique maintenant les filtres que nous avons choisis pour la fonction de la génération du DFM, sur la longueur du mot :
+
+```{r}
+data_pol<-dfm_keep(data_pol, min_nchar = 2)
+```
+
+On enlève les "stopwords" donc les mots de ponctuation etc..
+
+```{r}
+data_pol<-dfm_remove(data_pol, pattern = stopwords("en"))
+```
+
+On le transforme en data frame pour les manipulations :
+
+```{r}
+data_pol<-as.data.frame(data_pol)
+```
+
+On transforme la première colonne en nom des lignes pour avoir en nom de ligne les ids et en nom de colonnes les documents :
+
+```{r}
+rownames(data_pol)<-data_pol[,1]
 ```
 
 
-
-Maintenant que nous avons crée un data avec les politiciens, nous allons créer aléatoirement des users et des occurences des mots utilisés par ces utilisateurs :
+Maintenant que nous avons crée un data avec les politiciens, nous allons créer aléatoirement (suivant une loi normale) des users et des occurences des mots utilisés par ces utilisateurs :
 
 ```{r}
-a<-c((1:nb_users)) # colonnes des users et leurs noms
+a<-c((1:nb_users)) 
 
+b<-abs(c(rnorm(nb_users, mean=0.4, sd=3)))
+b<-round(b)
 
-b<-abs(c(rnorm(nb_users, mean=0.4, sd=3))) # occurences qui suit une loi normal
-b<-round(b)# on met en valeurs entières
-
-data_users<-data.frame(a,b)# on  transforme en data frame 
+data_users<-data.frame(a,b)
 data_users<-data_users[,-1]
 data_users<-as.data.frame(data_users)
 
 for(i in 2:dim(data_pol)[2]){
-  data_users[,i]<-round(abs(c(rnorm(nb_users, mean=0.4, sd=3)))) # on rajoute autant qu'il y a de mots
+  data_users[,i]<-round(abs(c(rnorm(nb_users, mean=0.4, sd=3))))
 }
 
 
@@ -68,8 +92,8 @@ for(i in 2:dim(data_pol)[2]){
 
 Maintenant nous pouvons fusionner les deux datas ( users et politiciens )
 ```{r}
-colnames(data_users)<-colnames(data_pol) # on mets les mêmes noms pour fusionner avec les datas des politiciens
-data<-rbind(data_pol, data_users)#fusion
+colnames(data_users)<-colnames(data_pol)
+data<-rbind(data_pol, data_users)
 ```
 
 Nous allons rajouter une colonne permettant de différencier les politicens des uitilisateurs lambdas, nous allons appeler cette colonne ID, si ID = 1 alors c'est un politiciens.
@@ -91,27 +115,32 @@ data[,dim(data)[2]]
 colnames(data)[dim(data)[2]] <- "ID"
 
 
-class(colnames(data))
-
-dfm_fixure<-data# data finale
-
-
-saveRDS(dfm_fixure,"data/data_fixure.rds")
-
-
 ```
 
-Créons mainteant le data prédiction :
+Nous avons donc maintenant notre data fixure finale que nous sauvegardons dans notre fichier data:
 
 ```{r}
-########### Creation du Data frame validation
+
+dfm_fixure<-data
+saveRDS(dfm_fixure,"data/data_fixure.rds")
+```
+
+
+Créons mainteant le data  fixure de prédiction, toujours aléatoirement et suivant une loi normale :
+
+```{r}
+
 
 df_validation<-data.frame(rownames(data_users))
 colnames(df_validation)<-'users_id'
 for(i in 1:dim(df_validation)[1]){
   df_validation[i,2]<-rnorm(1, mean=0.4, sd=3)
 }
+```
 
+On le sauvegarde dans le fichier data et on retourne ces deux data frame :
+
+```{r}
 saveRDS(df_validation,"data/df_validation.rds")
 
 return(list(dfm_fixure=dfm_fixure,df_validation=df_validation))
@@ -120,11 +149,14 @@ return(list(dfm_fixure=dfm_fixure,df_validation=df_validation))
 ```
 
 
+
+
 ### __**DFM genration process<a class="anchor" id="DFM genration process"></a>**__
 
 
-Nous allons maintenant créer une fonction qui va créer le Documents-Features-Matrix pour les fonctions suivantes. 
-Pour cela on suppose que l'utilisateur donne en entrée un data frame avec le texte et les documents ainsi que le numéro des colonnes des textes et colonnes.
+Nous allons maintenant créer une fonction qui va créer le Documents-Features-Matrix nous permettant de trouver un sous-espace de mots idéale pour la prédiction. 
+
+Pour cela on suppose que l'utilisateur donne en entrée un data frame avec au minimum une colonne ayant le texte et une colonne ayant les documents, ainsi que le numéro de la colonne où est le texte et le numéro de colonne où est les ids. L'utilisateur devra également rentrer la langue des tweets au format international (ex : fr, en ...)
 
 ```{r}
 dfm_generation<-function(
@@ -138,8 +170,7 @@ dfm_generation<-function(
 On va devoir créer un objet token pour decompter les mots dans le texte, on utilise la fonction du package quanteda :
 
 ```{r}
-library(quanteda)
-library(dplyr)
+
 tok<-tokens(input[,text], remove_punct = TRUE,remove_symbols=TRUE,remove_numbers=TRUE,remove_url=TRUE,remove_separators=TRUE)
 ```
 
@@ -147,23 +178,23 @@ tok<-tokens(input[,text], remove_punct = TRUE,remove_symbols=TRUE,remove_numbers
 Maintenant que nous avons l'objet tokens on va pouvoir créer un DFM toujours à l'aide la fonction du même package :
 
 ```{r}
-df<-dfm(tok)# On le convertit en dfm
+df<-dfm(tok)
 ```
 
+Pour définir un sous espace de mots qui est vraiment représentatif nous décidons de poser quelques filtres, notamment la longueur du mot qui doit être d'au moins 3 lettres :
 
-On enleve les mots inutiles (ex mots de liaisons ou autres): 
+```{r}
+dfstop<-dfm_keep(dfstop, min_nchar = 3)
+```
+
+On enleve les mots inutiles (ex: mots de liaisons ou autres): 
 
 ```{r}
 dfstop <- dfm_select(df, pattern = stopwords(lg), selection = "remove")
 ```
 
 
-On garde que les mots plus long que 3 lettres :
-```{r}
-dfstop<-dfm_keep(dfstop, min_nchar = 3)
-```
-
-On peut avec les focntion disponible dans ce package appliqué les filtres utils à la bonn analyse textuelle, notamment garder que les mots cités au moins 5 fois :
+On applique un filtre de fréquence, on garde que les mots cités au moins 5 fois :
 
 ```{r}
 dfstop<- dfm_trim(dfstop, min_termfreq = 5)
@@ -181,30 +212,14 @@ On le transforme en data frame pour l'analyse plus tard :
 DFM<-as.data.frame(DFM)
 ```
 
-et on clos la fonction :
+Et on clos la fonction et on retourne le DFM construit :
+
 ```{r}
 cat("Finished \n")
 
 return(DFM )
 }
 ```
-
-On aurait pu fusionner les identifiants comme ceci mais cela nécessite plus de temps:
-
-```{r}
-#df<-as.data.frame(dfstop) 
-#df<-df[,-1]#on enleve la colonne id
-#a<-Tweet$user_id
-#df[,1491]<-a
-#colnames(df)[1491]<-"user_id"
-
-#dfM<-aggregate(df[,1:1490], by=list(user_id=df$user_id), FUN=sum)
-```
-
-
-
-
-
 
 
 
@@ -235,19 +250,19 @@ DLA <- function (
 On va maintenant identifier et supprimer la colonne d'identification des utilisateurs :
 ```{r}
 data<- input
-  data_target_name<-data[,ID]#nom du target
+  data_target_name<-data[,ID]
  
-  data_without_target<-data[, !(colnames(data) %in% c(ID)), drop = FALSE]#on enleve la colonne nom du target du data
+  data_without_target<-data[, !(colnames(data) %in% c(ID)), drop = FALSE]
 ```
 
   
 On va maintenant séparer le data en deux datas, un qui comprend les individus qui vont calibrer l'espace et un autre sur lequel on va prédire le target : 
 
 ```{r}
-data_users<-data_without_target[-calib,]# data sur lequel on fait la prévision
+data_users<-data_without_target[-calib,]
 
 
-  data_target<-data_without_target[calib,]#data sur lequel on effectue la calibration
+  data_target<-data_without_target[calib,]
 
 ```
 
@@ -278,15 +293,25 @@ Utilisons la fonction wordfish pour trouver les betas (poids) des mots sur l'ens
   sum(colSums(t_data_target_without_zero > 0) == 0)
   dim(t_data_target_without_zero)
   
-  wf_out <- wordfish(t_data_target, fixtwo = FALSE, dir = c(1, 2), wordsincol = FALSE, tol = 1e-04)# on fait la fonction 
-  omega <- wf_out$documents[, "omega"]# les omégas sont les positions estimé des individus
-  print(omega)
-  beta <- wf_out$words[, "b"]# les betas sont les poids des mots
-  psi <- wf_out$words[, "psi"]# les psi sont les effets des mots (pas interessant dans notre cas)
-  print(psi)
+  wf_out <- wordfish(t_data_target, fixtwo = FALSE, dir = c(1, 2), wordsincol = FALSE, tol = 1e-04)
 ```
 
+On peut maintenant identifier les poids des mots estimés :
+
+```{r}
+  omega <- wf_out$documents[, "omega"]# les omégas sont les positions estimé des individus
+
+  beta <- wf_out$words[, "b"]# les betas sont les poids des mots
+  psi <- wf_out$words[, "psi"]# les psi sont les effets des mots (pas interessant dans notre cas)
+
+```
+
+
+
+
+
 Maintenant créons un data frame avec les mots et leurs poids associés :
+
 ```{r}
 ### associer les mots et leurs poids respectifs  
   
@@ -350,7 +375,7 @@ On peut faire le wordfish sur ce data :
 
 
     beta    <- beta_weighted
-    print(beta)
+
     opinions  <- wf2_out$documents[,'omega']
   
 ```
@@ -369,20 +394,7 @@ On peut faire un tableau avec les opinions prédit des utilisateurs ainsi que le
 
 ```
 
-On peut maintenant essayer cette fonction sur notre data fixure : 
-```{r}
-calib<-c(1,2,3)
-ID<-"ID"
 
-
-DLA(data, "ID", c(1,2,3),ngram=2, 
-    wordsinrow=FALSE, 
-    docincol = FALSE
-)
-
-```
-
-    
    
 
 ### __**Validation<a class="anchor" id="Validation"></a>**__
