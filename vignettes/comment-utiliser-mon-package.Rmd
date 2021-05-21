@@ -37,7 +37,7 @@ make_data_fixure<-function(nb_users){
   library(quanteda)
   library(dplyr)
 
-data_pol<-data_corpus_inaugural %>% corpus_subset(Year > 2011) %>%tokens()
+data_pol<-data_corpus_inaugural %>% corpus_subset(Year > 2011) %>% tokens()
 ```
 Maintenant nous transformons en Dcouments-Features-Matrix:
 
@@ -73,6 +73,7 @@ rownames(data_pol)<-data_pol[,1]
 Maintenant que nous avons crée un data avec les politiciens, nous allons créer aléatoirement (suivant une loi normale) des users et des occurences des mots utilisés par ces utilisateurs :
 
 ```{r}
+nb_users<-1000
 a<-c((1:nb_users)) 
 
 b<-abs(c(rnorm(nb_users, mean=0.4, sd=3)))
