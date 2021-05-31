@@ -83,6 +83,7 @@ use_weight<- function (
   print(words_weighted_df)
   #opinions_df<-data.frame(rownames(data_users)[0],opinions)
   opinions_df<-data.frame(users_kept1,opinions)
+  colnames(opinions_df)<-c("users","opinions")
   return(list(opinions_df=opinions_df,words_weighted_df=words_weighted_df))
 
 }

@@ -125,9 +125,11 @@ calibrate<- function (
   ### associer les mots et leurs poids respectifs
 
   word_df <- data.frame(words_kept,beta)
+  opini_df<-data.frame(rownames(data_target),opini)
+  colnames(opini_df)<-c("users","opinions")
   word_top<-word_df[sort(abs(word_df$beta),decreasing=T,index.return=T)[[2]],][1:6,]
   print(word_df)
-  return(list(word_df=word_df,data_users=data_users,word_top=word_top,words_kept=words_kept,opinions=opini))
+  return(list(word_df=word_df,data_users=data_users,word_top=word_top,words_kept=words_kept,opinions=opini_df))
   }
 
 }
