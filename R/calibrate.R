@@ -102,10 +102,12 @@ calibrate<- function (
   zero_word <- (rowSums(t_data_target>0) > 0)
 
   t_data_target_without_zero <- t_data_target[zero_word, ]
+
   words_kept <- words[zero_word]
 
   zero_docs <- (colSums(t_data_target_without_zero) > 0)
   t_data_target_without_zero <- t_data_target_without_zero[, zero_docs]
+  data_target_without_zero<-t(t_data_target_without_zero)
   target_kept <- target_name[zero_docs]
 
 
@@ -113,7 +115,7 @@ calibrate<- function (
   sum(colSums(t_data_target_without_zero > 0) == 0)
   dim(t_data_target_without_zero)
 
-  wf_out <- wordfish(t_data_target_without_zero, fixtwo = FALSE, dir = c(1, 2), wordsincol = FALSE, tol = 1e-04)
+  wf_out <- wordfish(t_data_target_without_zero, fixtwo = FALSE, dir = c(1, 2),  wordsincol = FALSE, tol = 1e-04)
 
   omega <- wf_out$documents[, "omega"]
   print(omega)
@@ -125,7 +127,7 @@ calibrate<- function (
   ### associer les mots et leurs poids respectifs
 
   word_df <- data.frame(words_kept,beta)
-  opini_df<-data.frame(rownames(data_target),opini)
+  opini_df<-data.frame(data_target_without_zero,opini)
   colnames(opini_df)<-c("users","opinions")
   word_top<-word_df[sort(abs(word_df$beta),decreasing=T,index.return=T)[[2]],][1:6,]
   print(word_df)
