@@ -14,16 +14,16 @@
 #' @examples
 use_weight<- function (
   input,  # a data.frame avec lignes/users et col/text
-  word,   # words kept calculating in the last function
+  words,   # words kept calculating in the last function
   df,     #word/weight data
   wordsinrow=FALSE,
   docincol = FALSE
 ){
 
 
-  data_users<-data_users
+  data_users<-input
   words_kept<-words
-  word_df<-word_df
+  word_df<-df
 
   #### fixer les poids
 
