@@ -133,6 +133,7 @@ calibrate<- function (
   colnames(opini_df)<-c("users","opinions")
   word_top<-word_df[sort(abs(word_df$beta),decreasing=T,index.return=T)[[2]],][1:6,]
   print(word_df)
+  data_users<-data_users[,words_kept]
   return(list(word_df=word_df,data_users=data_users,opinions=opini_df))
   }
 

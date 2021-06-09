@@ -30,7 +30,7 @@ use_weight<- function (
   t_data_users<-t(data_users)#on transpose pour pouvoir assembler les data
   t_data_users<-as.data.frame(t_data_users)
 
-  t_data_users_kept<-t_data_users[words_kept,]#on garde que les mots utilisés par les calibreurs
+  t_data_users_kept<-t_data_users#on garde que les mots utilisés par les calibreurs
   users_name<-colnames(t_data_users_kept)
 
   #On enlève ceux qui ont étés utilisées zéro fois par tout le monde
