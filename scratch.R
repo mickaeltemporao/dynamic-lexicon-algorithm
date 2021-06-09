@@ -38,7 +38,7 @@ TM2gram_test<-merge(TM2gram_bis,vpl, by.x="V20754", by.y="VPL_ID")
 #TM2gram_test <- subset(TM2gram_test,
 #                    !is.na(TM2gram_test$selfPlacementRaw))
 
-TM2gram_test<-TM2gram_test[1:2000,]
+TM2gram_test<-TM2gram_test[1:2000,]#Warnong : error optim complete.cases()
 
 #b<-TM2gram_test$selfPlacementRaw
 
