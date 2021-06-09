@@ -272,5 +272,11 @@ expand.grid(a,b)
 W<-data_fixure()
 dfm<-W[[1]]
 val<-W[[2]]
+remove(W)
 
-S<-algo_10(dfm,val,users_id,V2)
+S<-algo_10(dfm,val,"users_id")
+opinion_essai<-S[[1]]
+data_cor_essai<-S[[2]]
+g<-as.numeric(data_cor_essai[10,2:4])
+
+D<-calibrate(dfm,complet=T,g)

@@ -9,7 +9,6 @@
 #' @param input
 #' @param input2
 #' @param name_users
-#' @param name_val
 #'
 #' @return
 #' @export
@@ -20,14 +19,15 @@
 algo_10<- function (
     input,  # a dfm avec lignes/users et col/text
     input2,   # a df with users and target (df validation)
-    name_users,     # the name of col users in the df validation
-    name_val  # the name of col score in the df validation
+    name_users    # the name of col users in the df validation
+
   ){
 
 
 
 data<-input
 data_validation<-input2
+name_user<-name_users
 
 
 
@@ -42,7 +42,7 @@ remove(a)
 
 for (i in 1:10){
 
-  X1<-sample(nrow(data), size=round(0.01*(dim(data)[1])))
+  X1<-sample(nrow(data), size=round(0.03*(dim(data)[1])))
 
   for(j in 1:length(X1)){
     data_cor[i,j+1]<-X1[j]
@@ -74,11 +74,11 @@ for (i in 1:10){
 
   opinions_df_arrange<-arrange(opinions_df,users)
 
-  df_validation_arrange<-arrange(data_validation,name_users)
+  df_validation_arrange<-arrange(data_validation,name_user)
 
-  op_match<-merge(opinions_df_arrange,df_validation_arrange,by.x = "users",by.y = "name_users")
+  op_match<-merge(opinions_df_arrange,df_validation_arrange,by.x = "users",by.y = name_users)
 
-  validation_metrics<-cor(op_match$opinions,op_match$name_val)
+  validation_metrics<-cor(op_match$opinions,op_match[,3])
 
 
   data_cor[i,length(X1)+2]<-validation_metrics
