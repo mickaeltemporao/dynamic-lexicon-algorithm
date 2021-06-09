@@ -17,5 +17,4 @@ Make a Data fixure
 }
 \examples{
 Data_test<-make_data_fixure(1000)
-
 }

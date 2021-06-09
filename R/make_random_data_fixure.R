@@ -1,4 +1,4 @@
-#' Make a Data fixure
+#' Make a random Data fixure
 #'
 #' @param nb_users
 #'
@@ -8,7 +8,7 @@
 #' @examples
 #' Data_test<-make_data_fixure(1000)
 #' @export
-make_data_fixure<-function(nb_users){
+make_random_data_fixure<-function(nb_users){
 
 
 library(quanteda)
