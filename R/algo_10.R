@@ -1,6 +1,13 @@
 
 
-algo_10<-function(input,input2,name_users,name_val){
+
+
+  algo_10<- function (
+    input,  # a dfm avec lignes/users et col/text
+    input2,   # a df with users and target (df validation)
+    name_users,     # the name of col users in the df validation
+    name_val  # the name of col score in the df validation
+  ){
 
 
 
