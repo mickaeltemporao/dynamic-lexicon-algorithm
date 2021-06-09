@@ -105,7 +105,7 @@ calibrate<- function (
 
   words_kept <- words[zero_word]
 
-  zero_docs <- (colSums(t_data_target_without_zero) > 0)
+  zero_docs <- (colSums(t_data_target_without_zero>0) > 0)
   t_data_target_without_zero <- t_data_target_without_zero[, zero_docs]
   data_target_without_zero<-t(t_data_target_without_zero)
   target_kept <- target_name[zero_docs]
@@ -114,6 +114,7 @@ calibrate<- function (
   sum(rowSums(t_data_target_without_zero> 0) == 0)
   sum(colSums(t_data_target_without_zero > 0) == 0)
   dim(t_data_target_without_zero)
+
 
   wf_out <- wordfish(t_data_target_without_zero, fixtwo = FALSE, dir = c(1, 2),  wordsincol = FALSE, tol = 1e-04)
 
