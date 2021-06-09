@@ -38,7 +38,7 @@ data_cor<-data.frame(a)
 colnames(data_cor)[1]<-"numéro du sample"
 remove(a)
 
-library(DLA)
+
 
 for (i in 1:10){
 
