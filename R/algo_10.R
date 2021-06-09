@@ -29,7 +29,7 @@ algo_10<- function (
 data<-input
 data_validation<-input2
 
-data_without_na <- subset(data,!is.na(data))
+
 
 ###########Optimisation
 
@@ -42,7 +42,7 @@ remove(a)
 
 for (i in 1:10){
 
-  X1<-sample(nrow(data_without_na), size=round(0.01*(dim(data_without_na)[1])))
+  X1<-sample(nrow(data), size=round(0.01*(dim(data)[1])))
 
   for(j in 1:length(X1)){
     data_cor[i,j+1]<-X1[j]
@@ -50,7 +50,7 @@ for (i in 1:10){
   }
 
 
-  x<-calibrate(data_without_na,complet=T,X1)
+  x<-calibrate(data,complet=T,X1)
 
   data_users<-x[[2]]
   word_df<-x[[1]]

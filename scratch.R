@@ -269,4 +269,8 @@ b<-letters[1:5]
 expand.grid(a,b)
 
 
-DLA::
+W<-data_fixure()
+dfm<-W[[1]]
+val<-W[[2]]
+
+S<-algo_10(dfm,val,users_id,V2)
