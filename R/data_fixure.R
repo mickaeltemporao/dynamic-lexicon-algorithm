@@ -1,4 +1,10 @@
 
+#' Make the data fixure with the df validation
+#'
+#' @return
+#' @export
+#'
+#' @examples
 data_fixure<-function(){
 
 
