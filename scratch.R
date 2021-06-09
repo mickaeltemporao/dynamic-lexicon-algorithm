@@ -267,3 +267,5 @@ ggplot(data_cor, aes(y=users,x=opinions,color=opinions))+
 a<-1:10
 b<-letters[1:5]
 expand.grid(a,b)
+
+

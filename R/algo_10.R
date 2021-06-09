@@ -2,7 +2,22 @@
 
 
 
-  algo_10<- function (
+#' ALGO_10 function
+#'
+#' find the best sample for calibration
+#'
+#' @param input
+#' @param input2
+#' @param name_users
+#' @param name_val
+#'
+#' @return
+#' @export
+#'
+#' @examples
+
+
+algo_10<- function (
     input,  # a dfm avec lignes/users et col/text
     input2,   # a df with users and target (df validation)
     name_users,     # the name of col users in the df validation
