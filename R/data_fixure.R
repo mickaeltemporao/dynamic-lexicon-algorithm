@@ -2,9 +2,14 @@
 #' Make the data fixure with the df validation
 #'
 #' @return
+#' @import quanteda
+#' @import magrittr
 #' @export
 #'
 #' @examples
+#' W<-data_fixure()
+#' dfm<-W[[1]]
+#' val<-W[[2]]
 data_fixure<-function(){
 
 

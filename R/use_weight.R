@@ -2,16 +2,25 @@
 #'
 #' Prediction on the users
 #'
-#' @param input
-#' @param word
-#' @param df
-#' @param wordsinrow
-#' @param docincol
+#' @param input a data.frame with the users avec lignes/users et col/text
+#' @param word  words kept calculating in the calibrate function
+#' @param df word/weight data calculate in the calibrate function
+#' @param wordsinrow fix
+#' @param docincol fix
 #'
 #' @return
 #' @export
 #'
 #' @examples
+#' W<-data_fixure()
+#' dfm<-W[[1]]
+#' calibrate(dfm,complet=T,c(1,2,3))
+#'   data_users<-x[[2]]
+#'   word_df<-x[[1]]
+#'   opini_target<-x[[3]]
+#'  y<-use_weight(data_users,rownames(word_df),word_df)
+#'  opini_users<-y[[1]]
+#'  word_wei<-y[[2]]
 use_weight<- function (
   input,  # a data.frame avec lignes/users et col/text
   words,   # words kept calculating in the last function

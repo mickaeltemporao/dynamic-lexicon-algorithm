@@ -1,6 +1,6 @@
 #' Make a random Data fixure
 #'
-#' @param nb_users
+#' @param nb_users the numbers of users you want
 #'
 #' @return
 #' @import quanteda

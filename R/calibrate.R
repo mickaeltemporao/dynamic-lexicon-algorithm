@@ -2,13 +2,12 @@
 #'
 #' Calibrate the weight of words to applicate on the users
 #'
-#' @param input
-#' @param ID
-#' @param calib
-#' @param ngram
-#' @param wordsinrow
-#' @param docincol
-#' @param complet
+#' @param input the dfm
+#' @param calib the vector calib
+#' @param ngram fix
+#' @param wordsinrow fix
+#' @param docincol fix
+#' @param complet T or F if the dfm is complet
 #'
 #' @return
 #' @import dplyr
@@ -16,6 +15,9 @@
 #' @export
 #'
 #' @examples
+#' W<-data_fixure()
+#' dfm<-W[[1]]
+#' calibrate(dfm,complet=T,c(1,2,3))
 calibrate<- function (
   input,  # a data.frame avec lignes/users et col/text
   complet = T, #T ou F si T data avec calib et users

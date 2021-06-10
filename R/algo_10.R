@@ -1,20 +1,21 @@
-
-
-
-
 #' ALGO_10 function
 #'
 #' find the best sample for calibration
 #'
-#' @param input
-#' @param input2
-#' @param name_users
+#' @param input a dfm avec lignes/users et col/text
+#' @param input2 a df with users and target (df validation)
+#' @param name_users the name of col users in the df validation (in "")
 #'
 #' @return
+#' data frame with the validation score of the 10 sample vector calib and
 #' @export
 #'
 #' @examples
-
+#'W<-data_fixure()
+#'dfm<-W[[1]]
+#'val<-W[[2]]
+#'remove(W)
+#'S<-algo_10(dfm,val,"users_id")
 
 algo_10<- function (
     input,  # a dfm avec lignes/users et col/text
@@ -87,5 +88,5 @@ for (i in 1:10){
 }
 
 
-return(list(op_match=op_match,data_cor=data_cor))
+return(data_cor=data_cor)
 }
