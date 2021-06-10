@@ -69,7 +69,7 @@ data_fixure<-function(){
   dfm_fixure<-data# data finale
 
 
-  saveRDS(dfm_fixure,"data/dfm_fixure.rds")
+
 
 
 
@@ -90,7 +90,7 @@ data_fixure<-function(){
   }
 
 
-  saveRDS(df_validation,"data/df_validation.rds")
+
 
   return(list(dfm_fixure=dfm_fixure,df_validation=df_validation))
 
