@@ -85,7 +85,7 @@ for (i in 1:10){
   data_cor[i,length(X1)+2]<-validation_metrics
   colnames(data_cor)[length(X1)+2]<-"validation_score"
 
-  data_cor[i,length(X1)+3]<-x2y(op_match$opinions,op_match$`opinions calculees`)[2]
+  data_cor[i,length(X1)+3]<-x2y(op_match$opinions,op_match[,3])[2]
   colnames(data_cor)[length(X1)+3]<-"validation_score_x2y"
 
 }
