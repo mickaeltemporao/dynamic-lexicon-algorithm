@@ -275,11 +275,19 @@ val<-W[[2]]
 remove(W)
 
 S<-algo_10(dfm,val,"users_id")
-opinion_essai<-S[[1]]
-data_cor_essai<-S[[2]]
-g<-as.numeric(data_cor_essai[10,2:4])
+
+g<-as.numeric(S[4,2:4])
 
 D<-calibrate(dfm,complet=T,g)
-ealgo_10()
+
+data_users<-D[[2]]
+word_df<-D[[1]]
+opini_target<-D[[3]]
+
+
+y<-use_weight(data_users,rownames(word_df),word_df)
+opini_users<-y[[1]]
+word_wei<-y[[2]]
+
 example("algo_10")
 example("data_fixure")
