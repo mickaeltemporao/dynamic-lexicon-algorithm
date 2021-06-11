@@ -48,25 +48,26 @@ make_random_data_fixure<-function(nb_users){
 
 library(quanteda)
 library(magrittr)
-  ########## Creation du DFM
+########## Creation du DFM
 
 
-  #On crée un data avec les politiciens, ici on prends des mots des présidents américains lors de leurs discours
+#On crée un data avec les politiciens, ici on prends des mots des présidents américains lors de leurs discours
 
 data_pol<-data_corpus_inaugural %>% corpus_subset(Year > 2011) %>%tokens()
+
 ```
 
 
 Maintenant nous transformons en Documents-Features-Matrix:
 
 ```{r}
-  data_pol<-dfm(data_pol)# on transforme en dfm
+data_pol<-dfm(data_pol)# on transforme en dfm
 ```
 
 On applique maintenant les filtres que nous avons choisis pour la fonction de la génération du DFM, sur la longueur du mot :
 
 ```{r}
- data_pol<-dfm_keep(data_pol, min_nchar = 2)#on garde que les mots de plus de 2 lettres
+data_pol<-dfm_keep(data_pol, min_nchar = 2)#on garde que les mots de plus de 2 lettres
 ```
 
 On enlève les "stopwords" donc les mots de ponctuation etc..
