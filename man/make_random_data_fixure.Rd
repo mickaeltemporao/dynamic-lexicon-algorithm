@@ -7,7 +7,7 @@
 make_random_data_fixure(nb_users)
 }
 \arguments{
-\item{nb_users}{}
+\item{nb_users}{the numbers of users you want}
 }
 \value{
 

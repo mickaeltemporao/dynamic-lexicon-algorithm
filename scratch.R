@@ -280,3 +280,6 @@ data_cor_essai<-S[[2]]
 g<-as.numeric(data_cor_essai[10,2:4])
 
 D<-calibrate(dfm,complet=T,g)
+ealgo_10()
+example("algo_10")
+example("data_fixure")

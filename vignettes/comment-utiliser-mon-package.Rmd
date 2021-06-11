@@ -53,7 +53,7 @@ library(magrittr)
 
   #On crée un data avec les politiciens, ici on prends des mots des présidents américains lors de leurs discours
 
-  data_pol<-data_corpus_inaugural %>% corpus_subset(Year > 2011) %>%tokens()
+data_pol<-data_corpus_inaugural %>% corpus_subset(Year > 2011) %>%tokens()
 ```
 
 

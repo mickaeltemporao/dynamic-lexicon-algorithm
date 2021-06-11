@@ -14,11 +14,26 @@ calibrate(
 )
 }
 \arguments{
-\item{complet}{}
+\item{input}{the dfm}
+
+\item{complet}{T or F if the dfm is complet}
+
+\item{calib}{the vector calib}
+
+\item{ngram}{fix}
+
+\item{wordsinrow}{fix}
+
+\item{docincol}{fix}
 }
 \value{
 
 }
 \description{
 Calibrate the weight of words to applicate on the users
+}
+\examples{
+W<-data_fixure()
+dfm<-W[[1]]
+calibrate(dfm,complet=T,c(1,2,3))
 }

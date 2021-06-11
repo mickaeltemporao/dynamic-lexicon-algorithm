@@ -4,14 +4,25 @@
 \alias{algo_10}
 \title{ALGO_10 function}
 \usage{
-algo_10(input, input2, name_users, name_val)
+algo_10(input, input2, name_users)
 }
 \arguments{
-\item{name_val}{}
+\item{input}{a dfm avec lignes/users et col/text}
+
+\item{input2}{a df with users and target (df validation)}
+
+\item{name_users}{the name of col users in the df validation (in "")}
 }
 \value{
-
+data frame with the validation score of the 10 sample vector calib and
 }
 \description{
 find the best sample for calibration
+}
+\examples{
+W<-data_fixure()
+dfm<-W[[1]]
+val<-W[[2]]
+remove(W)
+S<-algo_10(dfm,val,"users_id")
 }

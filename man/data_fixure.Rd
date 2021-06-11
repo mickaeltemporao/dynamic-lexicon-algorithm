@@ -12,3 +12,8 @@ data_fixure()
 \description{
 Make the data fixure with the df validation
 }
+\examples{
+W<-data_fixure()
+dfm<-W[[1]]
+val<-W[[2]]
+}
