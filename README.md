@@ -1,4 +1,4 @@
-### Vigilant-Octo-Invention
+# Vigilant-Octo-Invention
 
 ## About
 
@@ -15,7 +15,7 @@ devtools::install_github("mickaeltemporao/dynamic-lexicon-algorithm")
 
 ## How to use
 
-# From a dataset
+### From a dataset
 
 You can run the dfm_generation() function to create a Documents-Features-Matrix from a data with users and their text (tweets fro example) like this :
 
@@ -26,7 +26,7 @@ You can run the dfm_generation() function to create a Documents-Features-Matrix 
 
 ```
 
-# Estimate parameters
+### Estimate parameters
 
 When you have a dfm you can run calibrate() function to estimate the weights of words using the wordfish() function :
 
@@ -42,7 +42,7 @@ When you have a dfm you can run calibrate() function to estimate the weights of 
 
 ```
 
-# Predict target
+### Predict target
 
 Then use the weights calculate previously on the others users with the function named use_weights().
 It will calulate the target choose :
@@ -65,7 +65,7 @@ It will calulate the target choose :
 Now you have a data frame with the weight of words and a data frame with the prediction 
 of the users.
 
-# Validation
+### Validation
 
 You can now run the validation with the data prediction and the real opinion's data.
 
@@ -91,7 +91,7 @@ You can now run the validation with the data prediction and the real opinion's d
 
 ```
 
-# Optimisation
+### Optimisation
 
 If you don't have the vector calibration you can run the function algo_10 who the best vector with 10 sample :
 
