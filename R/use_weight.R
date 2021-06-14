@@ -14,7 +14,7 @@
 #' @examples
 #' w <- data_fixture()
 #' dfm <- w[[1]]
-#' calibrate(dfm,complet=T,c(1,2,3))
+#' x<-calibrate(dfm,complet=T,c(1,2,3))
 #'   data_users <- x[[2]]
 #'   word_df <- x[[1]]
 #'   opini_target <- x[[3]]
