@@ -1,5 +1,5 @@
 ---
-title: "Dynamical-Lexicon-Approach how to use the package DLA"
+title: "Dynamical-Lexicon-Approach"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{comment-utiliser-mon-package}
@@ -15,147 +15,114 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-library(DLA)
+library(DLAbis)
 ```
 
 ### Table des matières
 * [Data Fixure](# Data Fixure)
-    * [Random data fixure](#Random data fixure)
-    * [Data fixure weighted](#Data fixure weighted)
 * [DFM genration process](# DFM genration process)
 * [Estimation des poids et prévision de la target](#Estimation des poids et prévision de la target)
-    * [Calibration/Estimation des paramètres](#Calibration/Estimation des paramètres)
-    * [Prédiction](#Prédiction)
 * [Validation](#Validation)
-* [Optimisation](#Optimisation)
 * [Annexes](#Annexes)
 
 
 ### __**Data Fixure<a class="anchor" id="Data Fixure"></a>**__
 
-
-Pour la vérification de nos résultats nous allons créer deux fixure, l'une avec des valeurs random et l'autre avec des valeurs calculées en fonction de l'utilisation de certains mots que l'on va choisir.
-
-#### __**Random data fixure<a class="anchor" id="Random data fixure"></a>**__
-
-Nous allons créer une fonction qui va générer un DFM ainsi qu'une validation aléatoire :
+Nous allons créer une fonction qui va générer un DFM qui va nous servir comme base initiale pour vérifier nos résultats prochainement.
 
 Nous prenons les mots des discours des présidents américains depuis 2011, soit trois présidents (disponible dans le package quanteda) :
 
 ```{r}
-make_random_data_fixure<-function(nb_users){
-
-
-library(quanteda)
-library(magrittr)
-########## Creation du DFM
-
-
-#On crée un data avec les politiciens, ici on prends des mots des présidents américains lors de leurs discours
+make_data_fixure<-function(nb_users){
+  library(quanteda)
+  library(dplyr)
 
 data_pol<-data_corpus_inaugural %>% corpus_subset(Year > 2011) %>%tokens()
-
 ```
-
-
-Maintenant nous transformons en Documents-Features-Matrix:
+Maintenant nous transformons en Dcouments-Features-Matrix:
 
 ```{r}
-data_pol<-dfm(data_pol)# on transforme en dfm
+data_pol<-dfm(data_pol)
 ```
 
 On applique maintenant les filtres que nous avons choisis pour la fonction de la génération du DFM, sur la longueur du mot :
 
 ```{r}
-data_pol<-dfm_keep(data_pol, min_nchar = 2)#on garde que les mots de plus de 2 lettres
+data_pol<-dfm_keep(data_pol, min_nchar = 2)
 ```
 
 On enlève les "stopwords" donc les mots de ponctuation etc..
 
 ```{r}
-data_pol<-dfm_remove(data_pol, pattern = stopwords("en"))#on enleve les mots communs (ponctuation, et ..)
+data_pol<-dfm_remove(data_pol, pattern = stopwords("en"))
 ```
 
 On le transforme en data frame pour les manipulations :
 
 ```{r}
-  data_pol<-as.data.frame(data_pol)
+data_pol<-as.data.frame(data_pol)
 ```
 
 On transforme la première colonne en nom des lignes pour avoir en nom de ligne les ids et en nom de colonnes les documents :
 
 ```{r}
-  rownames(data_pol)<-data_pol[,1]
-  data_pol<-data_pol[,-1]
-
-
-  dim(data_pol) # 1343 features
+rownames(data_pol)<-data_pol[,1]
 ```
 
 
 Maintenant que nous avons crée un data avec les politiciens, nous allons créer aléatoirement (suivant une loi normale) des users et des occurences des mots utilisés par ces utilisateurs :
 
 ```{r}
-  # On crée un data users avec des occurences aléatoires
+a<-c((1:nb_users)) 
 
-  a<-c((1:nb_users)) # colonnes des users
+b<-abs(c(rnorm(nb_users, mean=0.4, sd=3)))
+b<-round(b)
 
+data_users<-data.frame(a,b)
+data_users<-data_users[,-1]
+data_users<-as.data.frame(data_users)
 
-  b<-abs(c(rnorm(nb_users, mean=0.4, sd=3))) # occurences
-  b<-round(b)
-
-  data_users<-data.frame(a,b)
-  data_users<-data_users[,-1]
-  data_users<-as.data.frame(data_users)
-
-  for(i in 2:dim(data_pol)[2]){
-    data_users[,i]<-round(abs(c(rnorm(nb_users, mean=0.4, sd=3)))) # on rajoute autant qu'il y a de mots
-  }
-
+for(i in 2:dim(data_pol)[2]){
+  data_users[,i]<-round(abs(c(rnorm(nb_users, mean=0.4, sd=3))))
+}
 
 
 ```
 
 
 Maintenant nous pouvons fusionner les deux datas ( users et politiciens )
-
 ```{r}
-  colnames(data_users)<-colnames(data_pol) # on mets les mêmes noms pour fusionner
-
-  data<-rbind(data_pol, data_users)
-
+colnames(data_users)<-colnames(data_pol)
+data<-rbind(data_pol, data_users)
 ```
 
 Nous allons rajouter une colonne permettant de différencier les politicens des uitilisateurs lambdas, nous allons appeler cette colonne ID, si ID = 1 alors c'est un politiciens.
 ```{r}
 
-  data[,dim(data)[2]+1]<-1
+data[,dim(data)[2]+1]<-1
 
 
 
-  for(i in 1:dim(data)[1]){
-    if(i<4){
-      data[i,dim(data)[2]]=1
-    }
-    else{data[i,dim(data)[2]]=0}
+for(i in 1:dim(data)[1]){
+  if(i<4){
+    data[i,dim(data)[2]]=1
+  }
+else{data[i,dim(data)[2]]=0}
   }
 
-  data[,dim(data)[2]]
+data[,dim(data)[2]]
 
-  colnames(data)[dim(data)[2]] <- "ID"
-
-
-  class(colnames(data))
-
-
+colnames(data)[dim(data)[2]] <- "ID"
 
 
 ```
 
-Nous avons donc maintenant notre data fixure finale avec des occurrences aléatoires.
+Nous avons donc maintenant notre data fixure finale que nous sauvegardons dans notre fichier data:
 
 ```{r}
-  dfm_fixure<-data# data finale
+
+dfm_fixure<-data
+saveRDS(dfm_fixure,"data/data_fixure.rds")
 ```
 
 
@@ -164,134 +131,22 @@ Créons mainteant le data  fixure de prédiction, toujours aléatoirement et sui
 ```{r}
 
 
-  ########### Creation du Data frame validation
-
-  df_validation<-data.frame(rownames(data_users))
-  colnames(df_validation)<-'users_id'
-  for(i in 1:dim(df_validation)[1]){
-    df_validation[i,2]<-rnorm(1, mean=0.4, sd=3)
-  }
-
-
-
- 
+df_validation<-data.frame(rownames(data_users))
+colnames(df_validation)<-'users_id'
+for(i in 1:dim(df_validation)[1]){
+  df_validation[i,2]<-rnorm(1, mean=0.4, sd=3)
+}
 ```
 
-On retourne ces deux data frame à la sortie de la fonction :
+On le sauvegarde dans le fichier data et on retourne ces deux data frame :
 
 ```{r}
- return(list(dfm_fixure=dfm_fixure,df_validation=df_validation))
+saveRDS(df_validation,"data/df_validation.rds")
+
+return(list(dfm_fixure=dfm_fixure,df_validation=df_validation))
 
 }
-
-
 ```
-
-
-
-#### __**Data fixure weighted<a class="anchor" id="Data fixure weighted"></a>**__
-
-Nous allons maintenant créer une fixure qui va un peu plus correspondre aux résultats que nous aurons avec les fonctions du package. Pour cela on va se fixer quatre mots et quatres poids pour ces mots et les appliquées au target.
-
-On va créer le dfm comme précedemment puis appliquer le poids selon son utilisation pour prédire le score :
-
-```{r}
-data_fixure<-function(){
-
-
-  library(quanteda)
-  library(magrittr)
-  ########## Creation du DFM
-
-
-  #On crée un data avec les politiciens, ici on prends des mots des présidents américains lors de leurs discours
-
-  data_pol<-data_corpus_inaugural %>% corpus_subset(Year > 2011) %>%tokens()
-  data_pol<-dfm(data_pol)# on transforme en dfm
-  data_pol<-dfm_keep(data_pol, min_nchar = 2)#on garde que les mots de plus de 2 lettres
-  data_pol<-dfm_remove(data_pol, pattern = stopwords("en"))#on enleve les mots communs (ponctuation, et ..)
-  data_pol<-as.data.frame(data_pol)
-  rownames(data_pol)<-data_pol[,1]
-  data_pol<-data_pol[,-1]
-
-
-  dim(data_pol) # 1343 features
-
-  # On crée un data users avec des occurences aléatoires
-
-  a<-c((1:100)) # colonnes des users
-
-
-  b<-abs(c(rnorm(100, mean=0.4, sd=3))) # occurences
-  b<-round(b)
-
-  data_users<-data.frame(a,b)
-  data_users<-data_users[,-1]
-  data_users<-as.data.frame(data_users)
-
-  for(i in 2:dim(data_pol)[2]){
-    data_users[,i]<-round(abs(c(rnorm(100, mean=0.4, sd=3)))) # on rajoute autant qu'il y a de mots
-  }
-
-  colnames(data_users)<-colnames(data_pol) # on mets les mêmes noms pour fusionner
-
-  data<-rbind(data_pol, data_users)
-
-  data[,dim(data)[2]+1]<-1
-
-
-
-  for(i in 1:dim(data)[1]){
-    if(i<4){
-      data[i,dim(data)[2]]=1
-    }
-    else{data[i,dim(data)[2]]=0}
-  }
-
-  data[,dim(data)[2]]
-
-  colnames(data)[dim(data)[2]] <- "ID"
-
-
-  class(colnames(data))
-
-  data<-data[4:103,1:1343]
-
-  dfm_fixure<-data# data finale
-
-```
-
-Jusque là nous avons créée de la même manière que le random fixure, maintenant nous allons choisir 4 mots qui seront technologies, democracy, patriotism et terrorism. On décide d'appliquer un poids de -1.5 au mot technologies, un poids de -3 pour le mots democracy, un poids de 3 pour le mots patriotism et 1.5 pour le mots terrorism. Et nous calculons le score selon l'occurrence de ces mots des utilisateurs :
-
-
-```{r}
-
-  ########### Creation du Data frame validation
-
-  df_validation<-data.frame(rownames(dfm_fixure))
-  colnames(df_validation)<-"users_id"
-  for(i in 1:dim(df_validation)[1]){
-    df_validation[i,2]<-rnorm(1, mean=0.4, sd=3)
-  }
-
-
-  for (j in 1:dim(dfm_fixure)[1]){
-     df_validation[j,2]=dfm_fixure[j,"technologies"]*(-1.5)+df_validation[j,2]
-     df_validation[j,2]=dfm_fixure[j,"democracy"]*(-3)+df_validation[j,2]
-     df_validation[j,2]=dfm_fixure[j,"patriotism"]*3+df_validation[j,2]
-     df_validation[j,2]=dfm_fixure[j,"terrorism"]*1.5+df_validation[j,2]
-  }
-
-
-
-
-  return(list(dfm_fixure=dfm_fixure,df_validation=df_validation))
-
-}
-
-```
-
-
 
 
 
@@ -315,7 +170,7 @@ dfm_generation<-function(
 On va devoir créer un objet token pour decompter les mots dans le texte, on utilise la fonction du package quanteda :
 
 ```{r}
-library(quanteda)
+
 tok<-tokens(input[,text], remove_punct = TRUE,remove_symbols=TRUE,remove_numbers=TRUE,remove_url=TRUE,remove_separators=TRUE)
 ```
 
@@ -348,7 +203,7 @@ dfstop<- dfm_trim(dfstop, min_termfreq = 5)
 
 Maintenant on fusionne les tweets des mêmes identifiants :
 ```{r}
-DFM <- dfm_group(dfstop, groups = input[,doc])
+DFM <- dfm_group(dfstop, groups = Tweet$user_id)
 
 ```
 On le transforme en data frame pour l'analyse plus tard :
@@ -360,11 +215,6 @@ DFM<-as.data.frame(DFM)
 Et on clos la fonction et on retourne le DFM construit :
 
 ```{r}
-
-rownames(DFM)<-DFM[,1]
-
-DFM<-DFM[,-1]
-
 cat("Finished \n")
 
 return(DFM )
@@ -376,279 +226,181 @@ return(DFM )
 
 ### __**Estimation des poids et prévision de la target<a class="anchor" id="Estimation des poids et prévision de la target"></a>**__
 
+
 Nous allons maintenant créer une fonction qui permets de calculer le sous ensemble des mots les plus significatifs afin de calculer la prévision du target. 
-Pour cela, on va créer une fonction qui calibre et donc estime les paramètres (betas) et une fonction qui applique ces poids aux utilisateurs pour prédire le target.
-
-#### __**Calibration/Estimation des paramètres<a class="anchor" id="Calibration/Estimation des paramètres"></a>**__
-
-
-
-On va calculer les betas sur le data de calibration, pour pouvoir ensuite les fixer pour prédire sur les users.
-
-Cette fonction prends donc en entrée un Document-Features-Matrix converti en data frame, un vecteur qui va nous permettre d'identifier les individus qui calibrent le sous espace, ainsi qu'un argument logique qui permettra de savoir si le DFM est complet et donc qu'il possède les individus sur lesquels on calibre ET les individus sur lesquels on prédit, ou alors s'il n'est pas complet et dans ce cas il possède que les individus sur lesquels on calibre et estime les paramètres.
+Pour cela, on va calculer les betas sur le data de calibration, les fixer pour pouvoir prédire sur les users.
+Cette fonction prends donc en entrée un Document-Features-Matrix converti en data frame, un vecteur qui va nous permettre d'identifier les individus qui calibrent le sous espace, ainsi qu'un nom de colonne qui identifie ces utilisateurs:
 
 ```{r}
-calibrate<- function (
-  input,  # a data.frame avec lignes/users et col/text
-  complet = T, #T ou F si T data avec calib et users
- # ID,     #si T faut enlever col avec differenciation
-  calib, # si c'est T faut diff
-  ngram=2,
-  wordsinrow=FALSE,
+DLA <- function (
+  input,  # a data.frame
+  ID,    #a name of col
+  calib,  # a vector of rows
+  ngram=2, 
+  wordsinrow=FALSE, 
   docincol = FALSE
-){
+  ){
+    
+  #docsincol TRUE si les id/users sont la première colonne dans ce cas faut faire autrement
+  #wordsinrow TRUE  si les mots sont la première ligne
+  #On a considerer que les documents et features sont les noms des lignes colonnes
 ```
 
 
-On distingue les deux cas complet = F ou T et on estime les paramètres à l'aide de la fonction wordfish :
-
+On va maintenant identifier et supprimer la colonne d'identification des utilisateurs :
 ```{r}
-if (complet ==  F){
-    data<- input
-
-    ###### trouvons les beta à fixer
-
-    t_data<-t(data) #on transpose pour faire le wordfish et avoir un FDM
-    t_data<-as.data.frame(t_data)
-
-    words<-rownames(t_data) # les mots sont les nomes des lignes
-    target_name<-colnames(t_data)
+data<- input
+  data_target_name<-data[,ID]
+ 
+  data_without_target<-data[, !(colnames(data) %in% c(ID)), drop = FALSE]
 ```
+
   
-  On applique maintenant les filtres des mots jamais utilisés ou des users fantomes : 
+On va maintenant séparer le data en deux datas, un qui comprend les individus qui vont calibrer l'espace et un autre sur lequel on va prédire le target : 
+
+```{r}
+data_users<-data_without_target[-calib,]
+
+
+  data_target<-data_without_target[calib,]
+
+```
+
+ 
+Utilisons la fonction wordfish pour trouver les betas (poids) des mots sur l'ensemble des individus dont on connait la target, donc eux qui calibrent (ici les politiciens):
+```{r}
   
-```{r}
-   
-    #On supprime les mots qui ont étés prononcés zéro fois par les target
-
-    zero_word <- (rowSums(t_data>0) > 0)
-
-    t_data_without_zero <- t_data[zero_word, ]
-    words_kept <- words[zero_word]
-
-    zero_docs <- (colSums(t_data_without_zero) > 0)
-    t_data_without_zero <- t_data_without_zero[, zero_docs]
-    target_kept <- target_name[zero_docs]
-
-
-    sum(rowSums(t_data_without_zero> 0) == 0)
-    sum(colSums(t_data_without_zero > 0) == 0)
-    dim(t_data_without_zero)
-```
-
-On peut appliquer le wordfish et créer le data frame qui contient les mots et leurs poids :
-
-```{r}
-   
-    wf_out_data <- wordfish(t_data_without_zero, fixtwo = FALSE, dir = c(1, 2), wordsincol = FALSE, tol = 1e-04)
-
-    omega <- wf_out_data$documents[, "omega"]
-    print(omega)
-    beta <- wf_out_data$words[, "b"]
-    psi <- wf_out_data$words[, "psi"]
-    print(psi)
-
-    ### associer les mots et leurs poids respectifs
-
-    word_df <- data.frame(words_kept,beta)
-    word_top<-word_df[sort(abs(word_df$beta),decreasing=T,index.return=T)[[2]],][1:6,]
-    print(word_df)
-    return(list(word_df=word_df,words_kept=words_kept,word_top=word_top))
-
-  }
-```
-
-Si le DFM contient les individus sur lesquels on veut prédire il faut diviser en deux data et retourner le data des individus ainsi que le data avec le poids des mots pour pouvoir prédire avec la fonction qui va suivre :
-
-```{r}
-  else{
- # data_target_name<-data[,ID]#nom du target
-
-  #data_without_target<-data[, !(colnames(data) %in% c(ID)), drop = FALSE]#on enleve le nom du target du data
-
-  #on sépare le data en deux data, un avec les individus qui servent à calibrer (data_target) et l'autre le reste
-  data<-input
-  data_users<-data[-calib,]
-
-  #rownames(data_users)[0] <- "word" #on donne un nom a la première ligne
-  data_target<-data[calib,]
-```
-
-
-
-On effectue maintenant la même chose que précedement  :
-
-
-```{r}
-  ###### trouvons les beta à fixer
-
+###### trouvons les beta à fixer
+  
   t_data_target<-t(data_target) #on transpose pour faire le wordfish et avoir un FDM
-  t_data_target<-as.data.frame(t_data_target)
-
-  words<-rownames(t_data_target) # les mots sont les nomes des lignes
+  t_data_target<-as.data.frame(t_data_target)# on le remets en data frame 
+  words<-rownames(t_data_target) # les mots sont les noms des lignes
   target_name<-colnames(t_data_target)
-
-  #On supprime les mots qui ont étés prononcés zéro fois par les target
-
+  
+    #On supprime les mots qui ont étés prononcés zéro fois par les target
+  
   zero_word <- (rowSums(t_data_target>0) > 0)
-
+  
   t_data_target_without_zero <- t_data_target[zero_word, ]
-
   words_kept <- words[zero_word]
-
-  zero_docs <- (colSums(t_data_target_without_zero>0) > 0)
+  
+  zero_docs <- (colSums(t_data_target_without_zero) > 0)
   t_data_target_without_zero <- t_data_target_without_zero[, zero_docs]
-  data_target_without_zero<-t(t_data_target_without_zero)
   target_kept <- target_name[zero_docs]
-
-
+  
+  
   sum(rowSums(t_data_target_without_zero> 0) == 0)
   sum(colSums(t_data_target_without_zero > 0) == 0)
   dim(t_data_target_without_zero)
-
-
-  wf_out <- wordfish(t_data_target_without_zero, fixtwo = FALSE, dir = c(1, 2),  wordsincol = FALSE, tol = 1e-04)
-
-  omega <- wf_out$documents[, "omega"]
-  print(omega)
-  beta <- wf_out$words[, "b"]
-  psi <- wf_out$words[, "psi"]
-  opini<-wf_out$documents[,'omega']
-  print(psi)
+  
+  wf_out <- wordfish(t_data_target, fixtwo = FALSE, dir = c(1, 2), wordsincol = FALSE, tol = 1e-04)
 ```
 
-On peut maintenant retourner le data des opinions calculés sur les individus qui calibre le sous espace, le data des indiviuds sur lequelle on veut prédire ainsi que le data avec les mots et leurs poids :
-
+On peut maintenant identifier les poids des mots estimés :
 
 ```{r}
-  ### associer les mots et leurs poids respectifs
+  omega <- wf_out$documents[, "omega"]# les omégas sont les positions estimé des individus
 
+  beta <- wf_out$words[, "b"]# les betas sont les poids des mots
+  psi <- wf_out$words[, "psi"]# les psi sont les effets des mots (pas interessant dans notre cas)
+
+```
+
+
+
+
+
+Maintenant créons un data frame avec les mots et leurs poids associés :
+
+```{r}
+### associer les mots et leurs poids respectifs  
+  
   word_df <- data.frame(words_kept,beta)
-  library(dplyr)
-  word_df<-arrange(word_df,desc(abs(beta)))
-  opini_df<-data.frame(rownames(data_target_without_zero),opini)
-  colnames(opini_df)<-c("users","opinions")
-  word_top<-word_df[sort(abs(word_df$beta),decreasing=T,index.return=T)[[2]],][1:6,]
   print(word_df)
-  data_users<-data_users[,words_kept]
-  return(list(word_df=word_df,data_users=data_users,opinions=opini_df))
-  }
-
-}
 ```
 
-
-#### __**Prédiction<a class="anchor" id="Prédiction"></a>**__
- 
-
-Maintenant créons la fonction qui utilise les paramètres calculée précédemment et les applique sur les autres individus pour estimer leurs target.
-
-On va fixer les poids et calculons les positions (oméga) sur le deuxième data composé uniquement des individus dont on veut prédire la target.
-
+Fixons maintenant les poids et calculons les positions (oméga) sur le deuxième data composé uniquement des individus dont on veut prédire la target.
 Pour cela on va refaire le wordfish sur le data avec le bétas fixé (la fonction est modifié de sorte que les bétas ne soit pas recalculés et prennent en entrée le vecteur poids).
-
-Cette fonction prends en entrée le data des indiviuds sur lesquelles il faut prédire, les mots gardées et filtrée par la fonction précédente, le data des mots et de leurs poids respectifs:
-
 ```{r}
-use_weight<- function (
-  input,  # a data.frame avec lignes/users et col/text
-  words,   # words kept calculating in the last function
-  df,     #word/weight data
-  wordsinrow=FALSE,
-  docincol = FALSE
-){
-
-```
-  
-  On va effectuer les mêmes filtres que précedement sur les utilisateurs fantomes ainsi que les mots jamais utilisés :
-  
-```{r}
-  data_users<-input
-  words_kept<-words
-  word_df<-df
-
-  #### fixer les poids
-
+#### fixer les poids
   t_data_users<-t(data_users)#on transpose pour pouvoir assembler les data
   t_data_users<-as.data.frame(t_data_users)
-
-  t_data_users_kept<-t_data_users#on garde que les mots utilisés par les calibreurs
+  
+  
+    t_data_users_kept<-t_data_users[words_kept,]#on garde que les mots utilisés par les calibreurs
   users_name<-colnames(t_data_users_kept)
-
+  
   #On enlève ceux qui ont étés utilisées zéro fois par tout le monde
-
+  
   zero_word1 <- (rowSums(t_data_users_kept>0) > 0)
-
+  
   t_data_users_without_zero <- t_data_users_kept[zero_word1, ]
-
+  
   words_kept1 <- words_kept[zero_word1]
-
+  
   zero_docs1 <- (colSums(t_data_users_without_zero) > 0)
   t_data_users_without_zero <- t_data_users_without_zero[, zero_docs1]
   users_kept1 <- users_name[zero_docs1]
-
-```
-  
-  On peut maintenant apliquées la fonction wordfish modifiées :
   
   
-
-```{r}
   #on les assemble aux mots
-
-  word_df<-word_df[zero_word1,]
+  
   t_data_users_without_zero[,"weight"]<-word_df[,2]
   t_data_users_without_zero[,"words"]<-word_df[,1]
-
-
-
-
-  wordcountdata_users_weighted <- t_data_users_without_zero
-
+  
+  
+  
+  
+  wordcountdata_users_weighted <- t_data_users_without_zero 
+  
   L <- dim(wordcountdata_users_weighted)[2] # nombre de colonnes
-
+  
   words_weighted    <- wordcountdata_users_weighted[,L] #les mots
   TM_users_weighted <- wordcountdata_users_weighted[,1:(L-2)]#les occurences
   beta_weighted     <- wordcountdata_users_weighted[,L-1]#les betas
+```
 
+
+On peut faire le wordfish sur ce data : 
+```{r}
   #on refait le wordfish avec les betas fixés
-
-
+  
+  
   sum(rowSums(TM_users_weighted > 0) == 0)
   sum(colSums(TM_users_weighted > 0) == 0)
   dim(TM_users_weighted)
+  
+    wf2_out <- wordfish2(beta_weighted,TM_users_weighted,fixtwo=FALSE,dir=c(1,2),wordsincol=FALSE,tol=1e-4)
+    
 
 
+    beta    <- beta_weighted
 
-  wf2_out <- wordfish2(beta_weighted,TM_users_weighted,fixtwo=FALSE,dir=c(1,2),wordsincol=FALSE,tol=1e-4)
-
+    opinions  <- wf2_out$documents[,'omega']
+  
 ```
 
-On peut maintenant retourner les opinions calculées et les mots et leurs poids :
-
+On peut faire un tableau avec les opinions prédit des utilisateurs ainsi que les poids des mots associés:
 
 ```{r}
-  beta    <- beta_weighted
-  print(beta)
-  opinions  <- wf2_out$documents[,'omega']
   words_weighted_df<-data.frame(words_weighted,beta_weighted)
   print(words_weighted_df)
   #opinions_df<-data.frame(rownames(data_users)[0],opinions)
   opinions_df<-data.frame(users_kept1,opinions)
-  colnames(opinions_df)<-c("users","opinions")
   return(list(opinions_df=opinions_df,words_weighted_df=words_weighted_df))
+  
 
 }
 
 ```
 
 
-
+   
 
 ### __**Validation<a class="anchor" id="Validation"></a>**__
 
 Maintenant que nous avons la target prédite nous voulons la comparer au résultat réel pour valider nos calculs.
-Pour cela nous allons créer une fonction qui calcule la corrélation de Pearson et la moyenne des écarts relatifs:
+Pour cela nous allons calculer la corrélation de Pearson et la moyenne des écarts relatifs:
 
 ```{r}
 validation<-function(input_1,input_2){
@@ -674,107 +426,9 @@ validation<-function(input_1,input_2){
 
 ```
 
-
-
-### __**Optimisation<a class="anchor" id="Optimisation"></a>**__
-
-Maintenant que nous avons ces résultats on peut s'amuser à optimiser le vecteur qui calibre le sous espace pour qu'il renvoie le meilleur sous espace de mots et que donc il prédise au mieux la target et augmente au maximum la métrique de validation.
-
-Pour cela on décide de créer une fonction qui fait 10 sample de 3% de la taille du DFM. Ces 10 samples vont être nos 10 vecteurs de calibration. On va donc pouvoir choisir celui qui maximise la métrique de validation.
-
-On créee donc une fonction qui prends en argument le DFM, le data frame avec les résultats (df validation) ainsi que le nom de la colonne ou est le score dans ce même data :
-
-```{r}
-algo_10<- function (
-    input,  # a dfm avec lignes/users et col/text
-    input2,   # a df with users and target (df validation)
-    name_users    # the name of col users in the df validation
-
-  ){
-
-```
-
-On va maintenant créer un data frame qui va contenir les données du vecteur calibration ainsi que le score lorsqu'on calibre sur ce vecteur :
-
-```{r}
-data<-input
-data_validation<-input2
-name_user<-name_users
-
-
-
-###########Optimisation
-
-a<-seq(1,10)
-data_cor<-data.frame(a)
-colnames(data_cor)[1]<-"numéro du sample"
-remove(a)
-
-```
-
-On peut maintenant calculer les calibration sur les 10 samples et calculer le score associée et l'écrire dans le data frame :
-
-```{r}
-for (i in 1:10){
-
-  X1<-sample(nrow(data), size=round(0.03*(dim(data)[1])))
-
-  for(j in 1:length(X1)){
-    data_cor[i,j+1]<-X1[j]
-    colnames(data_cor)[j+1]<-"donnée de calib"
-  }
-
-
-  x<-calibrate(data,complet=T,X1)
-
-  data_users<-x[[2]]
-  word_df<-x[[1]]
-  opini_target<-x[[3]]
-
-  #use weight on the other
-
-  y<-use_weight(data_users,rownames(word_df),word_df)
-  opini_users<-y[[1]]
-  word_wei<-y[[2]]
-
-  ## Data frame des opinions de tous
-
-  library(dplyr)
-  opinions_df<-rbind(opini_target, opini_users)
-  opinions_df$users<-as.numeric(opinions_df$users)
-  opinions_df$opinions<-as.numeric(opinions_df$opinions)
-
-
-  ###Validation
-
-  opinions_df_arrange<-arrange(opinions_df,users)
-
-  df_validation_arrange<-arrange(data_validation,name_user)
-
-  op_match<-merge(opinions_df_arrange,df_validation_arrange,by.x = "users",by.y = name_users)
-
-  validation_metrics<-cor(op_match$opinions,op_match[,3])
-
-
-  data_cor[i,length(X1)+2]<-validation_metrics
-  colnames(data_cor)[length(X1)+2]<-"validation_score"
-
-}
-
-
-return(data_cor=data_cor)
-}
-
-```
-
-Nous avons donc en sortie les 10 samples et leurs scores. On peut don choisir celui qui convient.
-
 ### __**Annexes<a class="anchor" id="Annexes"></a>**__
 
-Dans cette annexe nous mettons les focntion worfish qui servent à calculer et estimer les poids.
-
 ```{r}
-
 wordfish <- function(input,
                      wordsincol = FALSE,
                      fixtwo     = FALSE,
@@ -791,30 +445,30 @@ wordfish <- function(input,
     rownames(dta) <- dta[, 1]
     dta <- dta[, -c(1)]
   }
-
+  
   dta    <- t(dta)
   words  <- colnames(dta)
   nparty <- nrow(dta)
   nword  <- ncol(dta)
-
+  
   if (fixtwo == TRUE) {
     if (fixdoc[3] == fixdoc[4]) {
       cat("Warning: fixed omega values in 'fixdoc' cannot be identical. \n")
       stop()
     }
-
+    
     identprint <- paste("Omegas identified with", rownames(dta)[fixdoc[1]], "=",
                         fixdoc[3], "and ", rownames(dta)[fixdoc[2]], "=", fixdoc[4])
   } else {
-
+    
     if (sum(c(length(dir) == 2, is.numeric(dir))) != 2) {
       cat("Warning: option 'dir' in wordfish() is empty. You must specify two documents for global identification (e.g. dir=c(1,2) ).\n")
       stop()
     }
-
+    
     identprint <- paste("Omegas identified with mean 0, st.dev. 1")
   }
-
+  
   cat("======================================\n")
   cat("WORDFISH (Version 1.3)\n")
   cat("======================================\n")
@@ -823,11 +477,11 @@ wordfish <- function(input,
   cat("Tolerance criterion: ", tol, "\n")
   cat("Identification: ", identprint, "\n")
   cat("======================================\n")
-
+  
   # Generate starting values ========================
-
+  
   if (fixtwo == FALSE) {
-
+    
     rockingstarts <- function(dta) {
       cat("Performing mean 0 sd 1 starting value calc\n")
       P <- nrow(dta)
@@ -842,36 +496,36 @@ wordfish <- function(input,
       colnames(dat) <- c("y", "word", "party")
       dat$word <- factor(dat$word)
       dat$party <- factor(dat$party)
-
+      
       # Starting values for psi print(dta)
       psi <- log(colMeans(dta))
       # Starting values for alpha
       alpha <- log(rowMeans(dta)/rowMeans(dta)[1])
-
+      
       # Starting values for beta and x
       ystar <- log(dat$y + 0.1) - alpha[dat$party] - psi[dat$word]
       # print(head(scale(matrix(ystar,nrow(dta),ncol(dta),byrow=FALSE))))
       res <- svd(matrix(ystar, nrow(dta), ncol(dta), byrow = FALSE), nu = 1)
       b <- as.vector(res$v[, 1] * res$d[1])
-
+      
       omega1 <- as.vector(res$u) - res$u[1, 1]
       omega <- omega1/sd(omega1)
       b <- b * sd(omega1)
-
+      
       # Create holding bins for some stuff for the convergence code
       min1 <- c(rep(1, nrow(dta) - 1))
       min2 <- c(rep(1, ncol(dta)))
       iter <- 0
       conv <- 0
       diffparam <- 0
-
+      
       # Put everything together in a list
       list(alpha = as.vector(alpha), psi = as.vector(psi), b = b, omega = omega,
            min1 = min1, min2 = min2, iter = iter, conv = conv, diffparam = diffparam)
     }
-
+    
   } else {
-
+    
     rockingstarts <- function(dta, fixval) {
       cat("Performing fix two omega starting value calc\n")
       P <- nrow(dta)
@@ -886,35 +540,35 @@ wordfish <- function(input,
       colnames(dat) <- c("y", "word", "party")
       dat$word <- factor(dat$word)
       dat$party <- factor(dat$party)
-
+      
       # Starting values for psi
       psi <- log(colMeans(dta))
       # Starting values for alpha
       alpha <- log(rowMeans(dta)/rowMeans(dta)[1])
-
+      
       # Starting values for beta and x
       ystar <- log(dat$y + 0.1) - alpha[dat$party] - psi[dat$word]
       res <- svd(matrix(ystar, nrow(dta), ncol(dta), byrow = FALSE), nu = 1)
       b <- as.vector(res$v[, 1] * res$d[1])
-
+      
       omega <- as.vector(res$u)
-
+      
       # Create holding bins for some stuff for the convergence code
       min1 <- c(rep(1, nrow(dta) - 1))
       min2 <- c(rep(1, ncol(dta)))
       iter <- 0
       conv <- 0
       diffparam <- 0
-
+      
       # Put everything together in a list
       list(alpha = as.vector(alpha), psi = as.vector(psi), b = b, omega = omega,
            min1 = min1, min2 = min2, iter = iter, conv = conv, diffparam = diffparam)
     }
   }
-
+  
   # Log-Likelihood Functions (Poisson model)
   # ========================================
-
+  
   llik_psi_b <- function(p, y, omega, alpha, sigma) {
     # beta and psi will be estimated
     b <- p[1]
@@ -922,15 +576,15 @@ wordfish <- function(input,
     lambda <- exp(psi + alpha + b * omega)  # Lambda parameter for Poisson distribution
     -(sum(-lambda + log(lambda) * y) - 0.5 * (b^2/sigma^2))  # Log-likelihood including normal prior on Beta
   }
-
-
+  
+  
   llik_alpha_1 <- function(p, y, b, psi) {
     # omega[1] is estimated
     omega <- p[1]
     lambda <- exp(psi + b * omega)  # Lambda parameter; alpha is excluded b/c it is set to be zero
     -sum(-lambda + log(lambda) * y)  # Log-likelihood
   }
-
+  
   llik_alpha_omega <- function(p, y, b, psi) {
     # all other omegas and alphas are estimated
     omega <- p[1]
@@ -938,60 +592,60 @@ wordfish <- function(input,
     lambda <- exp(psi + alpha + b * omega)  # Lambda parameter
     -sum(-lambda + log(lambda) * y)  # Log-likelihood
   }
-
-
+  
+  
   llik_justalpha <- function(p, y, b, psi, omega) {
     # alpha is estimated
     alpha <- p[1]
     lambda <- exp(psi + alpha + b * omega)  # Lambda parameter
     -sum(-lambda + log(lambda) * y)  # Log-likelihood
   }
-
-
-
-
-
+  
+  
+  
+  
+  
   if (fixtwo == FALSE) {
-
-
+    
+    
     cat("Performing mean 0 sd 1 EM algorithm\n")
     # Expectation-Maximization Algorithm FOR MEAN 0, SD 1 IDENTIFICATION
     # ==================================================================
-
+    
     rockingpoisson <- function(dta, tol, sigma, params = NULL, dir = dir, printsum = TRUE) {
-
+      
       P <- nrow(dta)
       W <- ncol(dta)
-
+      
       if (is.null(params)) {
         params <- rockingstarts(dta)  # Call up starting value calculation
       }
-
+      
       iter <- 2
       maxllik <- cbind(-1e+70, rep(0, 1400))
       ll.words <- matrix(-1e+70, W, 1400)
       diffllik <- 500
-
+      
       # Set the convergence criterion
       conv <- tol
       params$conv <- conv
-
+      
       while (diffllik > conv) {
         # Run algorithm if difference in LL > convergence criterion
         omegaprev <- params$omega
         bprev <- params$b
         alphaprev <- params$alpha
         psiprev <- params$psi
-
+        
         # ESTIMATE OMEGA AND ALPHA
-
+        
         if (printsum == TRUE) {
           cat("Iteration", iter - 1, "\n")
           cat("\tUpdating alpha and omega..\n")
         }
-
-
-
+        
+        
+        
         # Estimate first omega (alpha is set to 0)
         resa <- optim(p = c(params$omega[1]), fn = llik_alpha_1, y = as.numeric(dta[1,
         ]), b = params$b, psi = params$psi, method = c("BFGS"))
@@ -1000,11 +654,11 @@ wordfish <- function(input,
         params$alpha[1] <- 0
         ifelse(resa$convergence != 0, print("Warning: Optim Failed to Converge!"),
                NA)
-
-
+        
+        
         # Estimate all other omegas and alphas
         for (i in 2:P) {
-
+          
           resa <- optim(par = c(params$omega[i], params$alpha[i]), fn = llik_alpha_omega,
                         y = as.numeric(dta[i, ]), b = params$b, psi = params$psi)
           params$omega[i] <- resa$par[1]
@@ -1012,57 +666,57 @@ wordfish <- function(input,
           params$min1[i] <- -1 * resa$value
           ifelse(resa$convergence != 0, print("Warning: Optim Failed to Converge!"),
                  NA)
-
+          
         }
-
+        
         flush.console()
-
-
+        
+        
         # Z-score transformation of estimates for omega (to identify model)
         omegabar <- mean(params$omega)
         b1 <- params$b
         params$b <- params$b * sd(params$omega)
         params$omega <- (params$omega - omegabar)/sd(params$omega)
         params$psi <- params$psi + b1 * omegabar
-
+        
         # Global identification
         if (params$omega[dir[1]] > params$omega[dir[2]]) {
           params$omega <- params$omega * (-1)
         }
-
-
-
+        
+        
+        
         # ESTIMATE PSI AND BETA
         if (printsum == TRUE) {
           cat("\tUpdating psi and beta..\n")
         }
-
+        
         for (j in 1:W) {
           resb <- optim(par = c(params$b[j], params$psi[j]), fn = llik_psi_b,
-                        y = dta[, j], omega = params$omega, alpha = params$alpha, sigma = sigma,lower = -Inf, upper = Inf)
+                        y = dta[, j], omega = params$omega, alpha = params$alpha, sigma = sigma)
           params$b[j] <- resb$par[1]
           params$psi[j] <- resb$par[2]
           params$min2[j] <- -1 * resb$value
           ifelse(resa$convergence != 0, print("Warning: Optim Failed to Converge!"),
                  NA)
         }
-
+        
         flush.console()
-
+        
         # Calculate Log-Likelihood
         maxllik[iter] <- sum(params$min2)
         diffparam <- mean(abs(params$omega - omegaprev))  # difference btw current & previous estimate for omega
-
+        
         ll.words[, iter] <- params$min2
         diff.ll.words <- (ll.words[, iter] - ll.words[, iter - 1])
         diffllik <- sum(diff.ll.words)/abs(maxllik[iter])
-
-
+        
+        
         if (printsum == TRUE) {
           # print(sum(diff.ll.words)) print(abs(maxllik[iter]))
           cat("\tConvergence of LL: ", diffllik, "\n")
         }
-
+        
         params$diffllik[iter - 1] <- diffllik
         params$diffparam[iter - 1] <- diffparam
         params$diffparam.last <- diffparam
@@ -1073,61 +727,61 @@ wordfish <- function(input,
       params$diffllik[1] <- NA
       return(params)
     }
-
+    
     # Run the algorithm
     est <- rockingpoisson(dta, tol, sigma, dir = dir)
   } else {
     cat("Performing fix two omega EM algorithm\n")
-
+    
     # Expectation-Maximization Algorithm FOR TWO FIXED OMEGAS
     # ==================================================================
-
+    
     rockingpoisson <- function(dta, tol, sigma, params = NULL, fixdoc = fixdoc,
                                printsum = TRUE) {
-
+      
       P <- nrow(dta)
       W <- ncol(dta)
-
+      
       if (is.null(params)) {
         params <- rockingstarts(dta, fixval = fixdoc)  # Call up starting value calculation
       }
-
+      
       iter <- 2
       maxllik <- cbind(-1e+70, rep(0, 1000))
       ll.words <- matrix(-1e+70, W, 1000)
-
+      
       diffllik <- 500
-
+      
       # Set the convergence criterion
       conv <- tol
       params$conv <- conv
-
+      
       while (diffllik > conv) {
         # Run algorithm if difference in LL > convergence criterion
         omegaprev <- params$omega
         bprev <- params$b
         alphaprev <- params$alpha
         psiprev <- params$psi
-
+        
         # ESTIMATE OMEGA AND ALPHA
-
+        
         if (printsum == TRUE) {
           cat("Iteration", iter - 1, "\n")
           cat("\tUpdating alpha and omega..\n")
         }
-
-
+        
+        
         # Set omegas and first alpha
-
+        
         params$omega[fixdoc[1]] <- fixdoc[3]
         params$omega[fixdoc[2]] <- fixdoc[4]
         params$alpha[1] <- 0
-
-
+        
+        
         if (1 %in% fixdoc[1:2] == TRUE) {
-
+          
           # if first doc is one of the fixed omegas, do nothing (alpha and omega are fixed)
-
+          
         } else {
           # Estimate first omega (alpha is set to 0)
           resa <- optim(p = c(params$omega[1]), fn = llik_alpha_1, y = as.numeric(dta[1,
@@ -1138,25 +792,25 @@ wordfish <- function(input,
           ifelse(resa$convergence != 0, print("Warning: Optim Failed to Converge!"),
                  NA)
         }
-
-
-
-
+        
+        
+        
+        
         # Estimate all other omegas and alphas
         for (i in 2:P) {
-
-
+          
+          
           if (sum(fixdoc[1:2] == i) == 1) {
-
+            
             # Estimate just alpha
             resa <- optim(par = params$alpha[i], fn = llik_justalpha, y = as.numeric(dta[i,
             ]), b = params$b, psi = params$psi, omega = params$omega[i],
             method = c("BFGS"))
             params$alpha[P] <- resa$par[1]
-
+            
             ifelse(resa$convergence != 0, print("Warning: Optim Failed to Converge!"),
                    NA)
-
+            
           } else {
             resa <- optim(par = c(params$omega[i], params$alpha[i]), fn = llik_alpha_omega,
                           y = as.numeric(dta[i, ]), b = params$b, psi = params$psi)
@@ -1166,19 +820,19 @@ wordfish <- function(input,
             ifelse(resa$convergence != 0, print("Warning: Optim Failed to Converge!"),
                    NA)
           }
-
+          
         }
-
-
+        
+        
         flush.console()
-
-
-
+        
+        
+        
         # ESTIMATE PSI AND BETA
         if (printsum == TRUE) {
           cat("\tUpdating psi and beta..\n")
         }
-
+        
         for (j in 1:W) {
           resb <- optim(par = c(params$b[j], params$psi[j]), fn = llik_psi_b,
                         y = dta[, j], omega = params$omega, alpha = params$alpha, sigma = sigma)
@@ -1188,22 +842,22 @@ wordfish <- function(input,
           ifelse(resa$convergence != 0, print("Warning: Optim Failed to Converge!"),
                  NA)
         }
-
+        
         flush.console()
-
+        
         # Calculate Log-Likelihood
         maxllik[iter] <- sum(params$min2)
         diffparam <- mean(abs(params$omega - omegaprev))  # difference between current and previous estimate for omega
-
+        
         ll.words[, iter] <- params$min2
         diff.ll.words <- (ll.words[, iter] - ll.words[, iter - 1])
         diffllik <- sum(diff.ll.words)/abs(maxllik[iter])
-
+        
         # print(sum(diff.ll.words)) print(abs(maxllik[iter]))
         if (printsum == TRUE) {
           cat("\tConvergence of LL: ", diffllik, "\n")
         }
-
+        
         params$diffllik[iter - 1] <- diffllik
         params$diffparam[iter - 1] <- diffparam
         params$diffparam.last <- diffparam
@@ -1214,15 +868,15 @@ wordfish <- function(input,
       params$diffllik[1] <- NA
       return(params)
     }
-
+    
     # Run the algorithm
     est <- rockingpoisson(dta, tol, sigma, fixdoc = fixdoc)
   }
-
+  
   cat("======================================\n")
   cat("WORDFISH ML Estimation finished.\n")
   cat("======================================\n\n")
-
+  
   # Write output
   output.documents <- cbind(est$omega, est$alpha)
   rownames(output.documents) <- rownames(dta)
@@ -1230,58 +884,58 @@ wordfish <- function(input,
   output.words <- cbind(est$b, est$psi)
   rownames(output.words) <- words
   colnames(output.words) <- c("b", "psi")
-
+  
   # Write estimation output file Include: Log-likelihood, iterations, number of
   # words, number of documents
-
+  
   output.estimation <- cbind(nword, nparty, est$iter, sum(est$min2), est$conv,
                              est$diffparam.last)
   colnames(output.estimation) <- c("Words", "Documents", "Iterations", "Log-Likelihood",
                                    "Convergence Criterion", "Difference in X")
-
+  
   if (writeout == TRUE) {
     write.table(output.documents, file = paste(output, "documents.csv", sep = "_"))
     write.table(output.words, file = paste(output, "words.csv", sep = "_"))
     write.table(output.estimation, file = paste(output, "estimation.csv", sep = "_"))
   }
-
+  
   ########################### Parametric Bootstrap Code
-
+  
   bootstrap <- function(nsim, output.documents, output.words, nparty, nword) {
-
+    
     cat("STARTING PARAMETRIC BOOTSTRAP\n")
-
+    
     # input alpha and omega from estimation
     alpha.omega <- output.documents
-
+    
     # input psis and betas from estimation
     psi.beta <- output.words
-
+    
     # Create matrix of results.
     output.se.omega <- matrix(0, nparty, nsim)
     output.se.b <- matrix(0, nword, nsim)
-
+    
     alpha <- alpha.omega[, 2]
     omega <- alpha.omega[, 1]
     psi <- psi.beta[, 2]
     b <- psi.beta[, 1]
-
+    
     # create data matrix
     dtasim <- matrix(1, nrow = nparty, ncol = nword)
     cat("======================================\n")
     cat("Now running", nsim, "bootstrap trials.\n")
     cat("======================================\n")
     cat("Simulation ")
-
+    
     for (k in 1:nsim) {
-
+      
       cat(k, "...")
-
+      
       # Generate new data using lambda
       for (i in 1:nparty) {
         dtasim[i, ] <- rpois(nword, exp(psi + alpha[i] + b * omega[i]))
       }
-
+      
       alphastart <- alpha + rnorm(length(alpha.omega[, 1]), mean = 0, sd = (sd(alpha.omega[,
                                                                                            2])/2))
       omegastart <- omega + rnorm(length(alpha.omega[, 1]), mean = 0, sd = (sd(alpha.omega[,
@@ -1292,8 +946,8 @@ wordfish <- function(input,
                                                                              1])/2))
       params <- list(alpha = alphastart, omega = omegastart, psi = psistart,
                      b = bstart)
-
-
+      
+      
       if (fixtwo == FALSE) {
         est <- rockingpoisson(dtasim, tol, sigma, params = params, dir = dir,
                               printsum = FALSE)
@@ -1301,15 +955,15 @@ wordfish <- function(input,
         est <- rockingpoisson(dtasim, tol, sigma, params = params, fixdoc = fixdoc,
                               printsum = FALSE)
       }
-
-
+      
+      
       # Store omegas
       output.se.omega[, k] <- est$omega
       # Store Bs
       output.se.b[, k] <- est$b
     }
-
-
+    
+    
     conf.documents <- matrix(0, nparty, 4)
     colnames(conf.documents) <- c("LB", "UB", "Omega: ML", "Omega: Sim Mean")
     rownames(conf.documents) <- rownames(dta)
@@ -1319,50 +973,50 @@ wordfish <- function(input,
       conf.documents[i, 3] <- omega[i]
       conf.documents[i, 4] <- mean(output.se.omega[i, ])
     }
-
-
-
+    
+    
+    
     # CI for word weights
     conf.words <- matrix(0, nword, 4)
     colnames(conf.words) <- c("LB", "UB", "B: ML", "B: Sim Mean")
     rownames(conf.words) <- words
-
-
+    
+    
     for (i in 1:nword) {
       conf.words[i, 1] <- quantile(output.se.b[i, ], 0.025)
       conf.words[i, 2] <- quantile(output.se.b[i, ], 0.975)
       conf.words[i, 3] <- b[i]
       conf.words[i, 4] <- mean(output.se.b[i, ])
     }
-
+    
     return(list(conf.documents = conf.documents, conf.words = conf.words))
   }
-
+  
   if (boots == TRUE) {
     bootresult <- bootstrap(nsim, output.documents, output.words, nparty, nword)
     ci.documents <- bootresult$conf.documents
     ci.words <- bootresult$conf.words
-
+    
     if (writeout == TRUE) {
       write.table(ci.words, file = paste(output, "words_95_ci.csv", sep = "_"))
       write.table(ci.documents, file = paste(output, "documents_95_ci.csv",
                                              sep = "_"))
     }
-
+    
   }
-
+  
   if (boots == F) {
     ci.documents <- NULL
     ci.words <- NULL
   }
-
+  
   cat("Finished!\n")
-
+  
   return(list(documents = output.documents, words = output.words, diffllik = est$diffllik,
               diffomega = est$diffparam, maxllik = est$maxllik, estimation = output.estimation,
               ci.documents = ci.documents, ci.words = ci.words))
-
-
+  
+  
 }
 
 
@@ -1384,31 +1038,31 @@ wordfish2 <- function(words_weight,
     rownames(dta) <- dta[, 1]
     dta <- dta[, -c(1)]
   }
-
+  
   dta    <- t(dta)
   words  <- colnames(dta)
   nparty <- nrow(dta)
   nword  <- ncol(dta)
-
+  
   if (fixtwo == TRUE) {
     if (fixdoc[3] == fixdoc[4]) {
       cat("Warning: fixed omega values in 'fixdoc' cannot be identical. \n")
       stop()
     }
-
+    
     identprint <- paste("Omegas identified with", rownames(dta)[fixdoc[1]], "=",
                         fixdoc[3], "and ", rownames(dta)[fixdoc[2]], "=", fixdoc[4])
   } else {
-
+    
     if (sum(c(length(dir) == 2, is.numeric(dir))) != 2) {
       cat("Warning: option 'dir' in wordfish2() is empty. You must specify two documents for global identification (e.g. dir=c(1,2) ).\n")
       stop()
     }
-
+    
     identprint <- paste("Omegas identified with mean 0, st.dev. 1")
   }
-
-
+  
+  
   cat("======================================\n")
   cat("WORDFISH 2 DLA \n")
   cat("======================================\n")
@@ -1417,13 +1071,13 @@ wordfish2 <- function(words_weight,
   cat("Tolerance criterion: ", tol, "\n")
   cat("Identification: ", identprint, "\n")
   cat("======================================\n")
-
+  
   # Generate starting values ========================
-
+  
   if (fixtwo == FALSE) {
-
-
-
+    
+    
+    
     rockingstarts <- function(dta) {
       cat("Performing mean 0 sd 1 starting value calc\n")
       P <- nrow(dta)
@@ -1438,39 +1092,39 @@ wordfish2 <- function(words_weight,
       colnames(dat) <- c("y", "word", "party")
       dat$word <- factor(dat$word)
       dat$party <- factor(dat$party)
-
+      
       # Starting values for psi print(dta)
       psi <- log(colMeans(dta))
       # Starting values for alpha
       alpha <- log(rowMeans(dta)/rowMeans(dta)[1])
-
+      
       # Starting values for beta and x
       ystar <- log(dat$y + 0.1) - alpha[dat$party] - psi[dat$word]
       # print(head(scale(matrix(ystar,nrow(dta),ncol(dta),byrow=FALSE))))
       res <- svd(matrix(ystar, nrow(dta), ncol(dta), byrow = FALSE), nu = 1)
       b <- as.vector(res$v[, 1] * res$d[1])
-
+      
       omega1 <- as.vector(res$u) - res$u[1, 1]
       omega <- omega1/sd(omega1)
       b <- b * sd(omega1)
-
-
-
+      
+      
+      
       # Create holding bins for some stuff for the convergence code
       min1 <- c(rep(1, nrow(dta) - 1))
       min2 <- c(rep(1, ncol(dta)))
       iter <- 0
       conv <- 0
       diffparam <- 0
-
+      
       # Put everything together in a list
       list(alpha = as.vector(alpha), psi = as.vector(psi), b = b, omega = omega,
            min1 = min1, min2 = min2, iter = iter, conv = conv, diffparam = diffparam)
     }
-
+    
   } else {
-
-
+    
+    
     rockingstarts <- function(dta, fixval) {
       cat("Performing fix two omega starting value calc\n")
       P <- nrow(dta)
@@ -1485,41 +1139,41 @@ wordfish2 <- function(words_weight,
       colnames(dat) <- c("y", "word", "party")
       dat$word <- factor(dat$word)
       dat$party <- factor(dat$party)
-
+      
       # Starting values for psi
       psi <- log(colMeans(dta))
       # Starting values for alpha
       alpha <- log(rowMeans(dta)/rowMeans(dta)[1])
-
+      
       # Starting values for beta and x
       ystar <- log(dat$y + 0.1) - alpha[dat$party] - psi[dat$word]
       res <- svd(matrix(ystar, nrow(dta), ncol(dta), byrow = FALSE), nu = 1)
       b <- as.vector(res$v[, 1] * res$d[1])
-
+      
       omega <- as.vector(res$u)
-
-
-
-
+      
+      
+      
+      
       # Create holding bins for some stuff for the convergence code
       min1 <- c(rep(1, nrow(dta) - 1))
       min2 <- c(rep(1, ncol(dta)))
       iter <- 0
       conv <- 0
       diffparam <- 0
-
+      
       # Put everything together in a list
       list(alpha = as.vector(alpha), psi = as.vector(psi), b = b, omega = omega,
            min1 = min1, min2 = min2, iter = iter, conv = conv, diffparam = diffparam)
     }
-
-
+    
+    
   }
-
-
+  
+  
   # Log-Likelihood Functions (Poisson model)
   # ========================================
-
+  
   llik_psi_b <- function(p, y, omega, alpha, sigma) {
     # beta and psi will be estimated
     b <- p[1]
@@ -1527,15 +1181,15 @@ wordfish2 <- function(words_weight,
     lambda <- exp(psi + alpha + b * omega)  # Lambda parameter for Poisson distribution
     -(sum(-lambda + log(lambda) * y) - 0.5 * (b^2/sigma^2))  # Log-likelihood including normal prior on Beta
   }
-
-
+  
+  
   llik_alpha_1 <- function(p, y, b, psi) {
     # omega[1] is estimated
     omega <- p[1]
     lambda <- exp(psi + b * omega)  # Lambda parameter; alpha is excluded b/c it is set to be zero
     -sum(-lambda + log(lambda) * y)  # Log-likelihood
   }
-
+  
   llik_alpha_omega <- function(p, y, b, psi) {
     # all other omegas and alphas are estimated
     omega <- p[1]
@@ -1543,59 +1197,59 @@ wordfish2 <- function(words_weight,
     lambda <- exp(psi + alpha + b * omega)  # Lambda parameter
     -sum(-lambda + log(lambda) * y)  # Log-likelihood
   }
-
-
+  
+  
   llik_justalpha <- function(p, y, b, psi, omega) {
     # alpha is estimated
     alpha <- p[1]
     lambda <- exp(psi + alpha + b * omega)  # Lambda parameter
     -sum(-lambda + log(lambda) * y)  # Log-likelihood
   }
-
-
-
-
-
+  
+  
+  
+  
+  
   if (fixtwo == FALSE) {
-
-
+    
+    
     cat("Performing mean 0 sd 1 EM algorithm\n")
     # Expectation-Maximization Algorithm FOR MEAN 0, SD 1 IDENTIFICATION
     # ==================================================================
-
+    
     rockingpoisson <- function(dta, tol, sigma, params = NULL, dir = dir, printsum = TRUE) {
-
+      
       P <- nrow(dta)
       W <- ncol(dta)
-
+      
       if (is.null(params)) {
         params <- rockingstarts(dta)  # Call up starting value calculation
       }
-
+      
       iter <- 2
       maxllik <- cbind(-1e+70, rep(0, 1400))
       ll.words <- matrix(-1e+70, W, 1400)
       diffllik <- 500
-
+      
       # Set the convergence criterion
       conv <- tol
       params$conv <- conv
-
+      
       while (diffllik > conv) {
         # Run algorithm if difference in LL > convergence criterion
         omegaprev <- params$omega
         bprev <- words_weight
         alphaprev <- params$alpha
         psiprev <- params$psi
-
+        
         # ESTIMATE OMEGA AND ALPHA
-
+        
         if (printsum == TRUE) {
           cat("Iteration", iter - 1, "\n")
           cat("\tUpdating alpha and omega..\n")
         }
-
-
+        
+        
         # Estimate first omega (alpha is set to 0)
         resa <- optim(p = c(params$omega[1]), fn = llik_alpha_1, y = as.numeric(dta[1,
         ]), b = words_weight, psi = params$psi, method = c("BFGS"))
@@ -1604,8 +1258,8 @@ wordfish2 <- function(words_weight,
         params$alpha[1] <- 0
         ifelse(resa$convergence != 0, print("Warning: Optim Failed to Converge!"),
                NA)
-
-
+        
+        
         # Estimate all other omegas and alphas
         for (i in 2:P) {
           resa <- optim(par = c(params$omega[i], params$alpha[i]), fn = llik_alpha_omega,
@@ -1615,55 +1269,55 @@ wordfish2 <- function(words_weight,
           params$min1[i] <- -1 * resa$value
           ifelse(resa$convergence != 0, print("Warning: Optim Failed to Converge!"),
                  NA)
-
+          
         }
-
+        
         flush.console()
-
-
+        
+        
         # Z-score transformation of estimates for omega (to identify model)
         omegabar <- mean(params$omega)
         b1 <- words_weight
         params$omega <- (params$omega - omegabar)/sd(params$omega)
         params$psi <- params$psi + b1 * omegabar
-
+        
         # Global identification
         if (params$omega[dir[1]] > params$omega[dir[2]]) {
           params$omega <- params$omega * (-1)
         }
-
-
-
+        
+        
+        
         # ESTIMATE PSI AND BETA
         if (printsum == TRUE) {
           cat("\tUpdating psi and beta..\n")
         }
-
+        
         for (j in 1:W) {
           resb <- optim(par = c(words_weight[j], params$psi[j]), fn = llik_psi_b,
-                        y = dta[, j], omega = params$omega, alpha = params$alpha, sigma = sigma,lower = -Inf, upper = Inf)
+                        y = dta[, j], omega = params$omega, alpha = params$alpha, sigma = sigma)
           params$psi[j] <- resb$par[2]
           params$min2[j] <- -1 * resb$value
           ifelse(resa$convergence != 0, print("Warning: Optim Failed to Converge!"),
                  NA)
         }
-
+        
         flush.console()
-
+        
         # Calculate Log-Likelihood
         maxllik[iter] <- sum(params$min2)
         diffparam <- mean(abs(params$omega - omegaprev))  # difference btw current & previous estimate for omega
-
+        
         ll.words[, iter] <- params$min2
         diff.ll.words <- (ll.words[, iter] - ll.words[, iter - 1])
         diffllik <- sum(diff.ll.words)/abs(maxllik[iter])
-
-
+        
+        
         if (printsum == TRUE) {
           # print(sum(diff.ll.words)) print(abs(maxllik[iter]))
           cat("\tConvergence of LL: ", diffllik, "\n")
         }
-
+        
         params$diffllik[iter - 1] <- diffllik
         params$diffparam[iter - 1] <- diffparam
         params$diffparam.last <- diffparam
@@ -1674,61 +1328,61 @@ wordfish2 <- function(words_weight,
       params$diffllik[1] <- NA
       return(params)
     }
-
+    
     # Run the algorithm
     est <- rockingpoisson(dta, tol, sigma, dir = dir)
   } else {
     cat("Performing fix two omega EM algorithm\n")
-
+    
     # Expectation-Maximization Algorithm FOR TWO FIXED OMEGAS
     # ==================================================================
-
+    
     rockingpoisson <- function(dta, tol, sigma, params = NULL, fixdoc = fixdoc,
                                printsum = TRUE) {
-
+      
       P <- nrow(dta)
       W <- ncol(dta)
-
+      
       if (is.null(params)) {
         params <- rockingstarts(dta, fixval = fixdoc)  # Call up starting value calculation
       }
-
+      
       iter <- 2
       maxllik <- cbind(-1e+70, rep(0, 1000))
       ll.words <- matrix(-1e+70, W, 1000)
-
+      
       diffllik <- 500
-
+      
       # Set the convergence criterion
       conv <- tol
       params$conv <- conv
-
+      
       while (diffllik > conv) {
         # Run algorithm if difference in LL > convergence criterion
         omegaprev <- params$omega
         bprev <- params$b
         alphaprev <- params$alpha
         psiprev <- params$psi
-
+        
         # ESTIMATE OMEGA AND ALPHA
-
+        
         if (printsum == TRUE) {
           cat("Iteration", iter - 1, "\n")
           cat("\tUpdating alpha and omega..\n")
         }
-
-
+        
+        
         # Set omegas and first alpha
-
+        
         params$omega[fixdoc[1]] <- fixdoc[3]
         params$omega[fixdoc[2]] <- fixdoc[4]
         params$alpha[1] <- 0
-
-
+        
+        
         if (1 %in% fixdoc[1:2] == TRUE) {
-
+          
           # if first doc is one of the fixed omegas, do nothing (alpha and omega are fixed)
-
+          
         } else {
           # Estimate first omega (alpha is set to 0)
           resa <- optim(p = c(params$omega[1]), fn = llik_alpha_1, y = as.numeric(dta[1,
@@ -1739,25 +1393,25 @@ wordfish2 <- function(words_weight,
           ifelse(resa$convergence != 0, print("Warning: Optim Failed to Converge!"),
                  NA)
         }
-
-
-
-
+        
+        
+        
+        
         # Estimate all other omegas and alphas
         for (i in 2:P) {
-
-
+          
+          
           if (sum(fixdoc[1:2] == i) == 1) {
-
+            
             # Estimate just alpha
             resa <- optim(par = params$alpha[i], fn = llik_justalpha, y = as.numeric(dta[i,
             ]), b = params$b, psi = params$psi, omega = params$omega[i],
             method = c("BFGS"))
             params$alpha[P] <- resa$par[1]
-
+            
             ifelse(resa$convergence != 0, print("Warning: Optim Failed to Converge!"),
                    NA)
-
+            
           } else {
             resa <- optim(par = c(params$omega[i], params$alpha[i]), fn = llik_alpha_omega,
                           y = as.numeric(dta[i, ]), b = params$b, psi = params$psi)
@@ -1767,19 +1421,19 @@ wordfish2 <- function(words_weight,
             ifelse(resa$convergence != 0, print("Warning: Optim Failed to Converge!"),
                    NA)
           }
-
+          
         }
-
-
+        
+        
         flush.console()
-
-
-
+        
+        
+        
         # ESTIMATE PSI AND BETA
         if (printsum == TRUE) {
           cat("\tUpdating psi and beta..\n")
         }
-
+        
         for (j in 1:W) {
           resb <- optim(par = c(params$b[j], params$psi[j]), fn = llik_psi_b,
                         y = dta[, j], omega = params$omega, alpha = params$alpha, sigma = sigma)
@@ -1789,22 +1443,22 @@ wordfish2 <- function(words_weight,
           ifelse(resa$convergence != 0, print("Warning: Optim Failed to Converge!"),
                  NA)
         }
-
+        
         flush.console()
-
+        
         # Calculate Log-Likelihood
         maxllik[iter] <- sum(params$min2)
         diffparam <- mean(abs(params$omega - omegaprev))  # difference between current and previous estimate for omega
-
+        
         ll.words[, iter] <- params$min2
         diff.ll.words <- (ll.words[, iter] - ll.words[, iter - 1])
         diffllik <- sum(diff.ll.words)/abs(maxllik[iter])
-
+        
         # print(sum(diff.ll.words)) print(abs(maxllik[iter]))
         if (printsum == TRUE) {
           cat("\tConvergence of LL: ", diffllik, "\n")
         }
-
+        
         params$diffllik[iter - 1] <- diffllik
         params$diffparam[iter - 1] <- diffparam
         params$diffparam.last <- diffparam
@@ -1815,71 +1469,71 @@ wordfish2 <- function(words_weight,
       params$diffllik[1] <- NA
       return(params)
     }
-
+    
     # Run the algorithm
     est <- rockingpoisson(dta, tol, sigma, fixdoc = fixdoc)
   }
-
+  
   cat("======================================\n")
   cat("WORDFISH 2 DLA ML Estimation finished.\n")
   cat("======================================\n\n")
-
+  
   # Write output
   output.documents <- cbind(est$omega, est$alpha)
   rownames(output.documents) <- rownames(dta)
   colnames(output.documents) <- c("omega", "alpha")
-
+  
   # Write estimation output file Include: Log-likelihood, iterations, number of
   # words, number of documents
-
+  
   output.estimation <- cbind(nword, nparty, est$iter, sum(est$min2), est$conv,
                              est$diffparam.last)
   colnames(output.estimation) <- c("Words", "Documents", "Iterations", "Log-Likelihood",
                                    "Convergence Criterion", "Difference in X")
-
+  
   if (writeout == TRUE) {
     write.table(output.documents, file = paste(output, "documents.csv", sep = "_"))
     write.table(output.words, file = paste(output, "words.csv", sep = "_"))
     write.table(output.estimation, file = paste(output, "estimation.csv", sep = "_"))
   }
-
+  
   ########################### Parametric Bootstrap Code
-
+  
   bootstrap <- function(nsim, output.documents, output.words, nparty, nword) {
-
+    
     cat("STARTING PARAMETRIC BOOTSTRAP\n")
-
+    
     # input alpha and omega from estimation
     alpha.omega <- output.documents
-
+    
     # input psis and betas from estimation
     psi.beta <- output.words
-
+    
     # Create matrix of results.
     output.se.omega <- matrix(0, nparty, nsim)
     output.se.b <- matrix(0, nword, nsim)
-
+    
     alpha <- alpha.omega[, 2]
     omega <- alpha.omega[, 1]
     psi <- psi.beta[, 2]
     b <- psi.beta[, 1]
-
+    
     # create data matrix
     dtasim <- matrix(1, nrow = nparty, ncol = nword)
     cat("======================================\n")
     cat("Now running", nsim, "bootstrap trials.\n")
     cat("======================================\n")
     cat("Simulation ")
-
+    
     for (k in 1:nsim) {
-
+      
       cat(k, "...")
-
+      
       # Generate new data using lambda
       for (i in 1:nparty) {
         dtasim[i, ] <- rpois(nword, exp(psi + alpha[i] + b * omega[i]))
       }
-
+      
       alphastart <- alpha + rnorm(length(alpha.omega[, 1]), mean = 0, sd = (sd(alpha.omega[,
                                                                                            2])/2))
       omegastart <- omega + rnorm(length(alpha.omega[, 1]), mean = 0, sd = (sd(alpha.omega[,
@@ -1890,8 +1544,8 @@ wordfish2 <- function(words_weight,
                                                                              1])/2))
       params <- list(alpha = alphastart, omega = omegastart, psi = psistart,
                      b = bstart)
-
-
+      
+      
       if (fixtwo == FALSE) {
         est <- rockingpoisson(dtasim, tol, sigma, params = params, dir = dir,
                               printsum = FALSE)
@@ -1899,15 +1553,15 @@ wordfish2 <- function(words_weight,
         est <- rockingpoisson(dtasim, tol, sigma, params = params, fixdoc = fixdoc,
                               printsum = FALSE)
       }
-
-
+      
+      
       # Store omegas
       output.se.omega[, k] <- est$omega
       # Store Bs
       output.se.b[, k] <- words_weight
     }
-
-
+    
+    
     conf.documents <- matrix(0, nparty, 4)
     colnames(conf.documents) <- c("LB", "UB", "Omega: ML", "Omega: Sim Mean")
     rownames(conf.documents) <- rownames(dta)
@@ -1917,52 +1571,51 @@ wordfish2 <- function(words_weight,
       conf.documents[i, 3] <- omega[i]
       conf.documents[i, 4] <- mean(output.se.omega[i, ])
     }
-
-
-
+    
+    
+    
     # CI for word weights
     conf.words <- matrix(0, nword, 4)
     colnames(conf.words) <- c("LB", "UB", "B: ML", "B: Sim Mean")
     rownames(conf.words) <- words
-
-
+    
+    
     for (i in 1:nword) {
       conf.words[i, 1] <- quantile(output.se.b[i, ], 0.025)
       conf.words[i, 2] <- quantile(output.se.b[i, ], 0.975)
       conf.words[i, 3] <- b[i]
       conf.words[i, 4] <- mean(output.se.b[i, ])
     }
-
+    
     return(list(conf.documents = conf.documents, conf.words = conf.words))
   }
-
+  
   if (boots == TRUE) {
     bootresult <- bootstrap(nsim, output.documents, output.words, nparty, nword)
     ci.documents <- bootresult$conf.documents
     ci.words <- bootresult$conf.words
-
+    
     if (writeout == TRUE) {
       write.table(ci.words, file = paste(output, "words_95_ci.csv", sep = "_"))
       write.table(ci.documents, file = paste(output, "documents_95_ci.csv",
                                              sep = "_"))
     }
-
+    
   }
-
+  
   if (boots == F) {
     ci.documents <- NULL
     ci.words <- NULL
   }
-
-
+  
+  
   cat("Finished!\n")
-
+  
   return(list(documents = output.documents, diffllik = est$diffllik, diffomega = est$diffparam,
               maxllik = est$maxllik, estimation = output.estimation, ci.documents = ci.documents,
               ci.words = ci.words))
-
+  
 }
-
 
 
 ```

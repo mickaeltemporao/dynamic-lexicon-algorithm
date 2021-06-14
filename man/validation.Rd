@@ -7,9 +7,7 @@
 validation(input_1, input_2)
 }
 \arguments{
-\item{input_1}{the data frame with the score calculate}
-
-\item{input_2}{the real score}
+\item{input_2}{}
 }
 \value{
 
