@@ -5,7 +5,8 @@
 #' @param input a dfm avec lignes/users et col/text
 #' @param input2 a df with users and target (df validation)
 #' @param name_users the name of col users in the df validation (in "")
-#'
+#' @import dplyr
+#' @import rpart
 #' @return
 #' data frame with the validation score of the 10 sample vector calib and
 #' @export
@@ -66,6 +67,7 @@ for (i in 1:10){
   ## Data frame des opinions de tous
 
   library(dplyr)
+  require(rpart)
   opinions_df <- rbind(opini_target, opini_users)
   opinions_df$users <- as.numeric(opinions_df$users)
   opinions_df$opinions <- as.numeric(opinions_df$opinions)
