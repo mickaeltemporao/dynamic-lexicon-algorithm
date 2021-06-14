@@ -29,6 +29,9 @@
 #'  opinions_df$opinions <- as.numeric(opinions_df$opinions)
 #'
 #'  s<-validation(opinions_df,df_val,"users","users_id")
+#'  ecart_relatif<-s[[1]]
+#'  correlation<-s[[2]]
+#'  x2y<-s[[3]]
 validation <- function(input_1,input_2,name_user_1,name_user_2){
 
   data_estimation<-input_1
@@ -53,7 +56,7 @@ validation <- function(input_1,input_2,name_user_1,name_user_2){
 
   x2y<-x2y(op_match[,2],op_match[,3])[[2]]
 
-  return(list(average_efficiency,coeff_corr,x2y))
+  return(list(average_efficiency=average_efficiency,coeff_corr=coeff_corr,x2y=x2y))
 
 }
 
