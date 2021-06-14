@@ -277,7 +277,7 @@ wordfish <- function(input,
 
         for (j in 1:W) {
           resb <- optim(par = c(params$b[j], params$psi[j]), fn = llik_psi_b,
-                        y = dta[, j], omega = params$omega, alpha = params$alpha, sigma = sigma)
+                        y = dta[, j], omega = params$omega, alpha = params$alpha, sigma = sigma,lower = -Inf, upper = Inf)
           params$b[j] <- resb$par[1]
           params$psi[j] <- resb$par[2]
           params$min2[j] <- -1 * resb$value

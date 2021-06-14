@@ -3,8 +3,8 @@
 #'
 #'
 #'
-#' @param input_1
-#' @param input_2
+#' @param input_1 the data frame with the score calculate
+#' @param input_2 the real score
 #'
 #' @return
 #' @import corrplot
