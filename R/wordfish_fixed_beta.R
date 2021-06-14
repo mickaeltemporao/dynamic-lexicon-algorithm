@@ -290,7 +290,7 @@ wordfish2 <- function(words_weight,
 
         for (j in 1:W) {
           resb <- optim(par = c(words_weight[j], params$psi[j]), fn = llik_psi_b,
-                        y = dta[, j], omega = params$omega, alpha = params$alpha, sigma = sigma)
+                        y = dta[, j], omega = params$omega, alpha = params$alpha, sigma = sigma,lower = -Inf, upper = Inf)
           params$psi[j] <- resb$par[2]
           params$min2[j] <- -1 * resb$value
           ifelse(resa$convergence != 0, print("Warning: Optim Failed to Converge!"),

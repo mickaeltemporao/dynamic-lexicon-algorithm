@@ -1,14 +1,14 @@
-#' Make a Data fixure
+#' Make a random Data fixure
 #'
-#' @param nb_users
+#' @param nb_users the numbers of users you want
 #'
 #' @return
 #' @import quanteda
 #' @import dplyr
 #' @examples
-#' Data_test<-make_data_fixure(1000)
+#' Data_test<-make_random_data_fixure(1000)
 #' @export
-make_data_fixure<-function(nb_users){
+make_random_data_fixure<-function(nb_users){
 
 
 library(quanteda)
@@ -70,7 +70,7 @@ library(magrittr)
   dfm_fixure<-data# data finale
 
 
-  saveRDS(dfm_fixure,"data/data_fixure.rds")
+
 
 
 
@@ -82,7 +82,7 @@ library(magrittr)
     df_validation[i,2]<-rnorm(1, mean=0.4, sd=3)
   }
 
-  saveRDS(df_validation,"data/df_validation.rds")
+
 
   return(list(dfm_fixure=dfm_fixure,df_validation=df_validation))
 
