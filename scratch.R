@@ -291,3 +291,14 @@ word_wei<-y[[2]]
 
 example("algo_10")
 example("data_fixure")
+
+
+
+
+#####################Web scraping data fr
+
+library(rvest)
+url<-read_html("https://www.politiquemedia.com/classement-twitter.html")
+data_fr<-data.frame(url%>%  html_nodes(".classement-twitter-nom") %>%html_text())
+page<-url%>%  html_nodes(".invisible") %>% html_attr("href")
+page[1]
