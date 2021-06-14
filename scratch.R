@@ -298,7 +298,44 @@ example("data_fixure")
 #####################Web scraping data fr
 
 library(rvest)
+#### read page
+
 url<-read_html("https://www.politiquemedia.com/classement-twitter.html")
-data_fr<-data.frame(url%>%  html_nodes(".classement-twitter-nom") %>%html_text())
+
+
+###### on prends toutes les pages
+
 page<-url%>%  html_nodes(".invisible") %>% html_attr("href")
-page[1]
+
+### cree data frame
+
+data_poll_fr<-data.frame(1,1,1,1)
+colnames(data_poll_fr)<-c("Nom","Age","Parti","Twitter")
+
+for(i in 1:100){
+
+### on rentre dans la première page
+
+url_test<-read_html(paste0("https://www.politiquemedia.com/" ,page[i]))
+
+### on prends le nom
+
+data_poll_fr[i,1]<-url_test%>%html_nodes(".nom-personnalite") %>%html_text()
+
+##on prends l'age
+
+library(tidyverse)
+
+data_poll_fr[i,2]<-str_sub(url_test%>%html_nodes(".naissance-personnalite") %>%html_text(),28,34)
+
+### on prends le parti
+
+data_poll_fr[i,3]<-url_test%>%html_nodes("span.parti-personnalite") %>%html_text()
+
+
+### on prends les comptes twitter
+
+data_poll_fr[i,4]<-(url_test%>%html_nodes("a.invisible") %>%html_attr("href"))[2]
+
+}
+

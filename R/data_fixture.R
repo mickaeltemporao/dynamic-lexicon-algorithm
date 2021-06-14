@@ -33,10 +33,10 @@ data_fixture <- function(){
 
   # On crée un data users avec des occurences aléatoires
 
-  a<-c((1:100)) # colonnes des users
+  a<-c((1:50)) # colonnes des users
 
 
-  b<-abs(c(rnorm(100, mean=0.4, sd=3))) # occurences
+  b<-abs(c(rnorm(50, mean=0.5, sd=3))) # occurences
   b<-round(b)
 
   data_users <- data.frame(a,b)
@@ -44,7 +44,7 @@ data_fixture <- function(){
   data_users <- as.data.frame(data_users)
 
   for(i in 2:dim(data_pol)[2]){
-    data_users[,i] <- round(abs(c(rnorm(100, mean=0.4, sd=3)))) # on rajoute autant qu'il y a de mots
+    data_users[,i] <- round(abs(c(rnorm(50, mean=0.5, sd=3)))) # on rajoute autant qu'il y a de mots
   }
 
   colnames(data_users) <- colnames(data_pol) # on mets les mêmes noms pour fusionner
@@ -67,11 +67,16 @@ data_fixture <- function(){
   colnames(data)[dim(data)[2]] <- "ID"
 
 
-  data <- data[4:103,1:1343]
+  data <- data[4:53,1:100]
 
   dfm_fixture <- data# data finale
 
-
+  remove(a)
+  remove(b)
+  remove(i)
+  remove(data_users)
+  remove(data_pol)
+  remove(data)
 
 
 
@@ -81,16 +86,25 @@ data_fixture <- function(){
   df_validation <- data.frame(rownames(dfm_fixture))
   colnames(df_validation) <- "users_id"
   for(i in 1:dim(df_validation)[1]){
-    df_validation[i,2] <- rnorm(1, mean=0.4, sd=3)
+    df_validation[i,2] <- abs(rnorm(1, mean=5, sd=3))
   }
+remove(i)
 
 
-  for (j in 1:dim(dfm_fixture)[1]){
-     df_validation[j,2]=dfm_fixture[j,"technologies"]*(-1.5)+df_validation[j,2]
-     df_validation[j,2]=dfm_fixture[j,"democracy"]*(-3)+df_validation[j,2]
-     df_validation[j,2]=dfm_fixture[j,"patriotism"]*3+df_validation[j,2]
-     df_validation[j,2]=dfm_fixture[j,"terrorism"]*1.5+df_validation[j,2]
-  }
+#########weight le data
+
+dfm_fixture[14,"democracy"]<-dfm_fixture[14,"democracy"]+4
+dfm_fixture[14,"liberty"]<-dfm_fixture[14,"liberty"]-4
+dfm_fixture[14,"justice"]<-dfm_fixture[14,"justice"]-6
+
+dfm_fixture[38,"democracy"]<-dfm_fixture[38,"democracy"]-2
+dfm_fixture[38,"liberty"]<-dfm_fixture[38,"liberty"]+2
+dfm_fixture[38,"justice"]<-dfm_fixture[38,"justice"]+6
+
+dfm_fixture[4,"democracy"]<-dfm_fixture[4,"democracy"]-1
+dfm_fixture[4,"liberty"]<-dfm_fixture[4,"liberty"]-2
+dfm_fixture[4,"justice"]<-dfm_fixture[4,"justice"]-1
+
 
 
 
