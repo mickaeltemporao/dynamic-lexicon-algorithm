@@ -33,7 +33,7 @@ calibrate(
 Calibrate the weight of words to applicate on the users
 }
 \examples{
-W<-data_fixure()
-dfm<-W[[1]]
+w <- data_fixure()
+dfm <- w[[1]]
 calibrate(dfm,complet=T,c(1,2,3))
 }

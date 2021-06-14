@@ -24,13 +24,13 @@ use_weight(input, words, df, wordsinrow = FALSE, docincol = FALSE)
 Prediction on the users
 }
 \examples{
-W<-data_fixure()
-dfm<-W[[1]]
+w <- data_fixure()
+dfm <- w[[1]]
 calibrate(dfm,complet=T,c(1,2,3))
-  data_users<-x[[2]]
-  word_df<-x[[1]]
-  opini_target<-x[[3]]
- y<-use_weight(data_users,rownames(word_df),word_df)
- opini_users<-y[[1]]
- word_wei<-y[[2]]
+  data_users <- x[[2]]
+  word_df <- x[[1]]
+  opini_target <- x[[3]]
+y <- use_weight(data_users,rownames(word_df),word_df)
+  opini_users <- y[[1]]
+  word_wei <- y[[2]]
 }

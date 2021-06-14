@@ -2,7 +2,7 @@
 % Please edit documentation in R/validation.R
 \name{validation}
 \alias{validation}
-\title{Validation functioon}
+\title{Validation function}
 \usage{
 validation(input_1, input_2)
 }
@@ -15,5 +15,5 @@ validation(input_1, input_2)
 
 }
 \description{
-Validation functioon
+Validation function
 }
