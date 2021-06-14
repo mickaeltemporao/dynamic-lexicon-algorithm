@@ -78,7 +78,7 @@ data_fixture <- function(){
 
   ########### Creation du Data frame validation
 
-  df_validation < -data.frame(rownames(dfm_fixture))
+  df_validation <- data.frame(rownames(dfm_fixture))
   colnames(df_validation) <- "users_id"
   for(i in 1:dim(df_validation)[1]){
     df_validation[i,2] <- rnorm(1, mean=0.4, sd=3)
