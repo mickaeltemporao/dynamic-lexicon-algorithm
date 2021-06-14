@@ -40,4 +40,7 @@ Validation function
  opinions_df$opinions <- as.numeric(opinions_df$opinions)
 
  s<-validation(opinions_df,df_val,"users","users_id")
+ ecart_relatif<-s[[1]]
+ correlation<-s[[2]]
+ x2y<-s[[3]]
 }
