@@ -11,7 +11,7 @@
 #' @export
 #'
 #' @examples
-#'w<-data_fixure()
+#'w<-data_fixture()
 #'dfm<-w[[1]]
 #'val<-w[[2]]
 #'remove(w)

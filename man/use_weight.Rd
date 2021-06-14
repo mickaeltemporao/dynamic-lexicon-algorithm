@@ -24,7 +24,7 @@ use_weight(input, words, df, wordsinrow = FALSE, docincol = FALSE)
 Prediction on the users
 }
 \examples{
-w <- data_fixure()
+w <- data_fixture()
 dfm <- w[[1]]
 calibrate(dfm,complet=T,c(1,2,3))
   data_users <- x[[2]]
