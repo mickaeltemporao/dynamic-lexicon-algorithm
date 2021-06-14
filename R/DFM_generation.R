@@ -64,7 +64,7 @@ library(quanteda)
   # ou comme ca (plus rapide)
 
   DFM <- dfm_group(dfstop, groups = input[,doc])
-  DFM<-as.data.frame(DFM)
+  DFM<-convert(DFM, to = "data.frame")
   rownames(DFM)<-DFM[,1]
 
   DFM<-DFM[,-1]

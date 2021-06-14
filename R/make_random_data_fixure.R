@@ -22,7 +22,7 @@ library(magrittr)
   data_pol<-dfm(data_pol)# on transforme en dfm
   data_pol<-dfm_keep(data_pol, min_nchar = 2)#on garde que les mots de plus de 2 lettres
   data_pol<-dfm_remove(data_pol, pattern = stopwords("en"))#on enleve les mots communs (ponctuation, et ..)
-  data_pol<-as.data.frame(data_pol)
+  data_pol<-convert(data_pol, to = "data.frame")
   rownames(data_pol)<-data_pol[,1]
   data_pol<-data_pol[,-1]
 
