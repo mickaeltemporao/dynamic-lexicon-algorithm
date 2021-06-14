@@ -6,7 +6,7 @@
 #' @import quanteda
 #' @import dplyr
 #' @examples
-#' Data_test<-make_data_fixure(1000)
+#' Data_test<-make_random_data_fixure(1000)
 #' @export
 make_random_data_fixure<-function(nb_users){
 
