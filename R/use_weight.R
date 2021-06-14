@@ -12,16 +12,16 @@
 #' @export
 #'
 #' @examples
-#' W<-data_fixure()
-#' dfm<-W[[1]]
+#' w <- data_fixure()
+#' dfm <- w[[1]]
 #' calibrate(dfm,complet=T,c(1,2,3))
-#'   data_users<-x[[2]]
-#'   word_df<-x[[1]]
-#'   opini_target<-x[[3]]
-#'  y<-use_weight(data_users,rownames(word_df),word_df)
-#'  opini_users<-y[[1]]
-#'  word_wei<-y[[2]]
-use_weight<- function (
+#'   data_users <- x[[2]]
+#'   word_df <- x[[1]]
+#'   opini_target <- x[[3]]
+#' y <- use_weight(data_users,rownames(word_df),word_df)
+#'   opini_users <- y[[1]]
+#'   word_wei <- y[[2]]
+use_weight <- function (
   input,  # a data.frame avec lignes/users et col/text
   words,   # words kept calculating in the last function
   df,     #word/weight data
@@ -29,18 +29,17 @@ use_weight<- function (
   docincol = FALSE
 ){
 
-
-  data_users<-input
-  words_kept<-words
-  word_df<-df
+  data_users <- input
+  words_kept <- words
+  word_df <- df
 
   #### fixer les poids
 
-  t_data_users<-t(data_users)#on transpose pour pouvoir assembler les data
-  t_data_users<-as.data.frame(t_data_users)
+  t_data_users <- t(data_users)#on transpose pour pouvoir assembler les data
+  t_data_users <- as.data.frame(t_data_users)
 
-  t_data_users_kept<-t_data_users#on garde que les mots utilisés par les calibreurs
-  users_name<-colnames(t_data_users_kept)
+  t_data_users_kept <- t_data_users#on garde que les mots utilisés par les calibreurs
+  users_name <- colnames(t_data_users_kept)
 
   #On enlève ceux qui ont étés utilisées zéro fois par tout le monde
 
@@ -58,8 +57,8 @@ use_weight<- function (
   #on les assemble aux mots
 
   word_df<-word_df[zero_word1,]
-  t_data_users_without_zero[,"weight"]<-word_df[,2]
-  t_data_users_without_zero[,"words"]<-word_df[,1]
+  t_data_users_without_zero[,"weight"] <- word_df[,2]
+  t_data_users_without_zero[,"words"] <- word_df[,1]
 
 
 
@@ -86,13 +85,11 @@ use_weight<- function (
 
 
   beta    <- beta_weighted
-  print(beta)
   opinions  <- wf2_out$documents[,'omega']
-  words_weighted_df<-data.frame(words_weighted,beta_weighted)
-  print(words_weighted_df)
+  words_weighted_df <- data.frame(words_weighted,beta_weighted)
   #opinions_df<-data.frame(rownames(data_users)[0],opinions)
-  opinions_df<-data.frame(users_kept1,opinions)
-  colnames(opinions_df)<-c("users","opinions")
+  opinions_df <- data.frame(users_kept1,opinions)
+  colnames(opinions_df) <- c("users","opinions")
   return(list(opinions_df=opinions_df,words_weighted_df=words_weighted_df))
 
 }

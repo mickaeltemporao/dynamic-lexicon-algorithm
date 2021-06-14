@@ -1,7 +1,5 @@
 
-#' Validation functioon
-#'
-#'
+#' Validation function
 #'
 #' @param input_1 the data frame with the score calculate
 #' @param input_2 the real score
@@ -11,7 +9,7 @@
 #' @export
 #'
 #' @examples
-validation<-function(input_1,input_2){
+validation <- function(input_1,input_2){
 
   data_estimation<-input_1
   data_vpl<-input_2

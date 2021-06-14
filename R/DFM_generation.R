@@ -15,11 +15,11 @@
 #' @import dplyr
 #' @import quanteda
 #' @example
-#' Tweet<-read.csv(file="ex_tweets.csv",encoding = 'UTF-8')
-#' Tweet<-subset(Tweet, select = c("user_id","text"))
-#' DFM_test<-dfm_generation(Tweet,2,1,"fr")
+#' Tweet <- read.csv(file="ex_tweets.csv",encoding = 'UTF-8')
+#' Tweet <- subset(Tweet, select = c("user_id","text"))
+#' DFM_test <- dfm_generation(Tweet,2,1,"fr")
 #' @export
-dfm_generation<-function(
+dfm_generation <- function(
   input, #2 col (text & users )
   text,  #numéro de colonne ou il y a le text
   doc,   #numéro de colonne ou il y a les ids
@@ -32,9 +32,9 @@ library(quanteda)
 
   # On créée un toks avec les textes pour le dfm
 
-  tok<-tokens(input[,text], remove_punct = TRUE,remove_symbols=TRUE,remove_numbers=TRUE,remove_url=TRUE,remove_separators=TRUE)
+  tok <- tokens(input[,text], remove_punct = TRUE,remove_symbols=TRUE,remove_numbers=TRUE,remove_url=TRUE,remove_separators=TRUE)
 
-  df<-dfm(tok)# On le convertit en dfm
+  df <- dfm(tok)# On le convertit en dfm
 
   #On enleve les mots inutiles (ex mots de liaisons ou autres)
 
@@ -42,12 +42,12 @@ library(quanteda)
 
   #On garde que les mots plus long que 3
 
-  dfstop<-dfm_keep(dfstop, min_nchar = 3)
+  dfstop  <-dfm_keep(dfstop, min_nchar = 3)
 
   # FILTER  : On garde que les mots cités au moins 5 fois
   # a word needs to belong to enough users
 
-  dfstop<- dfm_trim(dfstop, min_termfreq = 5)
+  dfstop <- dfm_trim(dfstop, min_termfreq = 5)
 
   #Maintenant on fusionne les tweets des mêmes id
 
@@ -64,10 +64,10 @@ library(quanteda)
   # ou comme ca (plus rapide)
 
   DFM <- dfm_group(dfstop, groups = input[,doc])
-  DFM<-convert(DFM, to = "data.frame")
+  DFM <- convert(DFM, to = "data.frame")
   rownames(DFM)<-DFM[,1]
 
-  DFM<-DFM[,-1]
+  DFM <- DFM[,-1]
 
 
 
