@@ -48,6 +48,7 @@ make_random_data_fixure<-function(nb_users){
 
 library(quanteda)
 library(magrittr)
+library(dplyr)
 ########## Creation du DFM
 
 

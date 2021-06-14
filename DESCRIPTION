@@ -18,4 +18,4 @@ Suggests:
     rmarkdown,
     knitr
 VignetteBuilder: knitr
-Imports: quanteda,dplyr,corrplot
+Imports: quanteda,dplyr,corrplot,magrittr,rpart

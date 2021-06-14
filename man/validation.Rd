@@ -4,16 +4,40 @@
 \alias{validation}
 \title{Validation function}
 \usage{
-validation(input_1, input_2)
+validation(input_1, input_2, name_user_1, name_user_2)
 }
 \arguments{
 \item{input_1}{the data frame with the score calculate}
 
 \item{input_2}{the real score}
+
+\item{name_user_1}{the name of the col of the users-id in the df calculate}
+
+\item{name_user_2}{the name of the col of the users-id in the df validation}
 }
 \value{
 
 }
 \description{
 Validation function
+}
+\examples{
+ w <- data_fixture()
+ dfm <- w[[1]]
+ df_val<-w[[2]]
+
+ x<-calibrate(dfm,complet=T,c(1,2,3))
+ data_users <- x[[2]]
+ word_df <- x[[1]]
+ opini_target <- x[[3]]
+
+ y <- use_weight(data_users,rownames(word_df),word_df)
+ opini_users <- y[[1]]
+ word_wei <- y[[2]]
+
+ opinions_df <- rbind(opini_target, opini_users)
+ opinions_df$users <- as.numeric(opinions_df$users)
+ opinions_df$opinions <- as.numeric(opinions_df$opinions)
+
+ s<-validation(opinions_df,df_val,"users","users_id")
 }
