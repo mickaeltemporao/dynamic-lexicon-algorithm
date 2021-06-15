@@ -298,6 +298,7 @@ example("data_fixure")
 #####################Web scraping data fr
 
 library(rvest)
+library(tidyverse)
 #### read page
 
 url<-read_html("https://www.politiquemedia.com/classement-twitter.html")
@@ -320,13 +321,12 @@ url_test<-read_html(paste0("https://www.politiquemedia.com/" ,page[i]))
 
 ### on prends le nom
 
-data_poll_fr[i,1]<-url_test%>%html_nodes(".nom-personnalite") %>%html_text()
+data_poll_fr[i,1]<-url_test%>%html_nodes("h1") %>%html_text()
 
 ##on prends l'age
 
-library(tidyverse)
 
-data_poll_fr[i,2]<-str_sub(url_test%>%html_nodes(".naissance-personnalite") %>%html_text(),28,34)
+data_poll_fr[i,2]<-str_sub(url_test%>%html_nodes(".naissance-personnalite") %>%html_text(),16,27)
 
 ### on prends le parti
 
@@ -338,4 +338,25 @@ data_poll_fr[i,3]<-url_test%>%html_nodes("span.parti-personnalite") %>%html_text
 data_poll_fr[i,4]<-(url_test%>%html_nodes("a.invisible") %>%html_attr("href"))[2]
 
 }
+remove(i)
+remove(page)
+remove(url)
+remove(url_test)
+
+
+
+#####Cleaning
+
+
+data_poll_fr[,1]<-gsub("Ã©", "é", data_poll_fr[,1])
+data_poll_fr[,1]<-gsub("Ã§", "ç", data_poll_fr[,1])
+
+data_poll_fr[,3]<-gsub("Ã©", "é", data_poll_fr[,3])
+data_poll_fr[,3]<-gsub("Ã§", "ç", data_poll_fr[,3])
+
+data_poll_fr[,2]<-gsub(" ", "", data_poll_fr[,2])
+data_poll_fr[,2]<-str_sub(data_poll_fr[,2],1,10)
+
+data_poll_fr[,4]<-str_sub(data_poll_fr[,4],21,100)
+data_poll_fr[,4]<-paste0("@",data_poll_fr[,4])
 

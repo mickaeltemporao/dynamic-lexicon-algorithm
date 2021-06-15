@@ -29,22 +29,20 @@ data_fixture <- function(){
   data_pol <- data_pol[,-1]
 
 
-  dim(data_pol) # 1343 features
 
   # On crée un data users avec des occurences aléatoires
 
   a<-c((1:50)) # colonnes des users
 
 
-  b<-abs(c(rnorm(50, mean=0.5, sd=3))) # occurences
-  b<-round(b)
+  b<-abs(c(rpois(50, 0.5))) # occurences
 
   data_users <- data.frame(a,b)
   data_users <- data_users[,-1]
   data_users <- as.data.frame(data_users)
 
   for(i in 2:dim(data_pol)[2]){
-    data_users[,i] <- round(abs(c(rnorm(50, mean=0.5, sd=3)))) # on rajoute autant qu'il y a de mots
+    data_users[,i] <- round(abs(c(rpois(50, 0.5)))) # on rajoute autant qu'il y a de mots
   }
 
   colnames(data_users) <- colnames(data_pol) # on mets les mêmes noms pour fusionner
@@ -86,37 +84,27 @@ data_fixture <- function(){
   df_validation <- data.frame(rownames(dfm_fixture))
   colnames(df_validation) <- "users_id"
   for(i in 1:dim(df_validation)[1]){
-    df_validation[i,2] <- abs(rnorm(1, mean=5, sd=3))
+    df_validation[i,2] <- abs(rnorm(10, mean=5, sd=3))
   }
 remove(i)
 
 
 #########weight le data
 
-dfm_fixture[14,"democracy"]<-dfm_fixture[14,"democracy"]+4
-dfm_fixture[14,"liberty"]<-dfm_fixture[14,"liberty"]-4
-dfm_fixture[14,"justice"]<-dfm_fixture[14,"justice"]-6
+calib_vector<-sample(rownames(dfm_fixture),5)
+words_choose<-sample(colnames(dfm_fixture),10)
+mean<-c(15,20,13,10,18)
 
-dfm_fixture[38,"democracy"]<-dfm_fixture[38,"democracy"]-2
-dfm_fixture[38,"liberty"]<-dfm_fixture[38,"liberty"]+2
-dfm_fixture[38,"justice"]<-dfm_fixture[38,"justice"]+6
-
-dfm_fixture[4,"democracy"]<-dfm_fixture[4,"democracy"]-1
-dfm_fixture[4,"liberty"]<-dfm_fixture[4,"liberty"]-2
-dfm_fixture[4,"justice"]<-dfm_fixture[4,"justice"]-1
-
-for (i in 1:dim(dfm_fixture)[1]){
-  for(j in 1:dim(dfm_fixture)[2]){
-    if (dfm_fixture[i,j]<0){
-      dfm_fixture[i,j]=0
-    }
+for (i in calib_vector){
+  for(j in words_choose){
+  dfm_fixture[i,j]=rpois(1, sample(mean,1))
   }
 }
-
 
   return(list(dfm_fixture=dfm_fixture,df_validation=df_validation))
 
 }
+
 
 
 
