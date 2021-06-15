@@ -105,8 +105,13 @@ dfm_fixture[4,"democracy"]<-dfm_fixture[4,"democracy"]-1
 dfm_fixture[4,"liberty"]<-dfm_fixture[4,"liberty"]-2
 dfm_fixture[4,"justice"]<-dfm_fixture[4,"justice"]-1
 
-
-
+for (i in 1:dim(dfm_fixture)[1]){
+  for(j in 1:dim(dfm_fixture)[2]){
+    if (dfm_fixture[i,j]<0){
+      dfm_fixture[i,j]=0
+    }
+  }
+}
 
 
   return(list(dfm_fixture=dfm_fixture,df_validation=df_validation))
