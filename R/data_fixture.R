@@ -28,14 +28,14 @@ data_fixture <- function(){
   rownames(data_pol) <- data_pol[,1]
   data_pol <- data_pol[,-1]
 
-
+#word1 a la place
 
   # On crée un data users avec des occurences aléatoires
 
   a<-c((1:50)) # colonnes des users
 
 
-  b<-abs(c(rpois(50, 0.5))) # occurences
+  b<-c(rpois(50, 0.5)) # occurences
 
   data_users <- data.frame(a,b)
   data_users <- data_users[,-1]
@@ -84,7 +84,7 @@ data_fixture <- function(){
   df_validation <- data.frame(rownames(dfm_fixture))
   colnames(df_validation) <- "users_id"
   for(i in 1:dim(df_validation)[1]){
-    df_validation[i,2] <- abs(rnorm(10, mean=5, sd=3))
+    df_validation[i,2] <- rnorm(10, mean=5, sd=3)
   }
 remove(i)
 
@@ -97,7 +97,7 @@ mean<-c(15,20,13,10,18)
 
 for (i in calib_vector){
   for(j in words_choose){
-  dfm_fixture[i,j]=rpois(1, sample(mean,1))
+  dfm_fixture[i,j]=rpois(1, sample(mean,1)) # vector  score df_validation[i,2]
   }
 }
 

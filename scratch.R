@@ -313,7 +313,7 @@ page<-url%>%  html_nodes(".invisible") %>% html_attr("href")
 data_poll_fr<-data.frame(1,1,1,1)
 colnames(data_poll_fr)<-c("Nom","Age","Parti","Twitter")
 
-for(i in 1:100){
+for(i in 1:200){
 
 ### on rentre dans la première page
 
