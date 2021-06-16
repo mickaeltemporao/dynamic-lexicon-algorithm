@@ -55,21 +55,20 @@ data_fixture <- function(){
 
   df_validation <- data.frame(rownames(dfm_fixture))
   colnames(df_validation) <- "users_id"
-  for(i in 1:50){
-    df_validation[i,2] <- rnorm(1, mean=0, sd=1)
-  }
-remove(i)
+  df_validation[,2] <- rnorm(50,5,2)
+  rownames(df_validation)<-df_validation[,1]
+
 
 
 #########weight le data
 
 calib_vector<-sample(rownames(dfm_fixture),5)
 words_choose<-sample(colnames(dfm_fixture),10)
-mean<-c(15,20,13,10,18)
+#mean<-c(15,20,13,10,18)
 
 for (i in calib_vector){
   for(j in words_choose){
-  dfm_fixture[i,j]=rpois(1, sample(mean,1)) # vector  score df_validation[i,2]
+  dfm_fixture[i,j]=rpois(1, df_validation[i,2])
   }
 }
 
