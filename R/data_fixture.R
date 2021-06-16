@@ -7,9 +7,7 @@
 #' @export
 #'
 #' @examples
-#' w <- data_fixture()
-#' dfm <- w[[1]]
-#' val <- w[[2]]
+#' data_fixture()
 data_fixture <- function(){
 
 
@@ -100,6 +98,8 @@ for (i in calib_vector){
   dfm_fixture[i,j]=rpois(1, sample(mean,1)) # vector  score df_validation[i,2]
   }
 }
+
+cat("Finished \n")
 
   return(list(dfm_fixture=dfm_fixture,df_validation=df_validation))
 

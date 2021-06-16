@@ -34,9 +34,6 @@ Calibrate the weight of words to applicate on the users
 }
 \examples{
 w <- data_fixture()
-dfm <- w[[1]]
-x<-calibrate(dfm,complet=T,c(1,2,3))
-  data_users <- x[[2]]
-  word_df <- x[[1]]
-  opini_target <- x[[3]]
+calibrate(w[[1]],complet=T,c(1,2,3))
+remove(w)
 }

@@ -6,7 +6,7 @@
 #' @import quanteda
 #' @import dplyr
 #' @examples
-#' Data_test <- make_random_data_fixture(1000)
+#' make_random_data_fixture(1000)
 #' @export
 make_random_data_fixture <- function(nb_users){
 
@@ -83,7 +83,7 @@ library(magrittr)
     df_validation[i,2] <- rnorm(1, mean=0.4, sd=3)
   }
 
-
+  cat("Finished \n")
 
   return(list(dfm_fixture=dfm_fixture,df_validation=df_validation))
 

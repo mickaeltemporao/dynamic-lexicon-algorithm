@@ -13,10 +13,8 @@
 #'
 #' @examples
 #'w<-data_fixture()
-#'dfm<-w[[1]]
-#'val<-w[[2]]
+#'algo_10(w[[1]],w[[2]],"users_id")
 #'remove(w)
-#'s<-algo_10(dfm,val,"users_id")
 
 algo_10 <- function (
     input,  # a dfm avec lignes/users et col/text

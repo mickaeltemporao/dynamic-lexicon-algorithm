@@ -13,14 +13,10 @@
 #'
 #' @examples
 #' w <- data_fixture()
-#' dfm <- w[[1]]
-#' x<-calibrate(dfm,complet=T,c(1,2,3))
-#'   data_users <- x[[2]]
-#'   word_df <- x[[1]]
-#'   opini_target <- x[[3]]
-#' y <- use_weight(data_users,rownames(word_df),word_df)
-#'   opini_users <- y[[1]]
-#'   word_wei <- y[[2]]
+#' x<-calibrate(w[[1]],complet=T,c(1,2,3))
+#' use_weight(x[[2]],rownames(x[[1]]),x[[1]])
+#' remove(w)
+#' remove(x)
 use_weight <- function (
   input,  # a data.frame avec lignes/users et col/text
   words,   # words kept calculating in the last function
@@ -90,6 +86,8 @@ use_weight <- function (
   #opinions_df<-data.frame(rownames(data_users)[0],opinions)
   opinions_df <- data.frame(users_kept1,opinions)
   colnames(opinions_df) <- c("users","opinions")
+
+  cat("Finished \n")
   return(list(opinions_df=opinions_df,words_weighted_df=words_weighted_df))
 
 }
