@@ -28,23 +28,21 @@ data_fixture <- function(){
   rownames(data_pol) <- data_pol[,1]
   data_pol <- data_pol[,-1]
 
-
-  dim(data_pol) # 1343 features
+#word1 a la place
 
   # On crée un data users avec des occurences aléatoires
 
-  a<-c((1:100)) # colonnes des users
+  a<-c((1:50)) # colonnes des users
 
 
-  b<-abs(c(rnorm(100, mean=0.4, sd=3))) # occurences
-  b<-round(b)
+  b<-c(rpois(50, 0.5)) # occurences
 
   data_users <- data.frame(a,b)
   data_users <- data_users[,-1]
   data_users <- as.data.frame(data_users)
 
   for(i in 2:dim(data_pol)[2]){
-    data_users[,i] <- round(abs(c(rnorm(100, mean=0.4, sd=3)))) # on rajoute autant qu'il y a de mots
+    data_users[,i] <- round(abs(c(rpois(50, 0.5)))) # on rajoute autant qu'il y a de mots
   }
 
   colnames(data_users) <- colnames(data_pol) # on mets les mêmes noms pour fusionner
@@ -67,11 +65,16 @@ data_fixture <- function(){
   colnames(data)[dim(data)[2]] <- "ID"
 
 
-  data <- data[4:103,1:1343]
+  data <- data[4:53,1:100]
 
   dfm_fixture <- data# data finale
 
-
+  remove(a)
+  remove(b)
+  remove(i)
+  remove(data_users)
+  remove(data_pol)
+  remove(data)
 
 
 
@@ -81,23 +84,27 @@ data_fixture <- function(){
   df_validation <- data.frame(rownames(dfm_fixture))
   colnames(df_validation) <- "users_id"
   for(i in 1:dim(df_validation)[1]){
-    df_validation[i,2] <- rnorm(1, mean=0.4, sd=3)
+    df_validation[i,2] <- rnorm(10, mean=5, sd=3)
   }
+remove(i)
 
 
-  for (j in 1:dim(dfm_fixture)[1]){
-     df_validation[j,2]=dfm_fixture[j,"technologies"]*(-1.5)+df_validation[j,2]
-     df_validation[j,2]=dfm_fixture[j,"democracy"]*(-3)+df_validation[j,2]
-     df_validation[j,2]=dfm_fixture[j,"patriotism"]*3+df_validation[j,2]
-     df_validation[j,2]=dfm_fixture[j,"terrorism"]*1.5+df_validation[j,2]
+#########weight le data
+
+calib_vector<-sample(rownames(dfm_fixture),5)
+words_choose<-sample(colnames(dfm_fixture),10)
+mean<-c(15,20,13,10,18)
+
+for (i in calib_vector){
+  for(j in words_choose){
+  dfm_fixture[i,j]=rpois(1, sample(mean,1)) # vector  score df_validation[i,2]
   }
-
-
-
+}
 
   return(list(dfm_fixture=dfm_fixture,df_validation=df_validation))
 
 }
+
 
 
 
