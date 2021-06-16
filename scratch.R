@@ -313,7 +313,7 @@ page<-url%>%  html_nodes(".invisible") %>% html_attr("href")
 data_poll_fr<-data.frame(1,1,1,1)
 colnames(data_poll_fr)<-c("Nom","Age","Parti","Twitter")
 
-for(i in 1:200){
+for(i in 1:length(url%>%html_nodes(".invisible.classement-twitter-nom") %>%html_text())){
 
 ### on rentre dans la première page
 
@@ -326,7 +326,11 @@ data_poll_fr[i,1]<-url_test%>%html_nodes("h1") %>%html_text()
 ##on prends l'age
 
 
-data_poll_fr[i,2]<-str_sub(url_test%>%html_nodes(".naissance-personnalite") %>%html_text(),16,27)
+data_poll_fr[i,2]<-url_test%>%html_nodes(".naissance-personnalite") %>%html_text()
+
+if(str_count(data_poll_fr[i,2],"")==42){data_poll_fr[i,5]="F"}
+else{data_poll_fr[i,5]="M"}
+
 
 ### on prends le parti
 
@@ -343,7 +347,7 @@ remove(page)
 remove(url)
 remove(url_test)
 
-
+colnames(data_poll_fr)[5]<-"Sexe"
 
 #####Cleaning
 
@@ -354,9 +358,12 @@ data_poll_fr[,1]<-gsub("Ã§", "ç", data_poll_fr[,1])
 data_poll_fr[,3]<-gsub("Ã©", "é", data_poll_fr[,3])
 data_poll_fr[,3]<-gsub("Ã§", "ç", data_poll_fr[,3])
 
+data_poll_fr[,2]<-str_sub(data_poll_fr[,2],16,27)
 data_poll_fr[,2]<-gsub(" ", "", data_poll_fr[,2])
 data_poll_fr[,2]<-str_sub(data_poll_fr[,2],1,10)
 
 data_poll_fr[,4]<-str_sub(data_poll_fr[,4],21,100)
 data_poll_fr[,4]<-paste0("@",data_poll_fr[,4])
+
+
 
