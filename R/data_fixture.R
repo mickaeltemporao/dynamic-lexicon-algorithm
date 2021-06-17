@@ -74,7 +74,7 @@ for (i in calib_vector){
 
 cat("Finished \n")
 
-  return(list(dfm_fixture=dfm_fixture,df_validation=df_validation))
+  return(list(dfm_fixture=dfm_fixture,df_validation=df_validation,calib_vector,words_choose))
 
 }
 
