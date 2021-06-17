@@ -29,7 +29,6 @@ Validation function
  y <- use_weight(x[[2]],rownames(x[[1]]),x[[1]])
 
  opinions_df <- rbind(x[[3]], y[[1]])
- opinions_df$users <- as.numeric(opinions_df$users)
  opinions_df$opinions <- as.numeric(opinions_df$opinions)
 
  validation(opinions_df,w[[2]],"users","users_id")
