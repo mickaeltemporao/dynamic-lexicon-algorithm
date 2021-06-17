@@ -62,8 +62,34 @@ data_fixture <- function(){
 
 #########weight le data
 
-calib_vector<-sample(rownames(dfm_fixture),5)
-words_choose<-sample(colnames(dfm_fixture),10)
+  calib_vector<-sample(rownames(dfm_fixture),10)
+
+
+  dfm_pour_filtre<-dfm_fixture[calib_vector,]
+  dfm_pour_filtre<-t(dfm_pour_filtre)
+  dfm_pour_filtre<-as.data.frame(dfm_pour_filtre)
+
+  ###filtre pour enlever les zero
+
+  zero_word <- (rowSums(dfm_pour_filtre>0) > 0)
+
+  dfm_pour_filtre <- dfm_pour_filtre[zero_word, ]
+
+  zero_docs <- (colSums(dfm_pour_filtre) > 0)
+  dfm_filtre <- dfm_pour_filtre[, zero_docs]
+
+
+
+  sum(rowSums(dfm_filtre> 0) == 0)
+  sum(colSums(dfm_filtre > 0) == 0)
+
+  dfm_filtre<-t(dfm_filtre)
+  dfm_filtre<-as.data.frame(dfm_filtre)
+
+  dfm_fixture<-dfm_fixture[,colnames(dfm_filtre)]
+
+  words_choose<-sample(colnames(dfm_filtre),15)
+
 #mean<-c(15,20,13,10,18)
 
 for (i in calib_vector){

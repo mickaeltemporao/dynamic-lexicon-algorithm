@@ -64,11 +64,14 @@ calibrate <- function (
     omega <- wf_out_data$documents[, "omega"]
     beta <- wf_out_data$words[, "b"]
     psi <- wf_out_data$words[, "psi"]
+    opini<-wf_out_data$documents[,'omega']
 
     ### associer les mots et leurs poids respectifs
 
     word_df <- data.frame(words_kept,beta)
     word_top <- word_df[sort(abs(word_df$beta),decreasing=T,index.return=T)[[2]],][1:6,]
+    opini_df <- data.frame(colnames(t_data_without_zero),opini)
+    colnames(opini_df)[1]<-"users_id"
 
     cat("Finished \n")
 
