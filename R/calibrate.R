@@ -75,7 +75,7 @@ calibrate <- function (
 
     cat("Finished \n")
 
-    return(list(word_df=word_df,words_kept=words_kept,word_top=word_top))
+    return(list(word_df=word_df,words_kept=words_kept,word_top=word_top,opini_df))
 
   }
   else{

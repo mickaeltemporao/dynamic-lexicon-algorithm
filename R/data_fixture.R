@@ -22,7 +22,7 @@ data_fixture <- function(){
   a<-data.frame() # colonnes des users
 
   for (i in 1:50){
-    a[i,1]<-paste0("users",i)
+    a[i,1]<-i
   }
 
   b<-c(rpois(50, 0.5)) # occurences
