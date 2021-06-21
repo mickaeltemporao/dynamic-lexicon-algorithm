@@ -12,11 +12,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ### Data_fixture
 
 ```{r}
-x<-data_fixture()
- dfm_fixture<-x[[1]]
- df_validation<-x[[2]]
- calib_vector<-x[[3]]
- words<-x[[4]]
+load("~/validation_workspace.RData")
+
  dfm_choose<-dfm_fixture[calib_vector,words]
 ```
 
@@ -88,10 +85,6 @@ Comparons ces résultats à ce lorsque nous calibrons sur l'ensemble des users :
 
 ```{r}
 ## sur tout
-w<-calibrate(dfm_fixture,complet=F)
-
-opini_df<-w[[4]]
-
 validation(opini_df,df_validation,colnames(opini_df)[1],"users_id")
 
 ```
@@ -122,7 +115,7 @@ $x2y
 [1] 5.51
 
 ```{r}
-x<-algo_10(dfm_fixture,df_validation,"users_id")
+x  #algo_10 function return 
 
 
 ```
@@ -139,6 +132,8 @@ co<-ggplot(x,aes(x =`numéro du sample`, y = validation_score)) +geom_line()+geo
 co<-co+geom_point(aes(x=11, y=0.3130565), colour="red")
 co<-co+geom_hline(yintercept=0.3130565, 
                 color = "red", size=0.5)
+co<-co+   geom_errorbar(aes(ymin=validation_score, ymax= 0.3130565), width=.2,
+                 position=position_dodge(.9)) 
 
 xy<-ggplot(x,aes(x =`numéro du sample`, y = validation_score_x2y)) +geom_line()+geom_point()
 xy<-xy+geom_point(aes(x=11, y=5.51), colour="red")
@@ -149,5 +144,13 @@ grid.arrange(co,xy, ncol=1, nrow = 2)
 
 ```
 
+### Performances 
+
+```{r}
+for (i in 1:dim(x)[1]){
+        x[i,6]<-(0.3130565-x[i,4])/0.3130565
+}
+colnames(x)[6]<-"ecart relatif"
+```
 
 
