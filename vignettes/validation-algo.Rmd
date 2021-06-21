@@ -1,0 +1,153 @@
+---
+title: "Validation algo"
+author: "FREDON Louis"
+date: "21/06/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Data_fixture
+
+```{r}
+x<-data_fixture()
+ dfm_fixture<-x[[1]]
+ df_validation<-x[[2]]
+ calib_vector<-x[[3]]
+ words<-x[[4]]
+ dfm_choose<-dfm_fixture[calib_vector,words]
+```
+
+
+
+
+### Calcul des paramètres 
+
+Nous voulons ici montrer que le poids des mots est proportionel au biais que nous avons appliquer pour faire la fixture.
+
+```{r}
+calib_vector<-as.numeric(calib_vector)
+
+
+w<-calibrate(dfm_fixture,complet=T,calib_vector)
+word_df<-w[[1]]
+words_choose_weight<-word_df[words,]
+
+words_choose_weight[,3]<-colMeans(dfm_choose)
+
+colnames(words_choose_weight)[3]<-"moyenne des occurences"
+
+
+words_choose_weight<-arrange(words_choose_weight,words_choose_weight$beta)
+
+
+```
+
+On remarque que les poids calculés sont inversement correlés a la moyenne d'occurences des mots
+
+### Comparaison avec calibration sur tous
+
+Maintenant nous voulons montrer que le score qaund on calibre sur le subset de nos users biaisé (lorsqu'on a fait la fixture) est meilleur que si nous calibrons sur tout les users. Cette comparaison va nous apporter un point de validation de notre fixture
+
+```{r}
+##### Sur le subset
+
+data_users<-w[[2]]
+opini_target<-w[[3]]
+
+
+```
+
+Nous avons le target calculé sur le subset donc nous pouvons d'abbord verfifier si la corrélation avec la validation est correcte :
+
+```{r}
+#correlation target des calib
+cor(df_validation[calib_vector,]$V2,opini_target$opinions)
+
+```
+Nous avons une corrélation de  0.8117229 ce qui montre que le calcul sur le subset est aceptable.
+
+Maintenant comparons nos prédictions a la validation :
+
+```{r}
+#use weight on the other
+
+y<-use_weight(data_users,rownames(word_df),word_df)
+opini_users<-y[[1]]
+word_wei<-y[[2]]
+
+opinions_df <- rbind(w[[3]], y[[1]])
+opinions_df$opinions <- as.numeric(opinions_df$opinions)
+
+validation(opinions_df,df_validation,"users","users_id")
+```
+
+Comparons ces résultats à ce lorsque nous calibrons sur l'ensemble des users :
+
+```{r}
+## sur tout
+w<-calibrate(dfm_fixture,complet=F)
+
+opini_df<-w[[4]]
+
+validation(opini_df,df_validation,colnames(opini_df)[1],"users_id")
+
+```
+
+On remarque bien que les scores sont bien plus faibles.
+
+Cela montre que nous pouvons valider le fait que notre subset d'users biaisés est plus performant.
+
+
+
+
+
+### Algo 10
+
+MAintenant pour finaliser la validation de notre fixture nous allons comparer le score de la prédiction lorsqu'on calibre sur le subset biaisé et le score de la prédiction lorsqu'on lance notre fonction algo_10 qui fait 10 sample, donc 10 subset.
+Si notre subset biaisé reste le meilleur , alors nous pouvons valider notre fixture.
+
+On rapelle que le score sur notre subset biaisé etait de :
+
+
+$average_efficiency
+[1] 1.034745
+
+$coeff_corr
+[1] 0.3130565
+
+$x2y
+[1] 5.51
+
+```{r}
+x<-algo_10(dfm_fixture,df_validation,"users_id")
+
+
+```
+
+Pour mesurer les résultats on peut faire un graphique :
+
+```{r}
+library(ggplot2)
+library(gridExtra)
+
+
+
+co<-ggplot(x,aes(x =`numéro du sample`, y = validation_score)) +geom_line()+geom_point()
+co<-co+geom_point(aes(x=11, y=0.3130565), colour="red")
+co<-co+geom_hline(yintercept=0.3130565, 
+                color = "red", size=0.5)
+
+xy<-ggplot(x,aes(x =`numéro du sample`, y = validation_score_x2y)) +geom_line()+geom_point()
+xy<-xy+geom_point(aes(x=11, y=5.51), colour="red")
+xy<-xy+geom_hline(yintercept=5.51, 
+                color = "red", size=0.5)
+
+grid.arrange(co,xy, ncol=1, nrow = 2)
+
+```
+
+
+
