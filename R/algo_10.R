@@ -46,7 +46,7 @@ for (i in 1:10){
 
   for(j in 1:length(X1)){
     data_cor[i,j+1]<-X1[j]
-    colnames(data_cor)[j+1]<-"donnée de calib"
+    colnames(data_cor)[j+1]<-paste0("donnée de calib",i)
   }
 
 
