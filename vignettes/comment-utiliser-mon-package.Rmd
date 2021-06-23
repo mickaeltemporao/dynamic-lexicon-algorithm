@@ -43,18 +43,18 @@ Nous allons créer une fonction qui va générer un DFM ainsi qu'une validation 
 Nous prenons les mots des discours des présidents américains depuis 2011, soit trois présidents (disponible dans le package quanteda) :
 
 ```{r}
-make_random_data_fixure<-function(nb_users){
-
-
 library(quanteda)
 library(magrittr)
 library(dplyr)
+make_random_data_fixure<-function(nb_users){
+
+
 ########## Creation du DFM
 
 
 #On crée un data avec les politiciens, ici on prends des mots des présidents américains lors de leurs discours
 
-data_pol<-data_corpus_inaugural %>% corpus_subset(Year > 2011) %>%tokens()
+data_pol<-data_corpus_inaugural %>% corpus_subset(Year > 2011) %>% tokens()
 
 ```
 

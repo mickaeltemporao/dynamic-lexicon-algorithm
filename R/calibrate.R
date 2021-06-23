@@ -16,11 +16,8 @@
 #'
 #' @examples
 #' w <- data_fixture()
-#' dfm <- w[[1]]
-#' x<-calibrate(dfm,complet=T,c(1,2,3))
-#'   data_users <- x[[2]]
-#'   word_df <- x[[1]]
-#'   opini_target <- x[[3]]
+#' calibrate(w[[1]],complet=T,c(1,2,3))
+#' remove(w)
 calibrate <- function (
   input,  # a data.frame avec lignes/users et col/text
   complet = T, #T ou F si T data avec calib et users
@@ -67,11 +64,16 @@ calibrate <- function (
     omega <- wf_out_data$documents[, "omega"]
     beta <- wf_out_data$words[, "b"]
     psi <- wf_out_data$words[, "psi"]
+    opini<-wf_out_data$documents[,'omega']
 
     ### associer les mots et leurs poids respectifs
 
     word_df <- data.frame(words_kept,beta)
     word_top <- word_df[sort(abs(word_df$beta),decreasing=T,index.return=T)[[2]],][1:6,]
+    opini_df <- data.frame(colnames(t_data_without_zero),opini)
+    colnames(opini_df)[1]<-"users_id"
+
+    cat("Finished \n")
 
     return(list(word_df=word_df,words_kept=words_kept,word_top=word_top))
 
@@ -135,6 +137,8 @@ calibrate <- function (
   colnames(opini_df) <- c("users","opinions")
   word_top <- word_df[sort(abs(word_df$beta),decreasing=T,index.return=T)[[2]],][1:6,]
   data_users <- data_users[,words_kept]
+
+  cat("Finished \n")
 
   return(list(word_df=word_df,data_users=data_users,opinions=opini_df))
   }

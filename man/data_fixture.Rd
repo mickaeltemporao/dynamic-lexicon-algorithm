@@ -13,7 +13,5 @@ data_fixture()
 Make the data fixture with the df validation
 }
 \examples{
-w <- data_fixture()
-dfm <- w[[1]]
-val <- w[[2]]
+data_fixture()
 }

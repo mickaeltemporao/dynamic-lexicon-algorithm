@@ -7,101 +7,100 @@
 #' @export
 #'
 #' @examples
-#' w <- data_fixture()
-#' dfm <- w[[1]]
-#' val <- w[[2]]
+#' data_fixture()
 data_fixture <- function(){
 
 
-  library(quanteda)
-  library(magrittr)
-  ########## Creation du DFM
+  x<-data.frame()
 
-
-  #On crée un data avec les politiciens, ici on prends des mots des présidents américains lors de leurs discours
-
-  data_pol <- data_corpus_inaugural %>% corpus_subset(Year > 2011) %>%tokens()
-  data_pol  <-dfm(data_pol)# on transforme en dfm
-  data_pol <- dfm_keep(data_pol, min_nchar = 2)#on garde que les mots de plus de 2 lettres
-  data_pol <- dfm_remove(data_pol, pattern = stopwords("en"))#on enleve les mots communs (ponctuation, et ..)
-  data_pol <- convert(data_pol, to = "data.frame")
-  rownames(data_pol) <- data_pol[,1]
-  data_pol <- data_pol[,-1]
-
-#word1 a la place
+  for (i in 1:100){
+    x[1,i]<-paste0("words",i)
+  }
 
   # On crée un data users avec des occurences aléatoires
 
-  a<-c((1:50)) # colonnes des users
+  a<-data.frame() # colonnes des users
 
+  for (i in 1:50){
+    a[i,1]<-paste0("users",i)
+  }
 
   b<-c(rpois(50, 0.5)) # occurences
 
   data_users <- data.frame(a,b)
-  data_users <- data_users[,-1]
   data_users <- as.data.frame(data_users)
 
-  for(i in 2:dim(data_pol)[2]){
+  for(i in 3:101){
     data_users[,i] <- round(abs(c(rpois(50, 0.5)))) # on rajoute autant qu'il y a de mots
   }
 
-  colnames(data_users) <- colnames(data_pol) # on mets les mêmes noms pour fusionner
+  rownames(data_users)<-data_users[,1]
 
-  data <- rbind(data_pol, data_users)
+  data_users<-data_users[,2:101]
 
-  data[,dim(data)[2]+1] <- 1
-
-
-
-  for(i in 1:dim(data)[1]){
-    if(i<4){
-      data[i,dim(data)[2]]=1
-    }
-    else{data[i,dim(data)[2]]=0}
-  }
-
-  data[,dim(data)[2]]
-
-  colnames(data)[dim(data)[2]] <- "ID"
+  colnames(data_users) <- x # on mets les mêmes noms pour fusionner
 
 
-  data <- data[4:53,1:100]
-
-  dfm_fixture <- data# data finale
+  dfm_fixture <- data_users# data finale
 
   remove(a)
   remove(b)
   remove(i)
   remove(data_users)
-  remove(data_pol)
-  remove(data)
+  remove(x)
 
 
 
-
-  ########### Creation du Data frame validation
+########### Creation du Data frame validation
 
   df_validation <- data.frame(rownames(dfm_fixture))
   colnames(df_validation) <- "users_id"
-  for(i in 1:dim(df_validation)[1]){
-    df_validation[i,2] <- rnorm(10, mean=5, sd=3)
-  }
-remove(i)
+  df_validation[,2] <- rnorm(50,5,2)
+  rownames(df_validation)<-df_validation[,1]
+
 
 
 #########weight le data
 
-calib_vector<-sample(rownames(dfm_fixture),5)
-words_choose<-sample(colnames(dfm_fixture),10)
-mean<-c(15,20,13,10,18)
+  calib_vector<-sample(rownames(dfm_fixture),10)
+
+
+  dfm_pour_filtre<-dfm_fixture[calib_vector,]
+  dfm_pour_filtre<-t(dfm_pour_filtre)
+  dfm_pour_filtre<-as.data.frame(dfm_pour_filtre)
+
+  ###filtre pour enlever les zero
+
+  zero_word <- (rowSums(dfm_pour_filtre>0) > 0)
+
+  dfm_pour_filtre <- dfm_pour_filtre[zero_word, ]
+
+  zero_docs <- (colSums(dfm_pour_filtre) > 0)
+  dfm_filtre <- dfm_pour_filtre[, zero_docs]
+
+
+
+  sum(rowSums(dfm_filtre> 0) == 0)
+  sum(colSums(dfm_filtre > 0) == 0)
+
+  dfm_filtre<-t(dfm_filtre)
+  dfm_filtre<-as.data.frame(dfm_filtre)
+
+  dfm_fixture<-dfm_fixture[,colnames(dfm_filtre)]
+
+  words_choose<-sample(colnames(dfm_filtre),15)
+
+#mean<-c(15,20,13,10,18)
 
 for (i in calib_vector){
   for(j in words_choose){
-  dfm_fixture[i,j]=rpois(1, sample(mean,1)) # vector  score df_validation[i,2]
+  dfm_fixture[i,j]=rpois(1, df_validation[i,2])
   }
 }
 
-  return(list(dfm_fixture=dfm_fixture,df_validation=df_validation))
+cat("Finished \n")
+
+  return(list(dfm_fixture=dfm_fixture,df_validation=df_validation,calib_vector,words_choose))
 
 }
 

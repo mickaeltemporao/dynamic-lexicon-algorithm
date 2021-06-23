@@ -12,26 +12,18 @@
 #'
 #' @examples
 #'  w <- data_fixture()
-#'  dfm <- w[[1]]
-#'  df_val<-w[[2]]
 #'
-#'  x<-calibrate(dfm,complet=T,c(1,2,3))
-#'  data_users <- x[[2]]
-#'  word_df <- x[[1]]
-#'  opini_target <- x[[3]]
+#'  x<-calibrate(w[[1]],complet=T,c(1,2,3))
 #'
-#'  y <- use_weight(data_users,rownames(word_df),word_df)
-#'  opini_users <- y[[1]]
-#'  word_wei <- y[[2]]
+#'  y <- use_weight(x[[2]],rownames(x[[1]]),x[[1]])
 #'
-#'  opinions_df <- rbind(opini_target, opini_users)
-#'  opinions_df$users <- as.numeric(opinions_df$users)
+#'  opinions_df <- rbind(x[[3]], y[[1]])
 #'  opinions_df$opinions <- as.numeric(opinions_df$opinions)
 #'
-#'  s<-validation(opinions_df,df_val,"users","users_id")
-#'  ecart_relatif<-s[[1]]
-#'  correlation<-s[[2]]
-#'  x2y<-s[[3]]
+#'  validation(opinions_df,w[[2]],"users","users_id")
+#'  remove(w)
+#'  remove(x)
+#'  remove(y)
 validation <- function(input_1,input_2,name_user_1,name_user_2){
 
   data_estimation<-input_1
@@ -55,6 +47,8 @@ validation <- function(input_1,input_2,name_user_1,name_user_2){
   average_efficiency<-mean(mat_ecart_relatif[,1])
 
   x2y<-x2y(op_match[,2],op_match[,3])[[2]]
+
+  cat("Finished \n")
 
   return(list(average_efficiency=average_efficiency,coeff_corr=coeff_corr,x2y=x2y))
 

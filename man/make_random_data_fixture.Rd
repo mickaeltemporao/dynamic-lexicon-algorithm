@@ -16,5 +16,5 @@ make_random_data_fixture(nb_users)
 Make a random Data fixture
 }
 \examples{
-Data_test <- make_random_data_fixture(1000)
+make_random_data_fixture(1000)
 }

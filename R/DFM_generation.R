@@ -17,7 +17,8 @@
 #' @example
 #' Tweet <- read.csv(file="ex_tweets.csv",encoding = 'UTF-8')
 #' Tweet <- subset(Tweet, select = c("user_id","text"))
-#' DFM_test <- dfm_generation(Tweet,2,1,"fr")
+#' dfm_generation(Tweet,2,1,"fr")
+#' remove(Tweet)
 #' @export
 dfm_generation <- function(
   input, #2 col (text & users )
