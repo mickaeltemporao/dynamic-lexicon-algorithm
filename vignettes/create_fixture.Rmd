@@ -1,0 +1,123 @@
+---
+title: "Creation et Validation fixture"
+author: "FREDON Louis"
+date: "23/06/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Creation d'une fixture représentative
+
+Nous voulons créer une fixture représentative, valide et efficace pour pouvoir ensuite optimiser notre algorithme.
+
+Pour cela nous allons créer un dfm avec des mots, des occurences ainsi que des utilisateurs aléatoires.
+
+Pour le rendre valide, nous allons biaisé les occurences des mots par des utilisateurs et mots choisi.
+
+Pour cela nous allons généré pour ces utilisateurs un nombre aléatoires suivant une loi poisson de lambda leurs variables de target comme suivant.
+
+Création du dfm et du target aléatoires ;
+
+```{r}
+ x<-data.frame()
+
+  for (i in 1:100){
+    x[1,i]<-paste0("words",i)
+  }
+
+  # On crée un data users avec des occurences aléatoires
+
+  a<-data.frame() # colonnes des users
+
+  for (i in 1:50){
+    a[i,1]<-i
+  }
+
+  b<-c(rpois(50, 0.5)) # occurences
+
+  data_users <- data.frame(a,b)
+  data_users <- as.data.frame(data_users)
+
+  for(i in 3:101){
+    data_users[,i] <- round(abs(c(rpois(50, 0.5)))) # on rajoute autant qu'il y a de mots
+  }
+
+  rownames(data_users)<-data_users[,1]
+
+  data_users<-data_users[,2:101]
+
+  colnames(data_users) <- x # on mets les mêmes noms pour fusionner
+
+
+  dfm_fixture <- data_users# data finale
+
+  remove(a)
+  remove(b)
+  remove(i)
+  remove(data_users)
+  remove(x)
+  
+  
+  ########### Creation du Data frame validation
+
+  df_validation <- data.frame(rownames(dfm_fixture))
+  colnames(df_validation) <- "users_id"
+  df_validation[,2] <- rnorm(50,5,2)
+  rownames(df_validation)<-df_validation[,1]
+
+```
+
+
+Maintenant que nous avons cela on peut biaisé le dfm comme expliqué ci dessus.
+
+On applique d'abbord les filtres pour pas que les utilisateurs ne disent aucun mots choisi :
+
+```{r}
+
+#########weight le data
+
+  calib_vector<-sample(rownames(dfm_fixture),10)
+
+
+  dfm_pour_filtre<-dfm_fixture[calib_vector,]
+  dfm_pour_filtre<-t(dfm_pour_filtre)
+  dfm_pour_filtre<-as.data.frame(dfm_pour_filtre)
+
+  ###filtre pour enlever les zero
+
+  zero_word <- (rowSums(dfm_pour_filtre>0) > 0)
+
+  dfm_pour_filtre <- dfm_pour_filtre[zero_word, ]
+
+  zero_docs <- (colSums(dfm_pour_filtre) > 0)
+  dfm_filtre <- dfm_pour_filtre[, zero_docs]
+
+
+
+  sum(rowSums(dfm_filtre> 0) == 0)
+  sum(colSums(dfm_filtre > 0) == 0)
+
+  dfm_filtre<-t(dfm_filtre)
+  dfm_filtre<-as.data.frame(dfm_filtre)
+
+  dfm_fixture<-dfm_fixture[,colnames(dfm_filtre)]
+
+  words_choose<-sample(colnames(dfm_filtre),15)
+```
+
+Maintenant on peut générer la loi poisson :
+
+```{r}
+for (i in calib_vector){
+  for(j in words_choose){
+  dfm_fixture[i,j]=rpois(1, df_validation[i,2])
+  }
+}
+```
+
+Nous avons donc maintenant un dfm biaisé selon des utilisateurs choisis. 
+
+Nous devons maintenant le valider.

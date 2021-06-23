@@ -11,6 +11,11 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### Data_fixture
 
+Nous utilisons et voulons valider notre fixture créer. 
+
+Sa création est expliquée dans le markdown du même nom.
+
+
 ```{r}
 load("~/validation_workspace.RData")
 
