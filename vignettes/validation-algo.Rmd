@@ -129,11 +129,10 @@ library(gridExtra)
 
 
 co<-ggplot(x,aes(x =`numéro du sample`, y = validation_score)) +geom_line()+geom_point()
-co<-co+geom_point(aes(x=11, y=0.3130565), colour="red")
 co<-co+geom_hline(yintercept=0.3130565, 
-                color = "red", size=0.5)
+                color = "blue", size=0.5)
 co<-co+   geom_errorbar(aes(ymin=validation_score, ymax= 0.3130565), width=.2,
-                 position=position_dodge(.9)) 
+                 position=position_dodge(.9), color="red", alpha=.5) 
 
 xy<-ggplot(x,aes(x =`numéro du sample`, y = validation_score_x2y)) +geom_line()+geom_point()
 xy<-xy+geom_point(aes(x=11, y=5.51), colour="red")
