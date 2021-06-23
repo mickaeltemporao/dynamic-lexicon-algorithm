@@ -73,4 +73,4 @@ data_poll_fr[,4]<-str_sub(data_poll_fr[,4],21,100)
 data_poll_fr[,4]<-paste0("@",data_poll_fr[,4])
 
 
-save(data_poll_fr,file="data/data_polls_fr.csv")
+save(data_poll_fr,file="data/data_polls_fr.Rda")
