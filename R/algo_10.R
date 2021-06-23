@@ -46,7 +46,7 @@ for (i in 1:10){
 
   for(j in 1:length(X1)){
     data_cor[i,j+1]<-X1[j]
-    colnames(data_cor)[j+1]<-"donnée de calib"
+    colnames(data_cor)[j+1]<-paste0("donnée de calib",j)
   }
 
 
@@ -77,7 +77,8 @@ for (i in 1:10){
 
   df_validation_arrange <- arrange(data_validation,name_user)
 
-  op_match <- merge(opinions_df_arrange,df_validation_arrange,by.x = "users",by.y = name_users)
+  op_match <- merge(opinions_df_arrange,df_validation_arrange,by.x = "users",by.y = name_user)
+
 
   validation_metrics <- cor(op_match$opinions,op_match[,3])
 

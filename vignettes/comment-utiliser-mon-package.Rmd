@@ -9,8 +9,11 @@ vignette: >
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
+  collapse = T,
+  echo=T,
+  warning=F,
+  message=F,
+  eval=F
 )
 ```
 
@@ -42,11 +45,11 @@ Nous allons créer une fonction qui va générer un DFM ainsi qu'une validation 
 
 Nous prenons les mots des discours des présidents américains depuis 2011, soit trois présidents (disponible dans le package quanteda) :
 
-```{r}
+```{r }
 library(quanteda)
 library(magrittr)
 library(dplyr)
-make_random_data_fixure<-function(nb_users){
+ make_random_data_fixure<-function(nb_users){
 
 
 ########## Creation du DFM
@@ -61,7 +64,7 @@ data_pol<-data_corpus_inaugural %>% corpus_subset(Year > 2011) %>% tokens()
 
 Maintenant nous transformons en Documents-Features-Matrix:
 
-```{r}
+```{r }
 data_pol<-dfm(data_pol)# on transforme en dfm
 ```
 
@@ -73,19 +76,19 @@ data_pol<-dfm_keep(data_pol, min_nchar = 2)#on garde que les mots de plus de 2 l
 
 On enlève les "stopwords" donc les mots de ponctuation etc..
 
-```{r}
+```{r }
 data_pol<-dfm_remove(data_pol, pattern = stopwords("en"))#on enleve les mots communs (ponctuation, et ..)
 ```
 
 On le transforme en data frame pour les manipulations :
 
-```{r}
+```{r }
   data_pol<-as.data.frame(data_pol)
 ```
 
 On transforme la première colonne en nom des lignes pour avoir en nom de ligne les ids et en nom de colonnes les documents :
 
-```{r}
+```{r }
   rownames(data_pol)<-data_pol[,1]
   data_pol<-data_pol[,-1]
 
@@ -96,7 +99,7 @@ On transforme la première colonne en nom des lignes pour avoir en nom de ligne 
 
 Maintenant que nous avons crée un data avec les politiciens, nous allons créer aléatoirement (suivant une loi normale) des users et des occurences des mots utilisés par ces utilisateurs :
 
-```{r}
+```{r }
   # On crée un data users avec des occurences aléatoires
 
   a<-c((1:nb_users)) # colonnes des users
@@ -120,7 +123,7 @@ Maintenant que nous avons crée un data avec les politiciens, nous allons créer
 
 Maintenant nous pouvons fusionner les deux datas ( users et politiciens )
 
-```{r}
+```{r }
   colnames(data_users)<-colnames(data_pol) # on mets les mêmes noms pour fusionner
 
   data<-rbind(data_pol, data_users)
@@ -128,7 +131,7 @@ Maintenant nous pouvons fusionner les deux datas ( users et politiciens )
 ```
 
 Nous allons rajouter une colonne permettant de différencier les politicens des uitilisateurs lambdas, nous allons appeler cette colonne ID, si ID = 1 alors c'est un politiciens.
-```{r}
+```{r }
 
   data[,dim(data)[2]+1]<-1
 
@@ -155,14 +158,14 @@ Nous allons rajouter une colonne permettant de différencier les politicens des 
 
 Nous avons donc maintenant notre data fixure finale avec des occurrences aléatoires.
 
-```{r}
+```{r }
   dfm_fixure<-data# data finale
 ```
 
 
 Créons mainteant le data  fixure de prédiction, toujours aléatoirement et suivant une loi normale :
 
-```{r}
+```{r }
 
 
   ########### Creation du Data frame validation
