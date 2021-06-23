@@ -365,4 +365,70 @@ data_poll_fr[,2]<-str_sub(data_poll_fr[,2],1,10)
 data_poll_fr[,4]<-str_sub(data_poll_fr[,4],21,100)
 data_poll_fr[,4]<-paste0("@",data_poll_fr[,4])
 
+###################optimisation
 
+z<-c(calib_vector,10,3,7)
+
+calib_vector_opti<-combn(z,10)
+calib_vector_opti<-calib_vector_opti[,sort(sample.int(286, 50))]
+calib_vector_opti<-t(calib_vector_opti)
+calib_vector_opti<-as.data.frame(calib_vector_opti)
+
+a <- seq(1,50)
+data_cor <- data.frame(a)
+colnames(data_cor)[1] <- "numéro du sample"
+remove(a)
+
+
+for (i in 1:50){
+
+
+  X1<-calib_vector_opti[i,]
+  X1<-as.numeric(X1)
+
+  for(j in 1:length(X1)){
+    data_cor[i,j+1]<-X1[j]
+    colnames(data_cor)[j+1]<-paste0("donnée de calib",j)
+  }
+
+
+  x <- calibrate(dfm_fixture,complet=T,X1)
+
+  data_users <- x[[2]]
+  word_df <- x[[1]]
+  opini_target <- x[[3]]
+
+  #use weight on the other
+
+  y <- use_weight(data_users,rownames(word_df),word_df)
+  opini_users <- y[[1]]
+  word_wei <- y[[2]]
+
+  ## Data frame des opinions de tous
+
+  library(dplyr)
+  require(rpart)
+  opinions_df <- rbind(opini_target, opini_users)
+  opinions_df$users <- as.numeric(opinions_df$users)
+  opinions_df$opinions <- as.numeric(opinions_df$opinions)
+
+
+  ###Validation
+
+  opinions_df_arrange <- arrange(opinions_df,users)
+
+  df_validation_arrange <- arrange(df_validation,users_id)
+
+  op_match <- merge(opinions_df_arrange,df_validation_arrange,by.x = "users",by.y = "users_id")
+
+
+  validation_metrics <- cor(op_match$opinions,op_match[,3])
+
+
+  data_cor[i,length(X1)+2] <- validation_metrics
+  colnames(data_cor)[length(X1)+2] <- "validation_score"
+
+  data_cor[i,length(X1)+3] <- x2y(op_match$opinions,op_match[,3])[2]
+  colnames(data_cor)[length(X1)+3] <- "validation_score_x2y"
+
+}
