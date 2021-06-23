@@ -91,6 +91,10 @@ for (i in 1:10){
 
 }
 
+data_cor<-arrange(data_cor,desc(abs(validation_score)))
 
-return(data_cor=data_cor)
+x<-data_cor[1,]
+
+
+return(list(x=x,data_cor=data_cor))
 }

@@ -135,9 +135,8 @@ co<-co+   geom_errorbar(aes(ymin=validation_score, ymax= 0.3130565), width=.2,
                  position=position_dodge(.9), color="red", alpha=.5) 
 
 xy<-ggplot(x,aes(x =`numéro du sample`, y = validation_score_x2y)) +geom_line()+geom_point()
-xy<-xy+geom_point(aes(x=11, y=5.51), colour="red")
 xy<-xy+geom_hline(yintercept=5.51, 
-                color = "red", size=0.5)
+                color = "blue", size=0.5)
 
 grid.arrange(co,xy, ncol=1, nrow = 2)
 
