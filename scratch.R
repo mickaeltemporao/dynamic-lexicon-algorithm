@@ -507,3 +507,8 @@ for (i in 1:50){
   colnames(data_cor)[length(X1)+3] <- "validation_score_x2y"
 
 }
+
+
+## idée de test
+## faire sort les sorties de algo_10 et test une par une
+#

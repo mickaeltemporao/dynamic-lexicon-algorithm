@@ -1,0 +1,85 @@
+---
+title: "DFM generation process"
+author: "FREDON Louis"
+date: "23/06/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### __**DFM genration process<a class="anchor" id="DFM genration process"></a>**__
+
+
+Nous allons maintenant créer une fonction qui va créer le Documents-Features-Matrix nous permettant de trouver un sous-espace de mots idéale pour la prédiction. 
+
+Pour cela on suppose que l'utilisateur donne en entrée un data frame avec au minimum une colonne ayant le texte et une colonne ayant les documents, ainsi que le numéro de la colonne où est le texte et le numéro de colonne où est les ids. L'utilisateur devra également rentrer la langue des tweets au format international (ex : fr, en ...)
+
+```{r}
+dfm_generation<-function(
+  input, #2 col (text & users )
+  text,  #numéro de colonne ou il y a le text
+  doc,   #numéro de colonne ou il y a les ids
+  lg  # "en", "fr" etc..
+  ){
+```
+
+On va devoir créer un objet token pour decompter les mots dans le texte, on utilise la fonction du package quanteda :
+
+```{r}
+library(quanteda)
+tok<-tokens(input[,text], remove_punct = TRUE,remove_symbols=TRUE,remove_numbers=TRUE,remove_url=TRUE,remove_separators=TRUE)
+```
+
+
+Maintenant que nous avons l'objet tokens on va pouvoir créer un DFM toujours à l'aide la fonction du même package :
+
+```{r}
+df<-dfm(tok)
+```
+
+Pour définir un sous espace de mots qui est vraiment représentatif nous décidons de poser quelques filtres, notamment la longueur du mot qui doit être d'au moins 3 lettres :
+
+```{r}
+dfstop<-dfm_keep(dfstop, min_nchar = 3)
+```
+
+On enleve les mots inutiles (ex: mots de liaisons ou autres): 
+
+```{r}
+dfstop <- dfm_select(df, pattern = stopwords(lg), selection = "remove")
+```
+
+
+On applique un filtre de fréquence, on garde que les mots cités au moins 5 fois :
+
+```{r}
+dfstop<- dfm_trim(dfstop, min_termfreq = 5)
+```
+
+
+Maintenant on fusionne les tweets des mêmes identifiants :
+```{r}
+DFM <- dfm_group(dfstop, groups = input[,doc])
+
+```
+On le transforme en data frame pour l'analyse plus tard :
+
+```{r}
+DFM<-as.data.frame(DFM)
+```
+
+Et on clos la fonction et on retourne le DFM construit :
+
+```{r}
+
+rownames(DFM)<-DFM[,1]
+
+DFM<-DFM[,-1]
+
+cat("Finished \n")
+
+return(DFM )
+}
+```

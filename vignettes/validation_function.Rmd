@@ -1,0 +1,45 @@
+---
+title: "Validation"
+author: "FREDON Louis"
+date: "23/06/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r setup}
+library(DLA)
+```
+
+
+### __**Validation<a class="anchor" id="Validation"></a>**__
+
+Maintenant que nous avons la target prédite nous voulons la comparer au résultat réel pour valider nos calculs.
+Pour cela nous allons créer une fonction qui calcule la corrélation de Pearson et la moyenne des écarts relatifs:
+
+```{r}
+validation<-function(input_1,input_2){
+  
+    data_estimation<-input_1
+    data_vpl<-input_2
+    
+
+    coeff_corr<-cor(data_estimation,data_vpl,method=c("Pearson"))
+    
+    for(i in 1:nrow(data_estimation)){
+      mat_ecart_relatif[i,1]<-(data_vpl[i,1] - data_estimation[i,1])/data_vpl[i,1]
+      
+    }
+  
+    
+    average_efficiency<-colSums(mat_ecart_relatif[,1])/nrow(mat_ecart_relatif)
+    
+    return(list(average_efficiency,coeff_corr))
+    
+  }
+
+
+```
