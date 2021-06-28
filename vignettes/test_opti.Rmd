@@ -1,0 +1,270 @@
+---
+title: "Test optimisation"
+author: "FREDON Louis"
+date: "24/06/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+### Vignette des tests d'algorithme d'optmisation 
+
+## Idee 1
+
+On prends les 3 meilleurs subset de la sortie de la fonction algo_10 et on fait toutes les combinaisons de 10 nombres de ces 3 vecteurs.
+On prends ensuite 50 combinaisons aléatoires et on test sur ces vecteurs.
+
+
+```{r}
+ load("~/Code Projet/vigilant-octo-invention/validation_workspace.RData")
+
+
+
+calib_vector_opti<-q[1:3,2:11] # on prends les 3 meilleurs subset
+
+calib_vector_opti<-c(calib_vector_opti[1,],calib_vector_opti[2,],calib_vector_opti[3,])# on les vectorise
+calib_vector_opti<-as.numeric(calib_vector_opti)
+
+combin<-combn(calib_vector_opti,10)# on calcule les combinaisons de 10 nombres
+
+calib_vector_opti<-combin[,sample.int(n=dim(combin)[2],size=50)]# on fait un sample de 50 aléatoires
+
+calib_vector_opti<-t(calib_vector_opti)
+calib_vector_opti<-as.data.frame(calib_vector_opti)
+
+
+
+
+### on test comme précédement
+
+a <- seq(1,50)
+data_cor1 <- data.frame(a)
+colnames(data_cor1)[1] <- "numéro du sample"
+remove(a)
+
+
+for (i in 1:50){
+
+
+  X1<-calib_vector_opti[i,]
+  X1<-as.numeric(X1)
+
+  for(j in 1:length(X1)){
+    data_cor1[i,j+1]<-X1[j]
+    colnames(data_cor1)[j+1]<-paste0("donnée de calib",j)
+  }
+
+
+  x <- calibrate(dfm_fixture,complet=T,X1)
+
+
+  #use weight on the other
+
+  y <- use_weight(x[[2]],rownames(x[[1]]),x[[1]])
+
+
+  ## Data frame des opinions de tous
+
+  library(dplyr)
+  require(rpart)
+  opinions_df <- rbind(x[[3]], y[[1]])
+  opinions_df$users <- as.numeric(opinions_df$users)
+  opinions_df$opinions <- as.numeric(opinions_df$opinions)
+
+
+  ###Validation
+
+  opinions_df_arrange <- arrange(opinions_df,users)
+
+  df_validation_arrange <- arrange(df_validation,users_id)
+
+  op_match <- merge(opinions_df_arrange,df_validation_arrange,by.x = "users",by.y = "users_id")
+
+
+  validation_metrics <- cor(op_match$opinions,op_match[,3])
+
+
+  data_cor1[i,length(X1)+2] <- validation_metrics
+  colnames(data_cor1)[length(X1)+2] <- "validation_score"
+
+  data_cor1[i,length(X1)+3] <- x2y(op_match$opinions,op_match[,3])[2]
+  colnames(data_cor1)[length(X1)+3] <- "validation_score_x2y"
+
+}
+
+data_cor1<-arrange(data_cor1,data_cor1$validation_score) # notre tableau des scores de ces 50 vecteurs
+
+```
+
+
+### Idée 2 
+
+
+On décide de prendre le meilleur subset sortant de algo_10 et on fait les combinaisons de la moitié (ici 5).
+
+```{r}
+
+
+calib_vector_opti1<-q[1,2:11]
+calib_vector_opti1<-as.numeric(calib_vector_opti1)
+
+W1<-combn(calib_vector_opti1,5)#on prends les combinaisons de taille 5
+W1<-t(W1)
+W1<-as.data.frame(W1)
+
+
+# on test
+
+a <- seq(1,252)
+data_cor2 <- data.frame(a)
+colnames(data_cor2)[1] <- "numéro du sample"
+remove(a)
+
+
+for (i in 1:252){
+
+
+  X1<-W1[i,]
+  X1<-as.numeric(X1)
+
+  for(j in 1:length(X1)){
+    data_cor2[i,j+1]<-X1[j]
+    colnames(data_cor2)[j+1]<-paste0("donnée de calib",j)
+  }
+
+
+  x <- calibrate(dfm_fixture,complet=T,X1)
+
+
+  #use weight on the other
+
+  y <- use_weight(x[[2]],rownames(x[[1]]),x[[1]])
+
+
+  ## Data frame des opinions de tous
+
+  library(dplyr)
+  require(rpart)
+  opinions_df <- rbind(x[[3]], y[[1]])
+  opinions_df$users <- as.numeric(opinions_df$users)
+  opinions_df$opinions <- as.numeric(opinions_df$opinions)
+
+
+  ###Validation
+
+  opinions_df_arrange <- arrange(opinions_df,users)
+
+  df_validation_arrange <- arrange(df_validation,users_id)
+
+  op_match <- merge(opinions_df_arrange,df_validation_arrange,by.x = "users",by.y = "users_id")
+
+
+  validation_metrics <- cor(op_match$opinions,op_match[,3])
+
+
+  data_cor2[i,length(X1)+2] <- validation_metrics
+  colnames(data_cor2)[length(X1)+2] <- "validation_score"
+
+  data_cor2[i,length(X1)+3] <- x2y(op_match$opinions,op_match[,3])[2]
+  colnames(data_cor2)[length(X1)+3] <- "validation_score_x2y"
+
+}
+
+data_cor2<-arrange(data_cor2,data_cor2$validation_score)# tableau de score de l'idée 2
+
+
+
+```
+
+
+
+### idée 3 
+
+
+On prends le meilleur subset et on va changer les chiffres de chaque postiion jusqu'à arriver à un meilleur score.
+
+
+
+```{r}
+
+
+calib_vector_opti2<-q[1,2:11]
+calib_vector_opti2<-as.numeric(calib_vector_opti2)
+
+X3<-as.numeric(rownames(dfm_fixture))[-calib_vector_opti2]
+
+a <- seq(1,252)
+data_cor3 <- data.frame(a)
+colnames(data_cor3)[1] <- "results"
+remove(a)
+
+# On crée une fonction qui change le chiffre du vecteur de l'indice voulu
+
+insert <- function(x, index, replacement, how = c("replace","left","right")) {
+how <- match.arg(how)
+repl <- switch (how,
+replace = replacement,
+left = Map("c", index, replacement),
+right = Map("c", replacement, index)
+)
+x[index] <- repl
+unlist(x)
+}
+
+niter<-0
+
+for(j in 1:10){
+  
+  for(i in X3){
+  
+  X_replace<-as.numeric(insert(calib_vector_opti2,j,i))
+
+
+  x <- calibrate(dfm_fixture,complet=T,X_replace)
+
+
+  #use weight on the other
+
+  y <- use_weight(x[[2]],rownames(x[[1]]),x[[1]])
+
+
+  ## Data frame des opinions de tous
+
+  library(dplyr)
+  require(rpart)
+  opinions_df <- rbind(x[[3]], y[[1]])
+  opinions_df$users <- as.numeric(opinions_df$users)
+  opinions_df$opinions <- as.numeric(opinions_df$opinions)
+
+
+  ###Validation
+
+  opinions_df_arrange <- arrange(opinions_df,users)
+
+  df_validation_arrange <- arrange(df_validation,users_id)
+
+  op_match <- merge(opinions_df_arrange,df_validation_arrange,by.x = "users",by.y = "users_id")
+
+
+  validation_metrics <- cor(op_match$opinions,op_match[,3])
+
+
+  if(validation_metrics>abs(q[1,12])){ # si le score est meilleur alors on garde et on passe a l'indice suivant 
+    niter<-niter+1
+    for(w in 1:length(X_replace)){
+    data_cor3[niter,w]<-X_replace[w]
+    colnames(data_cor3)[w]<-paste0("donnée de calib",w)
+  }
+    data_cor3[niter,length(X_replace)+1]<-validation_metrics
+    colnames(data_cor3)[length(X_replace)+1]<-"score"
+    break
+  }
+}
+
+data_cor3<-arrange(data_cor3,desc(data_cor3$score))
+}
+```
+
