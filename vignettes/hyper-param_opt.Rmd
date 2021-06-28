@@ -1,0 +1,87 @@
+---
+title: "Hyper-parameters Optimisation"
+author: "FREDON Louis"
+date: "28/06/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+load("~/Code Projet/vigilant-octo-invention/validation_workspace.RData")
+
+taille_vector<-c(0.03*dim(dfm_fixture)[1],0.05*dim(dfm_fixture)[1],0.1*dim(dfm_fixture)[1],0.2*dim(dfm_fixture)[1],15,20)
+
+nombre_sample<-c(2,4,6,8,10,12,14)
+
+
+for(z in nombre_sample){
+for (j in taille_vector){
+
+a <- seq(1,z)
+data_cor <- data.frame(a)
+colnames(data_cor)[1] <- "numéro du sample"
+remove(a)
+
+
+
+for (i in 1:z){
+
+  X1 <- sample(nrow(dfm_fixture), size=ceiling(j))
+
+  for(w in 1:length(X1)){
+    data_cor[i,w+1]<-X1[w]
+    colnames(data_cor)[w+1]<-paste0("donnée de calib",w)
+  }
+
+
+  x <- calibrate(dfm_fixture,complet=T,X1)
+
+  data_users <- x[[2]]
+  word_df <- x[[1]]
+  opini_target <- x[[3]]
+
+  #use weight on the other
+
+  y <- use_weight(data_users,rownames(word_df),word_df)
+  opini_users <- y[[1]]
+  word_wei <- y[[2]]
+
+  ## Data frame des opinions de tous
+
+  library(dplyr)
+  require(rpart)
+  opinions_df <- rbind(opini_target, opini_users)
+  opinions_df$users <- as.numeric(opinions_df$users)
+  opinions_df$opinions <- as.numeric(opinions_df$opinions)
+
+
+  ###Validation
+
+  opinions_df_arrange <- arrange(opinions_df,users)
+
+  df_validation_arrange <- arrange(df_validation,"users_id")
+
+  op_match <- merge(opinions_df_arrange,df_validation_arrange,by.x = "users",by.y = "users_id")
+
+
+  validation_metrics <- cor(op_match$opinions,op_match[,3])
+
+
+  data_cor[i,length(X1)+2] <- validation_metrics
+  colnames(data_cor)[length(X1)+2] <- "validation_score"
+
+  data_cor[i,length(X1)+3] <- x2y(op_match$opinions,op_match[,3])[2]
+  colnames(data_cor)[length(X1)+3] <- "validation_score_x2y"
+  file_data<-paste0("~/Code Projet/vigilant-octo-invention/data_cor_",z,"sample_de_",j,".RData")
+  save(data_cor, file = file_data )
+
+}
+}
+}
+
+data_cor<-arrange(data_cor,desc(abs(validation_score)))
+```
+
