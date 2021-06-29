@@ -6,10 +6,16 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = T, eval = F)
+knitr::opts_chunk$set(echo = T)
 ```
 
 ## Troisième idée d'algorithme
+
+```{r}
+setwd("C:/Users/fredo/Documents/Code Projet/vigilant-octo-invention")
+load("~/Code Projet/vigilant-octo-invention/optimisation_workspace.RData")
+```
+
 
 
 Pour améliorer le score de façon optimale, nous avons penser à un troisième algorithme.
@@ -21,7 +27,7 @@ Et cela jusqu'a la fin du vecteur.
 
 On commence par récupérer le meilleur subset et le vecteur restant :
 
-```{r}
+```{r, eval=FALSE}
 calib_vector_opti2<-q[1,2:11]
 calib_vector_opti2<-as.numeric(calib_vector_opti2)
 
@@ -31,7 +37,7 @@ X3<-as.numeric(rownames(dfm_fixture))[-calib_vector_opti2]
 
 On créé une fonction qui va remplacer un chiffre du vecteur par un chiffre choisi :
 
-```{r}
+```{r, eval=FALSE}
 # On crée une fonction qui change le chiffre du vecteur de l'indice voulu
 
 insert <- function(x, index, replacement, how = c("replace","left","right")) {
@@ -48,7 +54,7 @@ unlist(x)
 
 On peut maintenant lancer l'algorithme qui parcours les indice du vecteur et test jusqu'à obtenir un meilleur score :
 
-```{r}
+```{r,eval=FALSE}
 
 
 
@@ -117,6 +123,12 @@ data_cor3<-arrange(data_cor3,desc(data_cor3$score))
 
 Les données sont enregistrées dans le data data_cor3.
 
+```{r}
+data_cor3<-data_cor3[1:10,]
+data_cor3
+```
+
+
 Créons un graph pour plus de visibilité :
 
 ```{r}
@@ -125,7 +137,7 @@ library(gridExtra)
 
 
 
-co<-ggplot(data_cor3[1:10,],aes(x =seq(1:10), y = abs(score))) +geom_line()+geom_point()
+co<-ggplot(data_cor3,aes(x =seq(1:10), y = abs(score))) +geom_line()+geom_point()
 co<-co+geom_hline(yintercept=abs(q$validation_score[1]), 
                 color = "blue", size=0.5)
 co

@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = T, eval = F)
+knitr::opts_chunk$set(echo = T)
 ```
 
 ## Deuxième idée d'algorithme
@@ -25,6 +25,7 @@ Cette idée se base sur le fait de garder le meilleur sous ensemble du sous ense
 Chargeons l'environnement avec nos résultats pour éviter de les relancer (ce qui peut être long et fastidieux):
 
 ```{r}
+setwd("C:/Users/fredo/Documents/Code Projet/vigilant-octo-invention")
 load("~/Code Projet/vigilant-octo-invention/optimisation_workspace.RData")
 
 ```
@@ -33,7 +34,7 @@ load("~/Code Projet/vigilant-octo-invention/optimisation_workspace.RData")
 
 On décide de prendre le meilleur subset sortant de algo_10 et on fait les combinaisons de la moitié (ici 5):
 
-```{r}
+```{r, eval=FALSE}
 
 
 calib_vector_opti1<-q[1,2:11]
@@ -47,7 +48,7 @@ W1<-as.data.frame(W1)
 
 Maintenant que nous avons toutes les combinaisons, on peut tester voir si les scores s'améliore :
 
-```{r}
+```{r,eval=FALSE}
 # on test
 
 a <- seq(1,252)
@@ -109,6 +110,11 @@ data_cor2<-arrange(data_cor2,data_cor2$validation_score)# tableau de score de l'
 ```
 
 Les résultats sont dans le tableau data_cor2.
+
+```{r}
+data_cor2
+```
+
 
 Faisons un graph pour plus de visibilité :
 

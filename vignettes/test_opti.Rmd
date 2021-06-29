@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = T, eval = F)
+knitr::opts_chunk$set(echo = T)
 ```
 
 ## Premier idée d'algorithme
@@ -26,13 +26,14 @@ Pour ensuite prendre 50 combinaisons aléatoires.
 Chargeons l'environnement avec nos résultats pour éviter de les relancer (ce qui peut être long et fastidieux):
 
 ```{r}
+setwd("C:/Users/fredo/Documents/Code Projet/vigilant-octo-invention")
 load("~/Code Projet/vigilant-octo-invention/optimisation_workspace.RData")
 
 ```
 
 Maintenant prenons les 3 meilleurs subset sortant de la fonction algo_10 et on les implemente dans un vecteur:
 
-```{r}
+```{r,eval=FALSE}
 calib_vector_opti<-q[1:3,2:11] # on prends les 3 meilleurs subset
 
 calib_vector_opti<-c(calib_vector_opti[1,],calib_vector_opti[2,],calib_vector_opti[3,])# on les vectorise
@@ -42,13 +43,13 @@ calib_vector_opti<-as.numeric(calib_vector_opti)
 
 On peut maintenant calculer les combinaisons de ces vecteurs de taille 10 :
 
-```{r}
+```{r,eval=FALSE}
 combin<-combn(calib_vector_opti,10)# on calcule les combinaisons de 10 nombres
 ```
  
 On fait un sample aléatoire de 50 :
 
-```{r}
+```{r,eval=FALSE}
 
 calib_vector_opti<-combin[,sample.int(n=dim(combin)[2],size=50)]# on fait un sample de 50 aléatoires
 
@@ -59,7 +60,7 @@ calib_vector_opti<-as.data.frame(calib_vector_opti)
 
 Maintenant que nous aons nos 50 combinaisons on va calibrer notre sous espace sur ces vecteurs et regarder si le score est meilleur que la fonction algo_10 :
 
-```{r}
+```{r,eval=FALSE}
 ### on test comme précédement
 
 a <- seq(1,50)
@@ -118,6 +119,10 @@ for (i in 1:50){
 }
 
 data_cor1<-arrange(data_cor1,data_cor1$validation_score) # notre tableau des scores de ces 50 vecteurs
+```
+
+```{r}
+data_cor1
 ```
 
 Les résultats sont dans le tableau data_cor1. 
