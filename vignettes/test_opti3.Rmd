@@ -115,7 +115,7 @@ for(j in 1:10){
   }
 }
 
-data_cor3<-arrange(data_cor3,desc(data_cor3$score))
+data_cor3 <- arrange(data_cor3,desc(data_cor3$score))
 
 }
 ```
@@ -124,7 +124,7 @@ data_cor3<-arrange(data_cor3,desc(data_cor3$score))
 Les données sont enregistrées dans le data data_cor3.
 
 ```{r}
-data_cor3<-data_cor3[1:10,]
+data_cor3 <- data_cor3[1:10,]
 data_cor3
 ```
 
