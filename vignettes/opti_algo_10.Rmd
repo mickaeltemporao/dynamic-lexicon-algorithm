@@ -1,32 +1,32 @@
 ---
-title: "Test optimisation combinatoire"
+title: "Optimisation de la fonction algo_10"
 author: "FREDON Louis"
-date: "29/06/2021"
+date: "30/06/2021"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = T)
+knitr::opts_chunk$set(echo = TRUE)
 library(DLA)
 ```
 
-## Troisième idée d'algorithme
+### Optimisation de l'algorithme
 
 ```{r}
 setwd("C:/Users/fredo/Documents/Code Projet/vigilant-octo-invention")
 load("~/Code Projet/vigilant-octo-invention/optimisation_workspace.RData")
+
 ```
 
+Au vue des résultats de performance nous décidons de garder l'algortihme 3 qui est le plus performant.
+Cependant, si le nombres d'utilisateurs augmente, et que donc la taille des combinaisons augment également, l'algorithme risque d'être plutôt lent.
+
+C'est pourquoi dans ce document nous allons essayer d'améliorer celui-ci afin de le rendre tout aussi performant ( si possible) mais surtout, beaucoup plus rapide.
+
+Pour cela, au lieu de remplacer les combinaisons par tout les autres users_id disponible, nous allons uniquement changer par un sample de X3.
 
 
-Pour améliorer le score de façon optimale, nous avons penser à un troisième algorithme.
-
-Pour cela on prends le meilleur subset qui est retourné dans la fonction algo_10 et on va changer chiffre par chiffre jusqu'à avoir un meilleur score que le subset.
-
-Nous allons changer d'abord le chiffre du premier indice en le remplacant par un chiffre restant du dfm jusqu'à obtenir un meilleur score, une fois obtenue nous passons au prochain indice. 
-Et cela jusqu'a la fin du vecteur.
-
-On commence par récupérer le meilleur subset et le vecteur restant :
+Comme l'algorithme, on commence par récupéerer le meilleurs subset retrourner de la fonction algo_10 :
 
 ```{r, eval=FALSE}
 calib_vector_opti2<-q[1,2:11]
@@ -36,7 +36,9 @@ X3<-as.numeric(rownames(dfm_fixture))[-calib_vector_opti2]
 
 ```
 
-On créé une fonction qui va remplacer un chiffre du vecteur par un chiffre choisi :
+
+On garde la fonction qui permets de remplacer les chiffres du vecteur à l'indice voulu :
+
 
 ```{r, eval=FALSE}
 # On crée une fonction qui change le chiffre du vecteur de l'indice voulu
@@ -53,15 +55,22 @@ unlist(x)
 }
 ```
 
-On peut maintenant lancer l'algorithme qui parcours les indice du vecteur et test jusqu'à obtenir un meilleur score :
+
+On fait un sample de taille 40% du vecteur que nous voulons remplacer :
+
+```{r}
+X3_opti<- sample(X3,size = 0.4*length(X3))
+```
+
+Et on peut maintenant lancer l'algorithme :
 
 ```{r,eval=FALSE}
 
 
 
 a <- seq(1,252)
-data_cor3 <- data.frame(a)
-colnames(data_cor3)[1] <- "results"
+data_cor3_opti <- data.frame(a)
+colnames(data_cor3_opti)[1] <- "results"
 remove(a)
 
 
@@ -70,7 +79,7 @@ niter<-0
 
 for(j in 1:10){
   
-  for(i in X3){
+  for(i in X3_opti){
   
   X_replace<-as.numeric(insert(calib_vector_opti2,j,i))
 
@@ -107,26 +116,28 @@ for(j in 1:10){
   if(validation_metrics>abs(q[1,12])){ # si le score est meilleur alors on garde et on passe a l'indice suivant 
     niter<-niter+1
     for(w in 1:length(X_replace)){
-    data_cor3[niter,w]<-X_replace[w]
-    colnames(data_cor3)[w]<-paste0("donnée de calib",w)
+    data_cor3_opti[niter,w]<-X_replace[w]
+    colnames(data_cor3_opti)[w]<-paste0("donnée de calib",w)
   }
-    data_cor3[niter,length(X_replace)+1]<-validation_metrics
-    colnames(data_cor3)[length(X_replace)+1]<-"score"
+    data_cor3_opti[niter,length(X_replace)+1]<-validation_metrics
+    colnames(data_cor3_opti)[length(X_replace)+1]<-"score"
     break
   }
 }
 
-data_cor3 <- arrange(data_cor3,desc(data_cor3$score))
+data_cor3_opti <- arrange(data_cor3_opti,desc(data_cor3$score))
 
 }
 ```
 
 
-Les données sont enregistrées dans le data data_cor3.
+
+Les données sont enregistrées dans le data data_cor3_opti.
 
 ```{r}
-data_cor3 <- data_cor3[1:10,]
-data_cor3
+
+data_cor3_opti<-data_cor3_opti[1:8,]
+data_cor3_opti
 ```
 
 
