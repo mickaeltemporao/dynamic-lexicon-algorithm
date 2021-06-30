@@ -105,3 +105,10 @@ s<-algo_10(dfm,val,"users_id")
 ```
 
 
+### Flow Charts DLA package
+
+
+```
+image_read("C:/Users/fredo/Documents/Code Projet/Flowchart_DLA.JPG")
+
+```
