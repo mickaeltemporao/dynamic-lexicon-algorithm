@@ -109,6 +109,6 @@ s<-algo_10(dfm,val,"users_id")
 
 
 ```
-image_read("C:/Users/fredo/Documents/Code Projet/Flowchart_DLA.JPG")
-
+x<-image_read("C:/Users/fredo/Documents/Code Projet/Flowchart_DLA.JPG")
+print(x)
 ```
