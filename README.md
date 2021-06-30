@@ -108,7 +108,8 @@ s<-algo_10(dfm,val,"users_id")
 ### Flow Charts DLA package
 
 
+```{r}
+image_read("C:/Users/fredo/Documents/Code Projet/Flowchart_DLA.JPG")
+![alt text](C:/Users/fredo/Documents/Code Projet/Flowchart_DLA.JPG) 
 ```
-x<-image_read("C:/Users/fredo/Documents/Code Projet/Flowchart_DLA.JPG")
-print(x)
-```
+
