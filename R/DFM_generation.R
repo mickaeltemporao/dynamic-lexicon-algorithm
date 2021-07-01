@@ -15,7 +15,7 @@
 #' @import dplyr
 #' @import quanteda
 #' @example
-#' Tweet <- read.csv(file="data/ex_tweets.csv",encoding = 'UTF-8')
+#'  Tweet <- read.csv(file="data/ex_tweets.csv",encoding = 'UTF-8')
 #' Tweet <- subset(Tweet, select = c("user_id","text"))
 #' dfm_generation(Tweet,2,1,"fr")
 #' remove(Tweet)

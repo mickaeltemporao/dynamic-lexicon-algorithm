@@ -7,7 +7,11 @@
 x2y(x, y, confidence = FALSE)
 }
 \arguments{
-\item{confidence}{}
+\item{x}{f}
+
+\item{y}{f}
+
+\item{confidence}{f}
 }
 \value{
 

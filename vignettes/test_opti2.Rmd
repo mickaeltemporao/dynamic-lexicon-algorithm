@@ -7,7 +7,6 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = T)
-library(DLA)
 ```
 
 ## Deuxième idée d'algorithme
@@ -26,8 +25,8 @@ Cette idée se base sur le fait de garder le meilleur sous ensemble du sous ense
 Chargeons l'environnement avec nos résultats pour éviter de les relancer (ce qui peut être long et fastidieux):
 
 ```{r}
-setwd("C:/Users/fredo/Documents/Code Projet/vigilant-octo-invention")
-load("~/Code Projet/vigilant-octo-invention/optimisation_workspace.RData")
+library(DLA)
+data(package = "DLA")
 
 ```
 

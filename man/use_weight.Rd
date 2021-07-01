@@ -9,13 +9,13 @@ use_weight(input, words, df, wordsinrow = FALSE, docincol = FALSE)
 \arguments{
 \item{input}{a data.frame with the users avec lignes/users et col/text}
 
+\item{words}{words kept calculating in the calibrate function}
+
 \item{df}{word/weight data calculate in the calibrate function}
 
 \item{wordsinrow}{fix}
 
 \item{docincol}{fix}
-
-\item{word}{words kept calculating in the calibrate function}
 }
 \value{
 
