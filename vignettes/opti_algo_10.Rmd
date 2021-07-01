@@ -28,7 +28,7 @@ Pour cela, au lieu de remplacer les combinaisons par tout les autres users_id di
 
 Comme l'algorithme, on commence par récupéerer le meilleurs subset retrourner de la fonction algo_10 :
 
-```{r, eval=FALSE}
+```{r}
 calib_vector_opti2<-q[1,2:11]
 calib_vector_opti2<-as.numeric(calib_vector_opti2)
 
@@ -40,7 +40,7 @@ X3<-as.numeric(rownames(dfm_fixture))[-calib_vector_opti2]
 On garde la fonction qui permets de remplacer les chiffres du vecteur à l'indice voulu :
 
 
-```{r, eval=FALSE}
+```{r}
 # On crée une fonction qui change le chiffre du vecteur de l'indice voulu
 
 insert <- function(x, index, replacement, how = c("replace","left","right")) {
@@ -145,11 +145,9 @@ Créons un graph pour plus de visibilité :
 
 ```{r}
 library(ggplot2)
-library(gridExtra)
 
 
-
-co<-ggplot(data_cor3,aes(x =seq(1:10), y = abs(score))) +geom_line()+geom_point()
+co<-ggplot(data_cor3_opti,aes(x =seq(1:8), y = abs(score))) +geom_line()+geom_point()
 co<-co+geom_hline(yintercept=abs(q$validation_score[1]), 
                 color = "blue", size=0.5)
 co
