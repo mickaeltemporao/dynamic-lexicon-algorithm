@@ -7,6 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(DLA)
 ```
 
 ### Data_fixture
@@ -17,9 +18,8 @@ Sa création est expliquée dans le markdown du même nom.
 
 
 ```{r}
-load("~/validation_workspace.RData")
 
- dfm_choose<-dfm_fixture[calib_vector,words]
+dfm_choose<-dfm_fixture[calib_vector,words]
 ```
 
 
@@ -117,7 +117,7 @@ On rapelle que le score sur notre subset biaisé etait de : 'val1'
 
 ```{r}
 
-q<-q[[2]]  #algo_10 function return 
+q  #algo_10 function return 
 
 
 ```
