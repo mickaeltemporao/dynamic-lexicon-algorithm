@@ -9,20 +9,30 @@ output: html_document
 knitr::opts_chunk$set(echo = T)
 ```
 
-## Deuxième idée d'algorithme
+## Résumé de la deuxième idée d'algorithme
 
 Dans ce document nous allons essayer de trouver un autre algorithme capable de sortir un meilleur score que la fonction algo_10 comme dans l'autre document.
 
-On se base sur l'hypothèse que la combinaison des meilleurs subsets donne de meilleurs score.
+
+Nous allons encore une fois nous baser sur les combinaisons aléatoires cependant nous allons cette fois-ci jouer sur la taille des combinaisons. 
+
+Nous allons diviser par deux la taille pour améliorer la rapidité
+
+## Motivation
+
+Nous allons encore nous baser sur l'hypothèse que la combinaison des meilleurs subsets donne de meilleurs score.
+
+## Démarche
 
 Notre deuxième idée est de prendre le meilleur subset de la sortie de la fonction algo_10 et de faire toutes les combinaisons de la moitiè de la taille de ces 3 vecteurs.
 
-Par exmeple si la taille des samples est de 10 comme nous l'avons ici, nous allons faire toutes les combinaisons de taille 5.
+Autrement dit, nous allons prendre 1/2 de la taille des vecteurs et donc chercher les k/2 parmi n vecteurs.
 
-Cette idée se base sur le fait de garder le meilleur sous ensemble du sous ensemble pur améliorer la précision.
+Par exmeple si la taille des samples est de 10 comme nous l'avons ici, nous allons faire toutes les combinaisons de taille 5 et donc trouver les 5 parmi 10 combinaisons.
+
+Cette idée se base sur le fait de garder le meilleur sous ensemble du sous ensemble pour améliorer la précision.
 
 
-Chargeons l'environnement avec nos résultats pour éviter de les relancer (ce qui peut être long et fastidieux):
 
 ```{r}
 library(DLA)
@@ -109,6 +119,9 @@ for (i in 1:252){
 data_cor2<-arrange(data_cor2,data_cor2$validation_score)# tableau de score de l'idée 2
 ```
 
+
+## Résultats
+
 Les résultats sont dans le tableau data_cor2.
 
 ```{r}
@@ -116,7 +129,7 @@ data_cor2
 ```
 
 
-Faisons un graph pour plus de visibilité :
+Faisons un graph, comme dans l'autre papier pour plus de visibilité :
 
 ```{r}
 library(ggplot2)
@@ -137,8 +150,9 @@ co
 ```
 
 
+## Discussion
 
-L'hypothèse selon laquelle en réduisant le meilleur sous ensemble alors la précision augmentera est plutôt vérifié, on remarque que les scores sont en parties meilleurs.
+L'hypothèse selon laquelle en réduisant le meilleur sous ensemble alors la précision augmentera est plutôt vérifié, on remarque que pas mal de scores sont en meilleurs.
 
-Cette algorithme est toute fois plutôt lent si les données s'agrandissent.
+Cette algorithme est toute fois plutôt lent si les données s'agrandissent, donc reste plutôt à éviter lors de grosses données même si sa performance reste satisfaisante.
 

@@ -18,6 +18,7 @@ library(DLA)
 ```
 
 Au vue des résultats de performance nous décidons de garder l'algortihme 3 qui est le plus performant.
+
 Cependant, si le nombres d'utilisateurs augmente, et que donc la taille des combinaisons augment également, l'algorithme risque d'être plutôt lent.
 
 C'est pourquoi dans ce document nous allons essayer d'améliorer celui-ci afin de le rendre tout aussi performant ( si possible) mais surtout, beaucoup plus rapide.
@@ -25,7 +26,7 @@ C'est pourquoi dans ce document nous allons essayer d'améliorer celui-ci afin d
 Pour cela, au lieu de remplacer les combinaisons par tout les autres users_id disponible, nous allons uniquement changer par un sample de X3.
 
 
-Comme l'algorithme, on commence par récupéerer le meilleurs subset retrourner de la fonction algo_10 :
+Comme l'algorithme, on commence par récupérer le meilleurs subset retourné de la fonction algo_10 :
 
 ```{r}
 calib_vector_opti2<-q[1,2:11]
@@ -55,7 +56,7 @@ unlist(x)
 ```
 
 
-On fait un sample de taille 40% du vecteur que nous voulons remplacer :
+On fait un sample de taille 40% du vecteur que nous voulons remplacer pour améliorer la rapidité :
 
 ```{r}
 X3_opti<- sample(X3,size = 0.4*length(X3))

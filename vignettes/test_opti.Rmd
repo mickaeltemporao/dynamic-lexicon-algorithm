@@ -8,7 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 ```
 
-## Premier idée d'algorithme
+## Résumé de l'idée d'algorithme
 
 Dans ce document nous allons essayer de mettre au point un algorithme qui va aller trouver un meilleur sous ensemble de données capable de prédire au mieux notre target (idéologie, age, sexe ..)
 
@@ -16,13 +16,24 @@ Nous avons déjà implémenter dans le package une fonction nommée algo_10 qui 
 
 Pour "battre" cette algorithme nous allons nous baser sur l'optimisation combinatoire.
 
-On se base sur l'hypothèse que la combinaison des meilleurs subset donne de meilleurs score.
+Nous allons effectuer des combinaisons des meilleurs sous-ensemble de vecteurs pour arriver à de meilleurs résultats.
 
-Notre première idée est de prendre les 3 meilleurs subset de la sortie de la fonction algo_10 et de faire toutes les combinaisons de 10 nombres de ces 3 vecteurs.
+## Motivation
 
-Pour ensuite prendre 50 combinaisons aléatoires.
 
-Chargeons l'environnement avec nos résultats pour éviter de les relancer (ce qui peut être long et fastidieux):
+Pour effectuer cela, on se base sur l'hypothèse que la combinaison aléatoires des meilleurs subset donne de meilleurs score.
+
+En termes mathématiques, on va essayer d'extraire les meilleures combinaisons de sous ensmeble.
+
+## Démarche
+
+Notre première idée est de prendre les 3 meilleurs subset de la sortie de la fonction algo_10 et de faire toutes les combinaisons de tailles 10 de ces 3 vecteurs.
+
+Mathématiquement on va chercher les 10 parmi 30 meilleures combinaisons.
+
+Ensuite nous allons prendre 50 de ces combinaisons aléatoires.
+
+Effcetuons cet algorihtme :
 
 ```{r}
 library(DLA)
@@ -30,7 +41,7 @@ library(DLA)
 
 ```
 
-Maintenant prenons les 3 meilleurs subset sortant de la fonction algo_10 et on les implemente dans un vecteur:
+Prenons les 3 meilleurs subset sortant de la fonction algo_10 et on les implemente dans un vecteur:
 
 ```{r,eval=FALSE}
 calib_vector_opti<-q[1:3,2:11] # on prends les 3 meilleurs subset
@@ -57,7 +68,7 @@ calib_vector_opti<-as.data.frame(calib_vector_opti)
 
 ```
 
-Maintenant que nous aons nos 50 combinaisons on va calibrer notre sous espace sur ces vecteurs et regarder si le score est meilleur que la fonction algo_10 :
+Maintenant que nous avons nos 50 combinaisons on va calibrer notre sous espace sur ces vecteurs et regarder si le score est meilleur que la fonction algo_10 :
 
 ```{r,eval=FALSE}
 ### on test comme précédement
@@ -124,9 +135,13 @@ data_cor1<-arrange(data_cor1,data_cor1$validation_score) # notre tableau des sco
 data_cor1
 ```
 
-Les résultats sont dans le tableau data_cor1. 
 
-On peut plot ces résultats et les comparer au meilleur score de algo_10 :
+
+## Résultats
+
+Les résultats sont dans le tableau data_cor1.
+
+Pour plus de visibilité nous allons tracer le graph des scores comparés à la limite atteint par le meilleur vecteur de calibration théorique trouvé par la fixture et le meilleur score que l'algo_10 nous retourne :
 
 ```{r}
 library(ggplot2)
@@ -147,9 +162,15 @@ co
 
 ```
 
-On remarque que cet algorithme arrive à dépasser significativement le score de algo_10.
 
-De plus il demeure plutôt rapide.
+## Discussion
+
+
+On remarque que cet algorithme arrive à dépasser significativement le score de algo_10 sur quelques vecteur cependant la plupart sont en dessous des deux scores.
+
+Il est plutôt rapide, il donne quelques meilleurs résultats mais n'est pas très performant.
+
+
 
 
 

@@ -9,7 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = T)
 ```
 
-## Troisième idée d'algorithme
+## Résumé de la troisième idée d'algorithme
 
 ```{r}
 library(DLA)
@@ -20,10 +20,23 @@ library(DLA)
 
 Pour améliorer le score de façon optimale, nous avons penser à un troisième algorithme, qui se base sur l'algorithme de tri par séléction.
 
+Nous allons prendre le meilleur subset de la sortie de la fonction algo_10 et le trier de façon à augmenter sa précision.
+
+## Motivation
+
+Pour avoir des résultats plus important nous pouvonsaller les chercher en triant les vecteurs.
+
+Comme dans le tri par séléction nous allons remplacer indice par indice les chiffres du vecteur jusqu'à obtenir un meilleur score.
+
+
+## Démarche
+
 Pour cela on prends le meilleur subset qui est retourné dans la fonction algo_10 et on va changer chiffre par chiffre jusqu'à avoir un meilleur score que le subset.
 
 Nous allons changer d'abord le chiffre du premier indice en le remplacant par un chiffre restant du dfm jusqu'à obtenir un meilleur score, une fois obtenue nous passons au prochain indice. 
-Et cela jusqu'a la fin du vecteur.
+
+Nous allons maintenant changer le chiffre du deuxième indice jusqu'à obtenir meilleur score que celui précédement.
+Et cela jusqu'a la fin du vecteur, de ce fait la performance ne fera qu'augmenter.
 
 On commence par récupérer le meilleur subset et le vecteur restant :
 
@@ -52,7 +65,10 @@ unlist(x)
 }
 ```
 
-On peut maintenant lancer l'algorithme qui parcours les indice du vecteur et test jusqu'à obtenir un meilleur score :
+On peut maintenant lancer l'algorithme qui parcours les indice du vecteur et test jusqu'à obtenir un meilleur score.
+
+Nous allons comparer le premier indice au score de notre fixture puis les suivant aux scores obtenues précédemment :
+
 
 ```{r,eval=FALSE}
 
@@ -172,6 +188,8 @@ for(j in 1){
 ```
 
 
+## Résultats
+
 Les données sont enregistrées dans le data data_cor3.
 
 ```{r}
@@ -199,5 +217,8 @@ co
 
 ```
 
+## Discussion
 
 Cet algorithme aussi lent qu'il soit demeure être le plus efficace et performant pour améliorer la prédiction.
+En effet sa courbe de performance est croissante, cependant plus les données augmentent plus la durée de l'algorithme augmente également.
+C'est pourquoi nous décidons de nous baser sur cet algorithme pour "battre" la fonction algo_10 mais nous allons effectuer quelques changements, que nous allons expliquer dans la vignette "opti_algo_10".
