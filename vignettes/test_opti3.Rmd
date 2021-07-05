@@ -18,7 +18,7 @@ library(DLA)
 
 
 
-Pour améliorer le score de façon optimale, nous avons penser à un troisième algorithme.
+Pour améliorer le score de façon optimale, nous avons penser à un troisième algorithme, qui se base sur l'algorithme de tri par séléction.
 
 Pour cela on prends le meilleur subset qui est retourné dans la fonction algo_10 et on va changer chiffre par chiffre jusqu'à avoir un meilleur score que le subset.
 
