@@ -3,13 +3,11 @@ require(rpart)
 
 #' calc mae
 #'
-#' @param y_hat
-#' @param y_actual
+#' @param y_hat f
+#' @param y_actual f
 #'
 #' @return
 #' @export
-#'
-#' @examples
 calc_mae_reduction <- function(y_hat, y_actual) {
   model_error <- mean(abs(y_hat - y_actual))
   baseline <- mean(y_actual, na.rm = TRUE)
@@ -24,13 +22,11 @@ calc_mae_reduction <- function(y_hat, y_actual) {
 
 #' calc lisclass
 #'
-#' @param y_hat
-#' @param y_actual
+#' @param y_hat f
+#' @param y_actual f
 #'
 #' @return
 #' @export
-#'
-#' @examples
 calc_misclass_reduction <- function(y_hat, y_actual) {
   tab <- table(y_hat, y_actual)
   model_error <- 1 - sum(diag(tab))/sum(tab)
@@ -47,13 +43,11 @@ calc_misclass_reduction <- function(y_hat, y_actual) {
 
 #' x2y inner
 #'
-#' @param x
-#' @param y
+#' @param x f
+#' @param y f
 #'
 #' @return
 #' @export
-#'
-#' @examples
 x2y_inner <- function(x, y) {
 
   if (length(unique(x)) == 1 |
@@ -75,13 +69,11 @@ x2y_inner <- function(x, y) {
 
 #' simple boots
 #'
-#' @param x
-#' @param y
+#' @param x f
+#' @param y f
 #'
 #' @return
 #' @export
-#'
-#' @examples
 simple_boot <- function(x,y) {
   ids <- sample(length(x), replace = TRUE)
   x2y_inner(x[ids], y[ids])
@@ -89,14 +81,12 @@ simple_boot <- function(x,y) {
 
 #' Metrics x2y
 #'
-#' @param x
-#' @param y
-#' @param confidence
+#' @param x f
+#' @param y f
+#' @param confidence f
 #'
 #' @return
 #' @export
-#'
-#' @examples
 x2y <- function(x, y, confidence = FALSE) {
   results <- list()
 
@@ -128,14 +118,12 @@ x2y <- function(x, y, confidence = FALSE) {
 
 #' Multiple metrics x2y
 #'
-#' @param d
-#' @param target
-#' @param confidence
+#' @param d f
+#' @param target f
+#' @param confidence f
 #'
 #' @return
 #' @export
-#'
-#' @examples
 dx2y <- function(d,
                  target = NA,
                  confidence = FALSE) {

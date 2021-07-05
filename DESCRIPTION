@@ -19,3 +19,5 @@ Suggests:
     knitr
 VignetteBuilder: knitr
 Imports: quanteda,dplyr,corrplot,magrittr,rpart
+Depends: 
+    R (>= 2.10)

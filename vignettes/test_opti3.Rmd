@@ -1,0 +1,148 @@
+---
+title: "Test optimisation combinatoire"
+author: "FREDON Louis"
+date: "29/06/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = T)
+```
+
+## Troisième idée d'algorithme
+
+```{r}
+library(DLA)
+
+```
+
+
+
+Pour améliorer le score de façon optimale, nous avons penser à un troisième algorithme.
+
+Pour cela on prends le meilleur subset qui est retourné dans la fonction algo_10 et on va changer chiffre par chiffre jusqu'à avoir un meilleur score que le subset.
+
+Nous allons changer d'abord le chiffre du premier indice en le remplacant par un chiffre restant du dfm jusqu'à obtenir un meilleur score, une fois obtenue nous passons au prochain indice. 
+Et cela jusqu'a la fin du vecteur.
+
+On commence par récupérer le meilleur subset et le vecteur restant :
+
+```{r, eval=FALSE}
+calib_vector_opti2<-q[1,2:11]
+calib_vector_opti2<-as.numeric(calib_vector_opti2)
+
+X3<-as.numeric(rownames(dfm_fixture))[-calib_vector_opti2]
+
+```
+
+On créé une fonction qui va remplacer un chiffre du vecteur par un chiffre choisi :
+
+```{r, eval=FALSE}
+# On crée une fonction qui change le chiffre du vecteur de l'indice voulu
+
+insert <- function(x, index, replacement, how = c("replace","left","right")) {
+how <- match.arg(how)
+repl <- switch (how,
+replace = replacement,
+left = Map("c", index, replacement),
+right = Map("c", replacement, index)
+)
+x[index] <- repl
+unlist(x)
+}
+```
+
+On peut maintenant lancer l'algorithme qui parcours les indice du vecteur et test jusqu'à obtenir un meilleur score :
+
+```{r,eval=FALSE}
+
+
+
+a <- seq(1,252)
+data_cor3 <- data.frame(a)
+colnames(data_cor3)[1] <- "results"
+remove(a)
+
+
+
+niter<-0
+
+for(j in 1:10){
+  
+  for(i in X3){
+  
+  X_replace<-as.numeric(insert(calib_vector_opti2,j,i))
+
+
+  x <- calibrate(dfm_fixture,complet=T,X_replace)
+
+
+  #use weight on the other
+
+  y <- use_weight(x[[2]],rownames(x[[1]]),x[[1]])
+
+
+  ## Data frame des opinions de tous
+
+  library(dplyr)
+  require(rpart)
+  opinions_df <- rbind(x[[3]], y[[1]])
+  opinions_df$users <- as.numeric(opinions_df$users)
+  opinions_df$opinions <- as.numeric(opinions_df$opinions)
+
+
+  ###Validation
+
+  opinions_df_arrange <- arrange(opinions_df,users)
+
+  df_validation_arrange <- arrange(df_validation,users_id)
+
+  op_match <- merge(opinions_df_arrange,df_validation_arrange,by.x = "users",by.y = "users_id")
+
+
+  validation_metrics <- cor(op_match$opinions,op_match[,3])
+
+
+  if(validation_metrics>abs(q[1,12])){ # si le score est meilleur alors on garde et on passe a l'indice suivant 
+    niter<-niter+1
+    for(w in 1:length(X_replace)){
+    data_cor3[niter,w]<-X_replace[w]
+    colnames(data_cor3)[w]<-paste0("donnée de calib",w)
+  }
+    data_cor3[niter,length(X_replace)+1]<-validation_metrics
+    colnames(data_cor3)[length(X_replace)+1]<-"score"
+    break
+  }
+}
+
+data_cor3 <- arrange(data_cor3,desc(data_cor3$score))
+
+}
+```
+
+
+Les données sont enregistrées dans le data data_cor3.
+
+```{r}
+data_cor3 <- data_cor3[1:10,]
+data_cor3
+```
+
+
+Créons un graph pour plus de visibilité :
+
+```{r}
+library(ggplot2)
+library(gridExtra)
+
+
+
+co<-ggplot(data_cor3,aes(x =seq(1:10), y = abs(score))) +geom_line()+geom_point()
+co<-co+geom_hline(yintercept=abs(q$validation_score[1]), 
+                color = "blue", size=0.5)
+co
+
+```
+
+
+Cet algorithme aussi lent qu'il soit demeure être le plus efficace et performant pour améliorer la prédiction.

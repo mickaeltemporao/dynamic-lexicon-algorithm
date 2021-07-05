@@ -1,0 +1,139 @@
+---
+title: "Test optimisation combinatoire"
+author: "FREDON Louis"
+date: "29/06/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = T)
+```
+
+## Deuxième idée d'algorithme
+
+Dans ce document nous allons essayer de trouver un autre algorithme capable de sortir un meilleur score que la fonction algo_10 comme dans l'autre document.
+
+On se base sur l'hypothèse que la combinaison des meilleurs subsets donne de meilleurs score.
+
+Notre deuxième idée est de prendre le meilleur subset de la sortie de la fonction algo_10 et de faire toutes les combinaisons de la moitiè de la taille de ces 3 vecteurs.
+
+Par exmeple si la taille des samples est de 10 comme nous l'avons ici, nous allons faire toutes les combinaisons de taille 5.
+
+Cette idée se base sur le fait de garder le meilleur sous ensemble du sous ensemble pur améliorer la précision.
+
+
+Chargeons l'environnement avec nos résultats pour éviter de les relancer (ce qui peut être long et fastidieux):
+
+```{r}
+library(DLA)
+
+
+```
+
+
+
+On décide de prendre le meilleur subset sortant de algo_10 et on fait les combinaisons de la moitié (ici 5):
+
+```{r, eval=FALSE}
+
+
+calib_vector_opti1<-q[1,2:11]
+calib_vector_opti1<-as.numeric(calib_vector_opti1)
+
+W1<-combn(calib_vector_opti1,5)#on prends les combinaisons de taille 5
+W1<-t(W1)
+W1<-as.data.frame(W1)
+
+```
+
+Maintenant que nous avons toutes les combinaisons, on peut tester voir si les scores s'améliore :
+
+```{r,eval=FALSE}
+# on test
+
+a <- seq(1,252)
+data_cor2 <- data.frame(a)
+colnames(data_cor2)[1] <- "numéro du sample"
+remove(a)
+
+
+for (i in 1:252){
+
+
+  X1<-W1[i,]
+  X1<-as.numeric(X1)
+
+  for(j in 1:length(X1)){
+    data_cor2[i,j+1]<-X1[j]
+    colnames(data_cor2)[j+1]<-paste0("donnée de calib",j)
+  }
+
+
+  x <- calibrate(dfm_fixture,complet=T,X1)
+
+
+  #use weight on the other
+
+  y <- use_weight(x[[2]],rownames(x[[1]]),x[[1]])
+
+
+  ## Data frame des opinions de tous
+
+  library(dplyr)
+  require(rpart)
+  opinions_df <- rbind(x[[3]], y[[1]])
+  opinions_df$users <- as.numeric(opinions_df$users)
+  opinions_df$opinions <- as.numeric(opinions_df$opinions)
+
+
+  ###Validation
+
+  opinions_df_arrange <- arrange(opinions_df,users)
+
+  df_validation_arrange <- arrange(df_validation,users_id)
+
+  op_match <- merge(opinions_df_arrange,df_validation_arrange,by.x = "users",by.y = "users_id")
+
+
+  validation_metrics <- cor(op_match$opinions,op_match[,3])
+
+
+  data_cor2[i,length(X1)+2] <- validation_metrics
+  colnames(data_cor2)[length(X1)+2] <- "validation_score"
+
+  data_cor2[i,length(X1)+3] <- x2y(op_match$opinions,op_match[,3])[2]
+  colnames(data_cor2)[length(X1)+3] <- "validation_score_x2y"
+
+}
+
+data_cor2<-arrange(data_cor2,data_cor2$validation_score)# tableau de score de l'idée 2
+```
+
+Les résultats sont dans le tableau data_cor2.
+
+```{r}
+data_cor2
+```
+
+
+Faisons un graph pour plus de visibilité :
+
+```{r}
+library(ggplot2)
+library(gridExtra)
+
+
+
+co<-ggplot(data_cor2,aes(x =`numéro du sample`, y = abs(validation_score))) +geom_line()+geom_point()
+co<-co+geom_hline(yintercept=abs(q$validation_score[1]), 
+                color = "blue", size=0.5)
+co
+
+```
+
+
+
+L'hypothèse selon laquelle en réduisant le meilleur sous ensemble alors la précision augmentera est plutôt vérifié, on remarque que les scores sont en parties meilleurs.
+
+Cette algorithme est toute fois plutôt lent si les données s'agrandissent.
+

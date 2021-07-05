@@ -7,7 +7,9 @@
 simple_boot(x, y)
 }
 \arguments{
-\item{y}{}
+\item{x}{f}
+
+\item{y}{f}
 }
 \value{
 

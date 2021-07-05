@@ -509,6 +509,9 @@ for (i in 1:50){
 }
 
 
-## idée de test
-## faire sort les sorties de algo_10 et test une par une
-#
+## save les données de test opti
+
+
+library(devtools)
+devtools::use_data(data_cor1)
+save(words,file="data/words.Rda")

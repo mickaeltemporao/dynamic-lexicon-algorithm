@@ -1,0 +1,157 @@
+---
+title: "Optimisation de la fonction algo_10"
+author: "FREDON Louis"
+date: "30/06/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+### Optimisation de l'algorithme
+
+```{r}
+library(DLA)
+
+```
+
+Au vue des résultats de performance nous décidons de garder l'algortihme 3 qui est le plus performant.
+Cependant, si le nombres d'utilisateurs augmente, et que donc la taille des combinaisons augment également, l'algorithme risque d'être plutôt lent.
+
+C'est pourquoi dans ce document nous allons essayer d'améliorer celui-ci afin de le rendre tout aussi performant ( si possible) mais surtout, beaucoup plus rapide.
+
+Pour cela, au lieu de remplacer les combinaisons par tout les autres users_id disponible, nous allons uniquement changer par un sample de X3.
+
+
+Comme l'algorithme, on commence par récupéerer le meilleurs subset retrourner de la fonction algo_10 :
+
+```{r}
+calib_vector_opti2<-q[1,2:11]
+calib_vector_opti2<-as.numeric(calib_vector_opti2)
+
+X3<-as.numeric(rownames(dfm_fixture))[-calib_vector_opti2]
+
+```
+
+
+On garde la fonction qui permets de remplacer les chiffres du vecteur à l'indice voulu :
+
+
+```{r}
+# On crée une fonction qui change le chiffre du vecteur de l'indice voulu
+
+insert <- function(x, index, replacement, how = c("replace","left","right")) {
+how <- match.arg(how)
+repl <- switch (how,
+replace = replacement,
+left = Map("c", index, replacement),
+right = Map("c", replacement, index)
+)
+x[index] <- repl
+unlist(x)
+}
+```
+
+
+On fait un sample de taille 40% du vecteur que nous voulons remplacer :
+
+```{r}
+X3_opti<- sample(X3,size = 0.4*length(X3))
+```
+
+Et on peut maintenant lancer l'algorithme :
+
+```{r,eval=FALSE}
+
+
+
+a <- seq(1,252)
+data_cor3_opti <- data.frame(a)
+colnames(data_cor3_opti)[1] <- "results"
+remove(a)
+
+
+
+niter<-0
+
+for(j in 1:10){
+  
+  for(i in X3_opti){
+  
+  X_replace<-as.numeric(insert(calib_vector_opti2,j,i))
+
+
+  x <- calibrate(dfm_fixture,complet=T,X_replace)
+
+
+  #use weight on the other
+
+  y <- use_weight(x[[2]],rownames(x[[1]]),x[[1]])
+
+
+  ## Data frame des opinions de tous
+
+  library(dplyr)
+  require(rpart)
+  opinions_df <- rbind(x[[3]], y[[1]])
+  opinions_df$users <- as.numeric(opinions_df$users)
+  opinions_df$opinions <- as.numeric(opinions_df$opinions)
+
+
+  ###Validation
+
+  opinions_df_arrange <- arrange(opinions_df,users)
+
+  df_validation_arrange <- arrange(df_validation,users_id)
+
+  op_match <- merge(opinions_df_arrange,df_validation_arrange,by.x = "users",by.y = "users_id")
+
+
+  validation_metrics <- cor(op_match$opinions,op_match[,3])
+
+
+  if(validation_metrics>abs(q[1,12])){ # si le score est meilleur alors on garde et on passe a l'indice suivant 
+    niter<-niter+1
+    for(w in 1:length(X_replace)){
+    data_cor3_opti[niter,w]<-X_replace[w]
+    colnames(data_cor3_opti)[w]<-paste0("donnée de calib",w)
+  }
+    data_cor3_opti[niter,length(X_replace)+1]<-validation_metrics
+    colnames(data_cor3_opti)[length(X_replace)+1]<-"score"
+    break
+  }
+}
+
+data_cor3_opti <- arrange(data_cor3_opti,desc(data_cor3$score))
+
+}
+```
+
+
+
+Les données sont enregistrées dans le data data_cor3_opti.
+
+```{r}
+
+data_cor3_opti<-data_cor3_opti[1:8,]
+data_cor3_opti
+```
+
+
+Créons un graph pour plus de visibilité :
+
+```{r}
+library(ggplot2)
+
+
+co<-ggplot(data_cor3_opti,aes(x =seq(1:8), y = abs(score))) +geom_line()+geom_point()
+co<-co+geom_hline(yintercept=abs(q$validation_score[1]), 
+                color = "blue", size=0.5)
+co
+
+```
+
+
+Cet algorithme aussi lent qu'il soit demeure être le plus efficace et performant pour améliorer la prédiction.

@@ -7,7 +7,9 @@
 calc_mae_reduction(y_hat, y_actual)
 }
 \arguments{
-\item{y_actual}{}
+\item{y_hat}{f}
+
+\item{y_actual}{f}
 }
 \value{
 
