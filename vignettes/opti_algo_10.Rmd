@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```
 
-### Résumé/ Motivation de  l'optimisation de l'algorithme algo_10
+## Résumé/ Motivation de  l'optimisation de l'algorithme algo_10
 
 ```{r}
 library(DLA)
