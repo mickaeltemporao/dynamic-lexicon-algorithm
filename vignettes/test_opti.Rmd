@@ -135,8 +135,14 @@ library(gridExtra)
 
 
 co<-ggplot(data_cor1,aes(x =`numéro du sample`, y = abs(validation_score))) +geom_line()+geom_point()
-co<-co+geom_hline(yintercept=abs(q$validation_score[1]), 
-                color = "blue", size=0.5)
+co<-co+geom_hline(aes(yintercept=abs(q$validation_score[1]),linetype = "algo_10 score"), 
+                color = "blue", size=0.5)+
+  geom_hline(aes(yintercept=abs(validation_score_fixture_weighted), linetype = "best score"), 
+                color = "green", size=0.5) +
+    scale_linetype_manual(name = "limit", values = c(2, 2), guide = guide_legend(override.aes = list(color = c("blue", "green"))))
+
+
+co
 co
 
 ```

@@ -69,7 +69,7 @@ Nous avons le target calculé sur le subset donc nous pouvons d'abbord verfifier
 cor1<-cor(df_validation[calib_vector,]$V2,opini_target$opinions)
 
 ```
-Nous avons une corrélation de  'cor1' ce qui montre que le calcul sur le subset est aceptable.
+Nous avons une corrélation de  `r cor1` ce qui montre que le calcul sur le subset est aceptable.
 
 Maintenant comparons nos prédictions a la validation :
 
@@ -86,7 +86,7 @@ opinions_df$opinions <- as.numeric(opinions_df$opinions)
 val1<-validation(opinions_df,df_validation,"users","users_id")
 ```
 
-Comparons ces résultats `r val1` à ce lorsque nous calibrons sur l'ensemble des users :
+Comparons ces résultats `r val1[[2]]` à ce lorsque nous calibrons sur l'ensemble des users :
 
 ```{r}
 ## sur tout
@@ -95,7 +95,7 @@ x<-calibrate(dfm_fixture,complet=F)
 val2<-validation(x[[4]],df_validation,colnames(x[[4]])[1],"users_id")
 
 ```
-'val2'
+`r val2[[2]]`
 
 On remarque bien que les scores sont bien plus faibles.
 
@@ -110,14 +110,14 @@ Cela montre que nous pouvons valider le fait que notre subset d'users biaisés e
 MAintenant pour finaliser la validation de notre fixture nous allons comparer le score de la prédiction lorsqu'on calibre sur le subset biaisé et le score de la prédiction lorsqu'on lance notre fonction algo_10 qui fait 10 sample, donc 10 subset.
 Si notre subset biaisé reste le meilleur , alors nous pouvons valider notre fixture.
 
-On rapelle que le score sur notre subset biaisé etait de : 'val1'
+On rapelle que le score sur notre subset biaisé etait de : `r val1[[2]]`
 
 
 
 
 ```{r}
 
-q  #algo_10 function return 
+q[,1:13]  #algo_10 function return 
 
 
 ```
@@ -133,13 +133,13 @@ library(gridExtra)
 
 
 co<-ggplot(q,aes(x =`numéro du sample`, y = abs(validation_score))) +geom_line()+geom_point()
-co<-co+geom_hline(yintercept=0.3130565, 
+co<-co+geom_hline(yintercept=val1[[2]], 
                 color = "blue", size=0.5)
-co<-co+   geom_errorbar(aes(ymin=validation_score, ymax= 0.3130565), width=.2,
+co<-co+   geom_errorbar(aes(ymin=validation_score, ymax= val1[[2]]), width=.2,
                  position=position_dodge(.9), color="red", alpha=.5) 
 
 xy<-ggplot(q,aes(x =`numéro du sample`, y = validation_score_x2y)) +geom_line()+geom_point()
-xy<-xy+geom_hline(yintercept=5.51, 
+xy<-xy+geom_hline(yintercept=val1[[3]], 
                 color = "blue", size=0.5)
 
 grid.arrange(co,xy, ncol=1, nrow = 2)
