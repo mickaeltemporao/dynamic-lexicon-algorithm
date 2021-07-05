@@ -507,3 +507,11 @@ for (i in 1:50){
   colnames(data_cor)[length(X1)+3] <- "validation_score_x2y"
 
 }
+
+
+## save les données de test opti
+
+
+library(devtools)
+devtools::use_data(data_cor1)
+save(words,file="data/words.Rda")

@@ -1,18 +1,18 @@
 
 #' Title
 #'
-#' @param words_weight
-#' @param input
-#' @param wordsincol
-#' @param fixtwo
-#' @param dir
-#' @param fixdoc
-#' @param tol
-#' @param sigma
-#' @param boots
-#' @param nsim
-#' @param writeout
-#' @param output
+#' @param words_weight f
+#' @param input f
+#' @param wordsincol f
+#' @param fixtwo f
+#' @param dir f
+#' @param fixdoc f
+#' @param tol f
+#' @param sigma f
+#' @param boots f
+#' @param nsim f
+#' @param writeout f
+#' @param output f
 #'
 #' @return
 

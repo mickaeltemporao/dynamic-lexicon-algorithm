@@ -7,7 +7,11 @@
 dx2y(d, target = NA, confidence = FALSE)
 }
 \arguments{
-\item{confidence}{}
+\item{d}{f}
+
+\item{target}{f}
+
+\item{confidence}{f}
 }
 \value{
 

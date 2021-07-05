@@ -3,7 +3,7 @@
 #' Prediction on the users
 #'
 #' @param input a data.frame with the users avec lignes/users et col/text
-#' @param word  words kept calculating in the calibrate function
+#' @param words  words kept calculating in the calibrate function
 #' @param df word/weight data calculate in the calibrate function
 #' @param wordsinrow fix
 #' @param docincol fix

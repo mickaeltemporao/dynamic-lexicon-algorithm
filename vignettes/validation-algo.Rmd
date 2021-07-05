@@ -7,14 +7,19 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(DLA)
 ```
 
 ### Data_fixture
 
-```{r}
-load("~/validation_workspace.RData")
+Nous utilisons et voulons valider notre fixture créer. 
 
- dfm_choose<-dfm_fixture[calib_vector,words]
+Sa création est expliquée dans le markdown du même nom.
+
+
+```{r}
+
+dfm_choose<-dfm_fixture[calib_vector,words]
 ```
 
 
@@ -61,10 +66,10 @@ Nous avons le target calculé sur le subset donc nous pouvons d'abbord verfifier
 
 ```{r}
 #correlation target des calib
-cor(df_validation[calib_vector,]$V2,opini_target$opinions)
+cor1<-cor(df_validation[calib_vector,]$V2,opini_target$opinions)
 
 ```
-Nous avons une corrélation de  0.8117229 ce qui montre que le calcul sur le subset est aceptable.
+Nous avons une corrélation de  'cor1' ce qui montre que le calcul sur le subset est aceptable.
 
 Maintenant comparons nos prédictions a la validation :
 
@@ -78,16 +83,19 @@ word_wei<-y[[2]]
 opinions_df <- rbind(w[[3]], y[[1]])
 opinions_df$opinions <- as.numeric(opinions_df$opinions)
 
-validation(opinions_df,df_validation,"users","users_id")
+val1<-validation(opinions_df,df_validation,"users","users_id")
 ```
 
-Comparons ces résultats à ce lorsque nous calibrons sur l'ensemble des users :
+Comparons ces résultats `r val1` à ce lorsque nous calibrons sur l'ensemble des users :
 
 ```{r}
 ## sur tout
-validation(opini_df,df_validation,colnames(opini_df)[1],"users_id")
+x<-calibrate(dfm_fixture,complet=F)
+
+val2<-validation(x[[4]],df_validation,colnames(x[[4]])[1],"users_id")
 
 ```
+'val2'
 
 On remarque bien que les scores sont bien plus faibles.
 
@@ -102,20 +110,14 @@ Cela montre que nous pouvons valider le fait que notre subset d'users biaisés e
 MAintenant pour finaliser la validation de notre fixture nous allons comparer le score de la prédiction lorsqu'on calibre sur le subset biaisé et le score de la prédiction lorsqu'on lance notre fonction algo_10 qui fait 10 sample, donc 10 subset.
 Si notre subset biaisé reste le meilleur , alors nous pouvons valider notre fixture.
 
-On rapelle que le score sur notre subset biaisé etait de :
+On rapelle que le score sur notre subset biaisé etait de : 'val1'
 
 
-$average_efficiency
-[1] 1.034745
 
-$coeff_corr
-[1] 0.3130565
-
-$x2y
-[1] 5.51
 
 ```{r}
-x  #algo_10 function return 
+
+q  #algo_10 function return 
 
 
 ```
@@ -128,28 +130,27 @@ library(gridExtra)
 
 
 
-co<-ggplot(x,aes(x =`numéro du sample`, y = validation_score)) +geom_line()+geom_point()
+
+
+co<-ggplot(q,aes(x =`numéro du sample`, y = abs(validation_score))) +geom_line()+geom_point()
 co<-co+geom_hline(yintercept=0.3130565, 
                 color = "blue", size=0.5)
 co<-co+   geom_errorbar(aes(ymin=validation_score, ymax= 0.3130565), width=.2,
                  position=position_dodge(.9), color="red", alpha=.5) 
 
-xy<-ggplot(x,aes(x =`numéro du sample`, y = validation_score_x2y)) +geom_line()+geom_point()
-xy<-xy+geom_point(aes(x=11, y=5.51), colour="red")
+xy<-ggplot(q,aes(x =`numéro du sample`, y = validation_score_x2y)) +geom_line()+geom_point()
 xy<-xy+geom_hline(yintercept=5.51, 
-                color = "red", size=0.5)
+                color = "blue", size=0.5)
 
 grid.arrange(co,xy, ncol=1, nrow = 2)
-
 ```
 
 ### Performances 
 
 ```{r}
-for (i in 1:dim(x)[1]){
-        x[i,6]<-(0.3130565-x[i,4])/0.3130565
+for (i in 1:dim(q)[1]){
+        q[i,((dim(q)[2])+1)]<-(val1[[2]]-(q[i,"validation_score"]))/val1[[2]]
 }
-colnames(x)[6]<-"ecart relatif"
 ```
 
 

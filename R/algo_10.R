@@ -42,7 +42,7 @@ remove(a)
 
 for (i in 1:10){
 
-  X1 <- sample(nrow(data), size=round(0.03*(dim(data)[1])))
+  X1 <- sample(nrow(data), size=10)
 
   for(j in 1:length(X1)){
     data_cor[i,j+1]<-X1[j]
@@ -91,6 +91,10 @@ for (i in 1:10){
 
 }
 
+data_cor<-arrange(data_cor,desc(abs(validation_score)))
 
-return(data_cor=data_cor)
+x<-data_cor[1,]
+
+
+return(list(x=x,data_cor=data_cor))
 }

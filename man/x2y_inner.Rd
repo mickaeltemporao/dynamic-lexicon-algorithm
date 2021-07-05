@@ -7,7 +7,9 @@
 x2y_inner(x, y)
 }
 \arguments{
-\item{y}{}
+\item{x}{f}
+
+\item{y}{f}
 }
 \value{
 
