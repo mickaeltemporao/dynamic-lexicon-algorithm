@@ -1,8 +1,15 @@
 # Dynamic-Lexicon-Algorithm
 
+
+
+
+
 ## About
 
 This R package is designed to estimate a target using analyse and weight of words.
+
+![Flowchart_DLA](https://user-images.githubusercontent.com/83821244/123930107-b844cf00-d98f-11eb-9f48-c951951dca79.jpg)
+
 
 ## How to install
 
@@ -105,8 +112,5 @@ s<-algo_10(dfm,val,"users_id")
 ```
 
 
-### Flow Charts DLA package
-
-![Flowchart_DLA](https://user-images.githubusercontent.com/83821244/123930107-b844cf00-d98f-11eb-9f48-c951951dca79.jpg)
 
 

@@ -86,7 +86,7 @@ opinions_df$opinions <- as.numeric(opinions_df$opinions)
 val1<-validation(opinions_df,df_validation,"users","users_id")
 ```
 
-Comparons ces résultats 'val1' à ce lorsque nous calibrons sur l'ensemble des users :
+Comparons ces résultats `r val1` à ce lorsque nous calibrons sur l'ensemble des users :
 
 ```{r}
 ## sur tout
