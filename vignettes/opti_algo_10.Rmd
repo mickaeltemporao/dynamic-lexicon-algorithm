@@ -190,7 +190,7 @@ data_cor3_opti <- arrange(data_cor3_opti,desc(data_cor3_opti$score))
 
 Les données sont enregistrées dans data_cor3_opti :
 
-```{r}
+```{r, eval = FALSE}
 
 data_cor3_opti<-data_cor3_opti[1:4,]
 data_cor3_opti
