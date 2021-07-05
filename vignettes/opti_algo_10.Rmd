@@ -10,23 +10,28 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```
 
-### Optimisation de l'algorithme
+### Résumé/ Motivation de  l'optimisation de l'algorithme algo_10
 
 ```{r}
 library(DLA)
-
 ```
 
-Au vue des résultats de performance nous décidons de garder l'algortihme 3 qui est le plus performant.
+Au vue des résultats de performance des tests réalisés nous décidons de garder l'algortihme 3 qui demeure être le plus performant.
 
-Cependant, si le nombres d'utilisateurs augmente, et que donc la taille des combinaisons augment également, l'algorithme risque d'être plutôt lent.
+Cependant, si le nombres d'utilisateurs augmente, et que donc la taille des combinaisons augment également, l'algorithme risque d'être très lent et de donner des résultats très tardivement.
 
 C'est pourquoi dans ce document nous allons essayer d'améliorer celui-ci afin de le rendre tout aussi performant ( si possible) mais surtout, beaucoup plus rapide.
 
-Pour cela, au lieu de remplacer les combinaisons par tout les autres users_id disponible, nous allons uniquement changer par un sample de X3.
 
 
-Comme l'algorithme, on commence par récupérer le meilleurs subset retourné de la fonction algo_10 :
+## Démarche
+
+Pour cela, au lieu de trier le vecteur de calibration en ammant chercher et piocher dans tout le reste disponible, nous allons uniquement aller piocher dans un sous ensemble disponible.
+
+Cela va donc diviser la taille de ma boucle et par conséquent la durée de l'algorithme.
+
+
+Comme l'algorithme 3, on commence par récupérer le meilleurs subset retourné de la fonction algo_10 :
 
 ```{r}
 calib_vector_opti2<-q[1,2:11]
@@ -56,7 +61,7 @@ unlist(x)
 ```
 
 
-On fait un sample de taille 40% du vecteur que nous voulons remplacer pour améliorer la rapidité :
+On diminue la taille du vecteur restant en ne prenant que 40% de la taille original pour améliorer la rapidité :
 
 ```{r}
 X3_opti<- sample(X3,size = 0.4*length(X3))
@@ -181,9 +186,9 @@ data_cor3_opti <- arrange(data_cor3_opti,desc(data_cor3_opti$score))
 }
 ```
 
+## Résultats
 
-
-Les données sont enregistrées dans le data data_cor3_opti.
+Les données sont enregistrées dans data_cor3_opti :
 
 ```{r}
 
@@ -211,5 +216,8 @@ co
 
 ```
 
+## Discussion / Conclusion
 
-Cet algorithme aussi lent qu'il soit demeure être le plus efficace et performant pour améliorer la prédiction.
+Cet algorithme tourne en moins de temps que l'algorithme 3 et demeure êter quasi tout aussi performant, les résultats de score sont presque aussi élevés.
+
+Cela peut donc être le parfait compromis entre performance et rapidité.
