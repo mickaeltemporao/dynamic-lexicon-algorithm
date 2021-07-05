@@ -218,6 +218,8 @@ co
 
 ## Discussion / Conclusion
 
-Cet algorithme tourne en moins de temps que l'algorithme 3 et demeure êter quasi tout aussi performant, les résultats de score sont presque aussi élevés.
+Cet algorithme tourne en moins de temps que l'algorithme 3 et demeure être quasi tout aussi performant, les résultats de score sont presque aussi élevés.
+
+En arrangeant le data par ordre croissant la courbe semble décroissante mais est bien croissante;
 
 Cela peut donc être le parfait compromis entre performance et rapidité.
