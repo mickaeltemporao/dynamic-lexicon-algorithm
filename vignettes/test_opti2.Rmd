@@ -26,7 +26,7 @@ Chargeons l'environnement avec nos résultats pour éviter de les relancer (ce q
 
 ```{r}
 library(DLA)
-data(package = "DLA")
+
 
 ```
 
