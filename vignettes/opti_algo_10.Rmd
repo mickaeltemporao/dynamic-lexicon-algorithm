@@ -165,8 +165,9 @@ for(j in 1){
 
   validation_metrics <- cor(op_match$opinions,op_match[,3])
 
-
-  if((validation_metrics>abs(data_cor3_opti[niter,length(X_replace)+1]))){ # si le score est meilleur alors on garde et on passe a l'indice suivant 
+    #si le score est meilleur alors on garde et on passe a l'indice suivant
+  if((validation_metrics>abs(data_cor3_opti[niter,length(X_replace)+1]))){ 
+ 
     niter<-niter+1
     for(w in 1:length(X_replace)){
     data_cor3_opti[niter,w]<-X_replace[w]
