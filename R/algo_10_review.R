@@ -42,7 +42,7 @@ algo_10_review <- function (
 
   for (i in 1:4){
 
-    X1 <- sample(nrow(data), size=0.2*length(data))
+    X1 <- sample(nrow(data), size=0.2*dim(data)[1])
 
     for(j in 1:length(X1)){
       data_cor[i,j+1]<-X1[j]
