@@ -20,7 +20,5 @@ data frame with the validation score of the 10 sample vector calib and
 find the best sample for calibration
 }
 \examples{
-w<-data_fixture()
-algo_10_review(w[[1]],w[[2]],"users_id")
-remove(w)
+algo_10_review(dfm_fixture,df_validation,"users_id")
 }
