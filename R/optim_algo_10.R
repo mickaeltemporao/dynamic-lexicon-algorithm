@@ -128,6 +128,7 @@ for(j in 2:length(vector)){
   end_time = Sys.time()
 
   if(as.numeric(difftime(end_time,start_time,units = "mins"))>10){
+    cat("algo stop time > 10 mins")
     break}
 }
 
