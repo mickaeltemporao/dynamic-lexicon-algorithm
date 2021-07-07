@@ -73,7 +73,8 @@ break
 }
 }
 
-for(j in 2:10){
+for(j in 2:length(vector)){
+  start_time = Sys.time()
   for(i in X3){
 
     X_replace<-as.numeric(insert(vector,j,i))
@@ -120,13 +121,23 @@ for(j in 2:10){
       break
 
     }
+
+
   }
+
+  end_time = Sys.time()
+
+  if(as.numeric(difftime(end_time,start_time,units = "mins"))>10){
+    break}
 }
 
 data_cor3_opti <- arrange(data_cor3_opti,desc(data_cor3_opti$score))
 data_score<-data_cor3_opti
 
 return(data_score)
-
-
 }
+
+
+
+
+
