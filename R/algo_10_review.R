@@ -12,9 +12,7 @@
 #' @export
 #'
 #' @examples
-#'w<-data_fixture()
-#'algo_10_review(w[[1]],w[[2]],"users_id")
-#'remove(w)
+#'algo_10_review(dfm_fixture,df_validation,"users_id")
 
 algo_10_review <- function (
   input,  # a dfm avec lignes/users et col/text
