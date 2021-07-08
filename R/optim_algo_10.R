@@ -1,7 +1,8 @@
 #' Optimisation algo_10 function
 #'
-#' @param input
-#' @param vector
+#' @param input a dfm avec lignes/users et col/text
+#' @param vector the return of algo_10 function
+#' @param time_running the max time of running the users want in second
 #'
 #' @return
 #' @export
@@ -9,7 +10,9 @@
 #' @examples
 opti_10 <- function (
   input,  # a dfm avec lignes/users et col/text
-  vector# the return of algo_10 function
+  vector,# the return of algo_10 function
+  time_running=300#the max time of running the users want in second
+
 
 ){
 
@@ -127,8 +130,8 @@ for(j in 2:length(vector)){
 
   end_time = Sys.time()
 
-  if(as.numeric(difftime(end_time,start_time,units = "mins"))>10){
-    cat("algo stop time > 10 mins")
+  if(as.numeric(difftime(end_time,start_time,units = "sec"))>ceiling((time_running/length(vector)))){
+    cat("algo stopped time out")
     break}
 }
 
