@@ -10,22 +10,28 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```
 
-### Optimisation de l'algorithme
+## Résumé/ Motivation de  l'optimisation de l'algorithme algo_10
 
 ```{r}
 library(DLA)
-
 ```
 
-Au vue des résultats de performance nous décidons de garder l'algortihme 3 qui est le plus performant.
-Cependant, si le nombres d'utilisateurs augmente, et que donc la taille des combinaisons augment également, l'algorithme risque d'être plutôt lent.
+Au vue des résultats de performance des tests réalisés nous décidons de garder l'algortihme 3 qui demeure être le plus performant.
+
+Cependant, si le nombres d'utilisateurs augmente, et que donc la taille des combinaisons augment également, l'algorithme risque d'être très lent et de donner des résultats très tardivement.
 
 C'est pourquoi dans ce document nous allons essayer d'améliorer celui-ci afin de le rendre tout aussi performant ( si possible) mais surtout, beaucoup plus rapide.
 
-Pour cela, au lieu de remplacer les combinaisons par tout les autres users_id disponible, nous allons uniquement changer par un sample de X3.
 
 
-Comme l'algorithme, on commence par récupéerer le meilleurs subset retrourner de la fonction algo_10 :
+## Démarche
+
+Pour cela, au lieu de trier le vecteur de calibration en ammant chercher et piocher dans tout le reste disponible, nous allons uniquement aller piocher dans un sous ensemble disponible.
+
+Cela va donc diviser la taille de ma boucle et par conséquent la durée de l'algorithme.
+
+
+Comme l'algorithme 3, on commence par récupérer le meilleurs subset retourné de la fonction algo_10 :
 
 ```{r}
 calib_vector_opti2<-q[1,2:11]
@@ -55,7 +61,7 @@ unlist(x)
 ```
 
 
-On fait un sample de taille 40% du vecteur que nous voulons remplacer :
+On diminue la taille du vecteur restant en ne prenant que 40% de la taille original pour améliorer la rapidité :
 
 ```{r}
 X3_opti<- sample(X3,size = 0.4*length(X3))
@@ -76,8 +82,7 @@ remove(a)
 
 niter<-0
 
-for(j in 1:10){
-  
+for(j in 1){
   for(i in X3_opti){
   
   X_replace<-as.numeric(insert(calib_vector_opti2,j,i))
@@ -112,30 +117,83 @@ for(j in 1:10){
   validation_metrics <- cor(op_match$opinions,op_match[,3])
 
 
-  if(validation_metrics>abs(q[1,12])){ # si le score est meilleur alors on garde et on passe a l'indice suivant 
+  if((validation_metrics>abs(validation_score_fixture_weighted))){ # si le score est meilleur alors on garde et on passe a l'indice suivant 
     niter<-niter+1
     for(w in 1:length(X_replace)){
     data_cor3_opti[niter,w]<-X_replace[w]
     colnames(data_cor3_opti)[w]<-paste0("donnée de calib",w)
-  }
+    }
     data_cor3_opti[niter,length(X_replace)+1]<-validation_metrics
     colnames(data_cor3_opti)[length(X_replace)+1]<-"score"
     break
+   
+  }
   }
 }
+  
+  for(j in 2:10){
+  for(i in X3_opti){
+  
+  X_replace<-as.numeric(insert(calib_vector_opti2,j,i))
 
-data_cor3_opti <- arrange(data_cor3_opti,desc(data_cor3$score))
+
+  x <- calibrate(dfm_fixture,complet=T,X_replace)
+
+
+  #use weight on the other
+
+  y <- use_weight(x[[2]],rownames(x[[1]]),x[[1]])
+
+
+  ## Data frame des opinions de tous
+
+  library(dplyr)
+  require(rpart)
+  opinions_df <- rbind(x[[3]], y[[1]])
+  opinions_df$users <- as.numeric(opinions_df$users)
+  opinions_df$opinions <- as.numeric(opinions_df$opinions)
+
+
+  ###Validation
+
+  opinions_df_arrange <- arrange(opinions_df,users)
+
+  df_validation_arrange <- arrange(df_validation,users_id)
+
+  op_match <- merge(opinions_df_arrange,df_validation_arrange,by.x = "users",by.y = "users_id")
+
+
+  validation_metrics <- cor(op_match$opinions,op_match[,3])
+
+    #si le score est meilleur alors on garde et on passe a l'indice suivant
+  if((validation_metrics>abs(data_cor3_opti[niter,length(X_replace)+1]))){ 
+ 
+    niter<-niter+1
+    for(w in 1:length(X_replace)){
+    data_cor3_opti[niter,w]<-X_replace[w]
+    colnames(data_cor3_opti)[w]<-paste0("donnée de calib",w)
+    }
+    data_cor3_opti[niter,length(X_replace)+1]<-validation_metrics
+    colnames(data_cor3_opti)[length(X_replace)+1]<-"score"
+    break
+   
+  }
+  }
+}
+  
+
+data_cor3_opti <- arrange(data_cor3_opti,desc(data_cor3_opti$score))
 
 }
 ```
 
+## Résultats
 
+Les données sont enregistrées dans data_cor3_opti :
 
-Les données sont enregistrées dans le data data_cor3_opti.
+```{r, eval = FALSE}
 
-```{r}
-
-data_cor3_opti<-data_cor3_opti[1:8,]
+data_cor3_opti<-data_cor3_opti[1:4,]
 data_cor3_opti
 ```
 
@@ -146,12 +204,23 @@ Créons un graph pour plus de visibilité :
 library(ggplot2)
 
 
-co<-ggplot(data_cor3_opti,aes(x =seq(1:8), y = abs(score))) +geom_line()+geom_point()
-co<-co+geom_hline(yintercept=abs(q$validation_score[1]), 
-                color = "blue", size=0.5)
+co<-ggplot(data_cor3_opti,aes(x =seq(1:4), y = score)) +geom_line()+geom_point()
+co<-co+geom_hline(aes(yintercept=abs(q$validation_score[1]),linetype = "algo_10 score"), 
+                color = "blue", size=0.5)+
+  geom_hline(aes(yintercept=abs(validation_score_fixture_weighted), linetype = "best score"), 
+                color = "green", size=0.5) +
+    scale_linetype_manual(name = "limit", values = c(2, 2), guide = guide_legend(override.aes = list(color = c("blue", "green"))))
+
+
+
 co
 
 ```
 
+## Discussion / Conclusion
 
-Cet algorithme aussi lent qu'il soit demeure être le plus efficace et performant pour améliorer la prédiction.
+Cet algorithme tourne en moins de temps que l'algorithme 3 et demeure être quasi tout aussi performant, les résultats de score sont presque aussi élevés.
+
+En arrangeant le data par ordre croissant la courbe semble décroissante mais est bien croissante;
+
+Cela peut donc être le parfait compromis entre performance et rapidité.
