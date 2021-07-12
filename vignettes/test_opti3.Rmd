@@ -11,14 +11,23 @@ knitr::opts_chunk$set(echo = T)
 
 ## Résumé de la troisième idée d'algorithme
 
-```{r}
+```{r, include = FALSE}
 library(DLA)
 
 ```
 
+Pour améliorer le score de façon optimale, nous avons penser à un troisième algorithme, qui se base sur l'algorithme de tri par séléction expmiquée par l'image ci-dessous :
 
 
-Pour améliorer le score de façon optimale, nous avons penser à un troisième algorithme, qui se base sur l'algorithme de tri par séléction.
+![First_step](https://user-images.githubusercontent.com/83821244/125250574-b1ef1500-e2f6-11eb-866d-5eaa85aa7372.jpg)
+
+
+
+![Second_step](https://user-images.githubusercontent.com/83821244/125250754-e8c52b00-e2f6-11eb-8eb4-53e56bda344a.jpg)
+
+
+![3_step](https://user-images.githubusercontent.com/83821244/125250819-f67ab080-e2f6-11eb-830d-9e57623268fa.jpg)
+
 
 Nous allons prendre le meilleur subset de la sortie de la fonction algo_10 et le trier de façon à augmenter sa précision.
 
