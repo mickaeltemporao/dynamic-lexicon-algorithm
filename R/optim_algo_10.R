@@ -9,14 +9,10 @@
 #'
 #' @examples
 opti_10 <- function (
-  input,  # a dfm avec lignes/users et col/text
-  vector,# the return of algo_10 function
-  time_running=300#the max time of running the users want in second
-
-
+  input,
+  vector,
+  time_running=300
 ){
-
-
 
 X3<-sample(as.numeric(rownames(input))[-vector], size = 0.4*length(as.numeric(rownames(input))[-vector]))
 

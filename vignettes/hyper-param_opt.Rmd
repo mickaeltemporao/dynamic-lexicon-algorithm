@@ -11,6 +11,10 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Tunnig des hyperparametres de l'algorithme
 
+```{r, include = FALSE}
+library(DLA)
+
+```
 
 Dans ce papier nous allons chercher à trouver les hyperparamètres à choisir pour améliorer la précision de notre algorithme.
 
