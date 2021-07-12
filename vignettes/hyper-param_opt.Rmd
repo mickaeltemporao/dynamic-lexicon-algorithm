@@ -19,7 +19,7 @@ Les hyperparamètres que nous voulons fixer sont la taille du sample de la fonct
 Pour réaliser cela nous allons fixer le nombre de sample (à 10), définir la meilleure taille puis trouver le nombre idéale par la suite en fixante la taille choisi.
 
 
-```{r}
+```{r,eval=FALSE}
 
 taille_vector<-c(0.03*dim(dfm_fixture)[1],0.05*dim(dfm_fixture)[1],0.1*dim(dfm_fixture)[1],0.2*dim(dfm_fixture)[1],15,20)
 
@@ -115,9 +115,28 @@ colnames(data_opt)[4]<-"time of running"
 ```
 
 
-Les données sont enregistrées dans le data " data_opt_10sample".
+Les données sont enregistrées dans le data " data_opt_10sample":
 
-En ayant fixé le nombre de sample à 10, on remarque que la meilleure taille de vecteur à choisir est celle de 20% de la taille du dfm ( 10 ici pour nous ), car c'est celle avec la meilleure moyenne de score et la variation la plus petite. En effet la taille 15 donne un meilleure score mais une variation et une durée d'algorithme plus grande. 
+```{r}
+data_opt_10sample
+```
+
+Faisons une courbe de performance pour analyser les résultats :
+
+```{r}
+library(ggplot2)
+library(gridExtra)
+
+co<-ggplot(data_opt_10sample, aes(x = taille_vector,y = `moyenne de score`)) + geom_point() + geom_line(color="red")
+xy<-ggplot(data_opt_10sample, aes(x = taille_vector,y = `standard deviation score`)) + geom_point() + geom_line(color="blue")
+
+grid.arrange(co,xy, ncol=1, nrow = 2)
+
+```
+
+
+On remarque un maximum a la taille 15 cependant, la meilleure taille de vecteur à choisir est celle de 20% de la taille du dfm ( 10 ici pour nous ), car c'est celle avec la meilleure moyenne de score mais la variation la plus petite. 
+En effet la taille 15 donne un meilleure score mais une variation et une durée d'algorithme plus grande. 
 
 On garde donc la taille du vecteur de 10 soit 20% de la taille du dfm. 
 On fixe donc la taille a 20%.
@@ -126,7 +145,7 @@ Effectuons les mêmes tests sur le nombre maintenant:
 
 
 
-```{r}
+```{r,eval=FALSE}
 
 #taille_vector<-c(0.03*dim(dfm_fixture)[1],0.05*dim(dfm_fixture)[1],0.1*dim(dfm_fixture)[1],0.2*dim(dfm_fixture)[1],15,20)
 
@@ -225,7 +244,22 @@ colnames(data_opt)[4]<-"time of running"
 
 
 
-Les résultats sont enregistrées dans le data frame "data_opt_20calib_vector.
+Les résultats sont enregistrées dans le data frame "data_opt_20calib_vector:
 
-On remarque que la meilleure moyenne de score est atteinte lorsque 4 sample sont faits, de plus la variation des scores est tres petites et la durée également.
+```{r}
+data_opt_20calib_vector
+```
+
+
+Faisons une courbe de performance pour analyser les résultats :
+
+```{r}
+library(ggplot2)
+
+ggplot(data_opt_20calib_vector, aes(x = nombre_sample,y = `moyenne de score`)) + geom_point() + geom_line()
+
+
+```
+
+On remarque que la meilleure moyenne de score est atteinte lorsque 4 sample sont faits, de plus la variation des scores est très petites et la durée également.
 On garde donc le nombre de sample à 4.
