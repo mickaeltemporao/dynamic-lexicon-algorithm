@@ -3,6 +3,8 @@
 #' @param input a dfm avec lignes/users et col/text
 #' @param vector the return of algo_10 function
 #' @param time_running the max time of running the users want in second
+#' @param input2 a df with users and target (df validation)
+#' @param name_users the name of col users in the df validation (in "")
 #'
 #' @return
 #' @export
@@ -10,9 +12,14 @@
 #' @examples
 opti_10 <- function (
   input,
+  input2,
+  name_users,
   vector,
   time_running=300
 ){
+
+
+df_validation<-input2
 
 X3<-sample(as.numeric(rownames(input))[-vector], size = 0.4*length(as.numeric(rownames(input))[-vector]))
 
@@ -50,9 +57,9 @@ for(j in 1){
 
   opinions_df_arrange <- arrange(opinions_df,users)
 
-  df_validation_arrange <- arrange(df_validation,users_id)
+  df_validation_arrange <- arrange(df_validation,name_users)
 
-  op_match <- merge(opinions_df_arrange,df_validation_arrange,by.x = "users",by.y = "users_id")
+  op_match <- merge(opinions_df_arrange,df_validation_arrange,by.x = "users",by.y = name_users)
 
 
   validation_metrics <- cor(op_match$opinions,op_match[,3])
@@ -100,9 +107,9 @@ for(j in 2:length(vector)){
 
     opinions_df_arrange <- arrange(opinions_df,users)
 
-    df_validation_arrange <- arrange(df_validation,users_id)
+    df_validation_arrange <- arrange(df_validation,name_users)
 
-    op_match <- merge(opinions_df_arrange,df_validation_arrange,by.x = "users",by.y = "users_id")
+    op_match <- merge(opinions_df_arrange,df_validation_arrange,by.x = "users",by.y = name_users)
 
 
     validation_metrics <- cor(op_match$opinions,op_match[,3])
