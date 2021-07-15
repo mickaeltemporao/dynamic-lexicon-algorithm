@@ -25,7 +25,7 @@ Pour réaliser cela nous allons fixer le nombre de sample (à 10), définir la m
 
 ```{r,eval=FALSE}
 
-taille_vector<-c(0.03*dim(dfm_fixture)[1],0.05*dim(dfm_fixture)[1],0.1*dim(dfm_fixture)[1],0.2*dim(dfm_fixture)[1],15,20)
+taille_vector<-c(0.03*dim(dfm_fixture)[1],0.05*dim(dfm_fixture)[1],0.1*dim(dfm_fixture)[1],0.2*dim(dfm_fixture)[1],0.3*dim(dfm_fixture)[1],0.4*dim(dfm_fixture)[1])
 
 #nombre_sample<-c(2,4,6,8,10,12,14)
 
