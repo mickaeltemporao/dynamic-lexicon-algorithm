@@ -21,7 +21,9 @@ opti_10 <- function (
 
 df_validation<-input2
 
-X3<-sample(as.numeric(rownames(input))[-vector], size = 0.4*length(as.numeric(rownames(input))[-vector]))
+x4<-rownames(input[-vector,])
+x4<-as.numeric(x4)
+X3<-sample(x4, size = 0.4*length(x4))
 
 a <- seq(1,252)
 data_cor3_opti <- data.frame(a)
