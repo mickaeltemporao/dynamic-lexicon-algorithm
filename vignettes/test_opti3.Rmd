@@ -16,7 +16,10 @@ library(DLA)
 
 ```
 
-Pour améliorer le score de façon optimale, nous avons penser à un troisième algorithme, qui se base sur l'algorithme de tri par séléction expmiquée par l'image ci-dessous :
+Pour améliorer le score de façon optimale, nous avons penser à un troisième algorithme, qui se base sur l'algorithme de tri par séléction : A., 2008. Introduction To Design And Analysis Of Algorithms, 2/E. Pearson Education India.
+
+
+Cet algorithme est expliquée par les images ci-dessous :
 
 
 ![First_step](https://user-images.githubusercontent.com/83821244/125250574-b1ef1500-e2f6-11eb-866d-5eaa85aa7372.jpg)

@@ -23,72 +23,87 @@ On va calculer les betas sur le data de calibration, pour pouvoir ensuite les fi
 Cette fonction prends donc en entrée un Document-Features-Matrix converti en data frame, un vecteur qui va nous permettre d'identifier les individus qui calibrent le sous espace, ainsi qu'un argument logique qui permettra de savoir si le DFM est complet et donc qu'il possède les individus sur lesquels on calibre ET les individus sur lesquels on prédit, ou alors s'il n'est pas complet et dans ce cas il possède que les individus sur lesquels on calibre et estime les paramètres.
 
 ```{r}
-calibrate<- function (
+calibrate <- function (
   input,  # a data.frame avec lignes/users et col/text
   complet = T, #T ou F si T data avec calib et users
- # ID,     #si T faut enlever col avec differenciation
+  # ID,     #si T faut enlever col avec differenciation
   calib, # si c'est T faut diff
-  ngram=2,
-  wordsinrow=FALSE,
+  ngram = 2,
+  wordsinrow = FALSE,
   docincol = FALSE
-){
+
+  ){
 ```
 
 
 On distingue les deux cas complet = F ou T et on estime les paramètres à l'aide de la fonction wordfish :
 
 ```{r}
-if (complet ==  F){
-    data<- input
+if ( complet ==  F){
+    
+  data <- input
 
-    ###### trouvons les beta à fixer
+# Trouvons les beta à fixer
 
-    t_data<-t(data) #on transpose pour faire le wordfish et avoir un FDM
-    t_data<-as.data.frame(t_data)
+  #on transpose pour faire le wordfish et avoir un FDM
+  
+  t_data <- t(data) 
+  t_data <- as.data.frame(t_data)
+  
+  # les mots sont les nomes des lignes
 
-    words<-rownames(t_data) # les mots sont les nomes des lignes
-    target_name<-colnames(t_data)
+  words <- rownames(t_data) 
+  target_name <- colnames(t_data)
 ```
   
   On applique maintenant les filtres des mots jamais utilisés ou des users fantomes : 
   
 ```{r}
    
-    #On supprime les mots qui ont étés prononcés zéro fois par les target
+  #On supprime les mots qui ont étés prononcés zéro fois par les target
 
-    zero_word <- (rowSums(t_data>0) > 0)
+  zero_word <- (rowSums(t_data > 0) > 0)
 
-    t_data_without_zero <- t_data[zero_word, ]
-    words_kept <- words[zero_word]
+  t_data_without_zero <- t_data[zero_word, ]
+  words_kept <- words[zero_word]
 
-    zero_docs <- (colSums(t_data_without_zero) > 0)
-    t_data_without_zero <- t_data_without_zero[, zero_docs]
-    target_kept <- target_name[zero_docs]
+  zero_docs <- (colSums(t_data_without_zero) > 0)
+  t_data_without_zero <- t_data_without_zero[, zero_docs]
+  target_kept <- target_name[zero_docs]
 
 
-    sum(rowSums(t_data_without_zero> 0) == 0)
-    sum(colSums(t_data_without_zero > 0) == 0)
-    dim(t_data_without_zero)
+  sum(rowSums(t_data_without_zero> 0) == 0)
+  sum(colSums(t_data_without_zero > 0) == 0)
+  dim(t_data_without_zero)
 ```
 
 On peut appliquer le wordfish et créer le data frame qui contient les mots et leurs poids :
 
 ```{r}
    
-    wf_out_data <- wordfish(t_data_without_zero, fixtwo = FALSE, dir = c(1, 2), wordsincol = FALSE, tol = 1e-04)
+  wf_out_data <- wordfish(t_data_without_zero,
+                          fixtwo = FALSE,
+                          dir = c(1, 2),
+                          wordsincol = FALSE,
+                          tol = 1e-04
+                          )
 
-    omega <- wf_out_data$documents[, "omega"]
-    print(omega)
-    beta <- wf_out_data$words[, "b"]
-    psi <- wf_out_data$words[, "psi"]
-    print(psi)
+  omega <- wf_out_data$documents[, "omega"]
+  print(omega)
+  
+  beta <- wf_out_data$words[, "b"]
+  
+  psi <- wf_out_data$words[, "psi"]
 
-    ### associer les mots et leurs poids respectifs
+  # associer les mots et leurs poids respectifs
 
-    word_df <- data.frame(words_kept,beta)
-    word_top<-word_df[sort(abs(word_df$beta),decreasing=T,index.return=T)[[2]],][1:6,]
-    print(word_df)
-    return(list(word_df=word_df,words_kept=words_kept,word_top=word_top))
+  word_df <- data.frame(words_kept , beta)
+  word_top <- word_df[sort(abs(word_df$beta) ,
+                           decreasing=T,
+                           index.return = T)[[2]] , ][1:6 ,]
+  print(word_df)
+  
+  return(list(word_df = word_df , words_kept = words_kept , word_top = word_top))
 
   }
 ```
@@ -96,17 +111,20 @@ On peut appliquer le wordfish et créer le data frame qui contient les mots et l
 Si le DFM contient les individus sur lesquels on veut prédire il faut diviser en deux data et retourner le data des individus ainsi que le data avec le poids des mots pour pouvoir prédire avec la fonction qui va suivre :
 
 ```{r}
-  else{
- # data_target_name<-data[,ID]#nom du target
+  
+else{
+  
+  # data_target_name<-data[,ID]#nom du target
 
   #data_without_target<-data[, !(colnames(data) %in% c(ID)), drop = FALSE]#on enleve le nom du target du data
 
   #on sépare le data en deux data, un avec les individus qui servent à calibrer (data_target) et l'autre le reste
-  data<-input
-  data_users<-data[-calib,]
+  
+  data <- input
+  data_users <- data[-calib ,]
 
   #rownames(data_users)[0] <- "word" #on donne un nom a la première ligne
-  data_target<-data[calib,]
+  data_target <- data[calib, ]
 ```
 
 
@@ -115,58 +133,72 @@ On effectue maintenant la même chose que précedement  :
 
 
 ```{r}
-  ###### trouvons les beta à fixer
+  # trouvons les beta à fixer
+ 
+  #on transpose pour faire le wordfish et avoir un FDM
 
-  t_data_target<-t(data_target) #on transpose pour faire le wordfish et avoir un FDM
-  t_data_target<-as.data.frame(t_data_target)
+  t_data_target <- t(data_target)
+  t_data_target <- as.data.frame(t_data_target)
 
-  words<-rownames(t_data_target) # les mots sont les nomes des lignes
-  target_name<-colnames(t_data_target)
+  words <- rownames(t_data_target) 
+  target_name <- colnames(t_data_target)
 
   #On supprime les mots qui ont étés prononcés zéro fois par les target
 
-  zero_word <- (rowSums(t_data_target>0) > 0)
+  zero_word <- (rowSums(t_data_target > 0) > 0)
 
-  t_data_target_without_zero <- t_data_target[zero_word, ]
+  t_data_target_without_zero <- t_data_target[zero_word ,]
 
   words_kept <- words[zero_word]
 
-  zero_docs <- (colSums(t_data_target_without_zero>0) > 0)
+  zero_docs <- (colSums(t_data_target_without_zero > 0) > 0)
   t_data_target_without_zero <- t_data_target_without_zero[, zero_docs]
-  data_target_without_zero<-t(t_data_target_without_zero)
+  data_target_without_zero <- t(t_data_target_without_zero)
   target_kept <- target_name[zero_docs]
 
 
-  sum(rowSums(t_data_target_without_zero> 0) == 0)
+  sum(rowSums(t_data_target_without_zero > 0) == 0)
   sum(colSums(t_data_target_without_zero > 0) == 0)
   dim(t_data_target_without_zero)
 
 
-  wf_out <- wordfish(t_data_target_without_zero, fixtwo = FALSE, dir = c(1, 2),  wordsincol = FALSE, tol = 1e-04)
+  wf_out <- wordfish(t_data_target_without_zero,
+                     fixtwo = FALSE,
+                     dir = c(1, 2),
+                     wordsincol = FALSE,
+                     tol = 1e-04
+                     )
 
   omega <- wf_out$documents[, "omega"]
-  print(omega)
+  
   beta <- wf_out$words[, "b"]
   psi <- wf_out$words[, "psi"]
-  opini<-wf_out$documents[,'omega']
-  print(psi)
+  
+  opini <- wf_out$documents[, 'omega']
+  
 ```
 
 On peut maintenant retourner le data des opinions calculés sur les individus qui calibre le sous espace, le data des indiviuds sur lequelle on veut prédire ainsi que le data avec les mots et leurs poids :
 
 
 ```{r}
-  ### associer les mots et leurs poids respectifs
+  # associer les mots et leurs poids respectifs
 
-  word_df <- data.frame(words_kept,beta)
+  word_df <- data.frame(words_kept , beta)
+  
   library(dplyr)
-  word_df<-arrange(word_df,desc(abs(beta)))
-  opini_df<-data.frame(rownames(data_target_without_zero),opini)
-  colnames(opini_df)<-c("users","opinions")
-  word_top<-word_df[sort(abs(word_df$beta),decreasing=T,index.return=T)[[2]],][1:6,]
-  print(word_df)
-  data_users<-data_users[,words_kept]
-  return(list(word_df=word_df,data_users=data_users,opinions=opini_df))
+  
+  word_df <- arrange(word_df , desc(abs(beta)))
+  opini_df <- data.frame(rownames(data_target_without_zero) , opini)
+  colnames(opini_df) <- c("users" , "opinions")
+  
+  word_top <- word_df[sort(abs(word_df$beta),
+                           decreasing = T,
+                           index.return=T)[[2]], ][1:6, ]
+  
+  data_users <- data_users[, words_kept]
+  
+  return(list(word_df = word_df, data_users = data_users, opinions = opini_df))
   }
 
 }
@@ -198,21 +230,25 @@ use_weight<- function (
   On va effectuer les mêmes filtres que précedement sur les utilisateurs fantomes ainsi que les mots jamais utilisés :
   
 ```{r}
-  data_users<-input
-  words_kept<-words
-  word_df<-df
+  
+  data_users <- input
+  words_kept <- words
+  word_df <- df
 
-  #### fixer les poids
+  # fixer les poids
+  #on transpose pour pouvoir assembler les data
+  
+  t_data_users <- t(data_users)
+  t_data_users <- as.data.frame(t_data_users)
+  
+  #on garde que les mots utilisés par les calibreurs
 
-  t_data_users<-t(data_users)#on transpose pour pouvoir assembler les data
-  t_data_users<-as.data.frame(t_data_users)
-
-  t_data_users_kept<-t_data_users#on garde que les mots utilisés par les calibreurs
-  users_name<-colnames(t_data_users_kept)
+  t_data_users_kept <- t_data_users
+  users_name <- colnames(t_data_users_kept)
 
   #On enlève ceux qui ont étés utilisées zéro fois par tout le monde
 
-  zero_word1 <- (rowSums(t_data_users_kept>0) > 0)
+  zero_word1 <- (rowSums(t_data_users_kept > 0) > 0)
 
   t_data_users_without_zero <- t_data_users_kept[zero_word1, ]
 
@@ -231,9 +267,9 @@ use_weight<- function (
 ```{r}
   #on les assemble aux mots
 
-  word_df<-word_df[zero_word1,]
-  t_data_users_without_zero[,"weight"]<-word_df[,2]
-  t_data_users_without_zero[,"words"]<-word_df[,1]
+  word_df <- word_df[zero_word1,]
+  t_data_users_without_zero[, "weight"] <- word_df[, 2]
+  t_data_users_without_zero[, "words"] <- word_df[, 1]
 
 
 
@@ -242,9 +278,9 @@ use_weight<- function (
 
   L <- dim(wordcountdata_users_weighted)[2] # nombre de colonnes
 
-  words_weighted    <- wordcountdata_users_weighted[,L] #les mots
-  TM_users_weighted <- wordcountdata_users_weighted[,1:(L-2)]#les occurences
-  beta_weighted     <- wordcountdata_users_weighted[,L-1]#les betas
+  words_weighted    <- wordcountdata_users_weighted[, L] #les mots
+  TM_users_weighted <- wordcountdata_users_weighted[, 1:(L-2)]#les occurences
+  beta_weighted     <- wordcountdata_users_weighted[, L-1]#les betas
 
   #on refait le wordfish avec les betas fixés
 
@@ -255,7 +291,13 @@ use_weight<- function (
 
 
 
-  wf2_out <- wordfish2(beta_weighted,TM_users_weighted,fixtwo=FALSE,dir=c(1,2),wordsincol=FALSE,tol=1e-4)
+  wf2_out <- wordfish2(beta_weighted,
+                       TM_users_weighted,
+                       fixtwo=FALSE,
+                       dir=c(1,2),
+                       wordsincol = FALSE,
+                       tol=1e-4
+                       )
 
 ```
 
@@ -264,14 +306,17 @@ On peut maintenant retourner les opinions calculées et les mots et leurs poids 
 
 ```{r}
   beta    <- beta_weighted
-  print(beta)
-  opinions  <- wf2_out$documents[,'omega']
-  words_weighted_df<-data.frame(words_weighted,beta_weighted)
-  print(words_weighted_df)
+  
+  opinions  <- wf2_out$documents[, 
+                                 'omega']
+  words_weighted_df <- data.frame(words_weighted , beta_weighted)
+  
   #opinions_df<-data.frame(rownames(data_users)[0],opinions)
-  opinions_df<-data.frame(users_kept1,opinions)
-  colnames(opinions_df)<-c("users","opinions")
-  return(list(opinions_df=opinions_df,words_weighted_df=words_weighted_df))
+  
+  opinions_df <- data.frame(users_kept1 , opinions)
+  colnames(opinions_df) <- c("users" , "opinions")
+  
+  return(list(opinions_df = opinions_df , words_weighted_df = words_weighted_df))
 
 }
 

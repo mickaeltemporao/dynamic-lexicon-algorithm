@@ -158,6 +158,22 @@ wordfish <- function(input,
     b <- p[1]
     psi <- p[2]
     lambda <- exp(psi + alpha + b * omega)  # Lambda parameter for Poisson distribution
+    if (sum(lambda == 0)>0) {
+
+      tmp_impute <-  10^(-5)
+      warning_ids <- names(y)[which(lambda == 0)]
+      warning("Imputing IDs: \n", paste(warning_ids, collapse=", "))
+
+      lambda[lambda==0] <- tmp_impute
+    }
+    if (sum(lambda == Inf)>0) {
+
+      tmp_impute2 <-  10^(5)
+      warning_ids2 <- names(y)[which(lambda == Inf)]
+      warning("Imputing IDs: \n", paste(warning_ids2, collapse=", "))
+
+      lambda[lambda==Inf] <- tmp_impute2
+    }
     -(sum(-lambda + log(lambda) * y) - 0.5 * (b^2/sigma^2))  # Log-likelihood including normal prior on Beta
   }
 
@@ -165,7 +181,21 @@ wordfish <- function(input,
   llik_alpha_1 <- function(p, y, b, psi) {
     # omega[1] is estimated
     omega <- p[1]
-    lambda <- exp(psi + b * omega)  # Lambda parameter; alpha is excluded b/c it is set to be zero
+    lambda <- exp(psi + b * omega) # Lambda parameter; alpha is excluded b/c it is set to be zero
+    if (sum(lambda == 0)>0) {
+      warning_ids <- rownames(y)[which(lambda == 0)]
+      warning("Imputing IDs: \n", paste(warning_ids, collapse=", "))
+      tmp_impute <- 10^(-2)
+      lambda[lambda==0] <- tmp_impute
+    }
+    if (sum(lambda == Inf)>0) {
+
+      tmp_impute2 <-  10^(5)
+      warning_ids2 <- names(y)[which(lambda == Inf)]
+      warning("Imputing IDs: \n", paste(warning_ids2, collapse=", "))
+
+      lambda[lambda==Inf] <- tmp_impute2
+    }
     -sum(-lambda + log(lambda) * y)  # Log-likelihood
   }
 
@@ -174,6 +204,20 @@ wordfish <- function(input,
     omega <- p[1]
     alpha <- p[2]
     lambda <- exp(psi + alpha + b * omega)  # Lambda parameter
+    if (sum(lambda == 0)>0) {
+      warning_ids <- rownames(y)[which(lambda == 0)]
+      warning("Imputing IDs: \n", paste(warning_ids, collapse=", "))
+      tmp_impute <- 10^(-2)
+      lambda[lambda==0] <- tmp_impute
+    }
+    if (sum(lambda == Inf)>0) {
+
+      tmp_impute2 <-  10^(5)
+      warning_ids2 <- names(y)[which(lambda == Inf)]
+      warning("Imputing IDs: \n", paste(warning_ids2, collapse=", "))
+
+      lambda[lambda==Inf] <- tmp_impute2
+    }
     -sum(-lambda + log(lambda) * y)  # Log-likelihood
   }
 
@@ -182,6 +226,20 @@ wordfish <- function(input,
     # alpha is estimated
     alpha <- p[1]
     lambda <- exp(psi + alpha + b * omega)  # Lambda parameter
+    if (sum(lambda == 0)>0) {
+      warning_ids <- rownames(y)[which(lambda == 0)]
+      warning("Imputing IDs: \n", paste(warning_ids, collapse=", "))
+      tmp_impute <- 10^(-2)
+      lambda[lambda==0] <- tmp_impute
+    }
+    if (sum(lambda == Inf)>0) {
+
+      tmp_impute2 <-  10^(5)
+      warning_ids2 <- names(y)[which(lambda == Inf)]
+      warning("Imputing IDs: \n", paste(warning_ids2, collapse=", "))
+
+      lambda[lambda==Inf] <- tmp_impute2
+    }
     -sum(-lambda + log(lambda) * y)  # Log-likelihood
   }
 
@@ -277,7 +335,7 @@ wordfish <- function(input,
 
         for (j in 1:W) {
           resb <- optim(par = c(params$b[j], params$psi[j]), fn = llik_psi_b,
-                        y = dta[, j], omega = params$omega, alpha = params$alpha, sigma = sigma,lower = -Inf, upper = Inf)
+                        y = dta[, j], omega = params$omega, alpha = params$alpha, sigma = sigma)
           params$b[j] <- resb$par[1]
           params$psi[j] <- resb$par[2]
           params$min2[j] <- -1 * resb$value

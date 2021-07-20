@@ -207,8 +207,7 @@ for(j in 1){
 }
   
 
-file.data<-paste0("C:/Users/fredo/Documents/Code Projet/vigilant-octo-invention/data_taille_",k,".RData")
-save(data_cor3_opti, file = file.data)
+
 }
 ```
 
