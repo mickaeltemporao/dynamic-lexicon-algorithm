@@ -2,28 +2,26 @@
 #'
 #' @param input a dfm avec lignes/users et col/text
 #' @param vector the return of algo_10 function
-#' @param time_running the max time of running the users want in second
+#' @param runtime the max time of running the users want in second
 #' @param input2 a df with users and target (df validation)
 #' @param name_users the name of col users in the df validation (in "")
-#'
 #' @return
 #' @export
-#'
 #' @examples
 opti_10 <- function (
   input,
   input2,
   name_users,
   vector,
-  time_running=300
+  runtime=300
 ){
 
 
-df_validation<-input2
+df_validation <- input2
+x4 <- input[!rownames(input) %in% vector, ]
+x4 <-rownames(x4)
 
-x4<-rownames(input[-vector,])
-x4<-as.numeric(x4)
-X3<-sample(x4, size = 0.4*length(x4))
+X3 <- sample(x4, size = 0.4*length(x4))
 
 a <- seq(1,252)
 data_cor3_opti <- data.frame(a)
@@ -36,7 +34,7 @@ niter<-0
 for(j in 1){
   for(i in X3){
 
-  X_replace<-as.numeric(insert(vector,j,i))
+  X_replace<-insert(vector,j,i)
 
   x <- calibrate(input,complet=T,X_replace)
 
@@ -67,7 +65,7 @@ for(j in 1){
   validation_metrics <- cor(op_match$opinions,op_match[,3])
 
 
-  if((validation_metrics>0.2)){ # si le score est meilleur alors on garde et on passe a l'indice suivant
+  if((abs(validation_metrics)>0.1)){ # si le score est meilleur alors on garde et on passe a l'indice suivant
 niter<-niter+1
 for(w in 1:length(X_replace)){
   data_cor3_opti[niter,w]<-X_replace[w]
@@ -117,7 +115,7 @@ for(j in 2:length(vector)){
     validation_metrics <- cor(op_match$opinions,op_match[,3])
 
     #si le score est meilleur alors on garde et on passe a l'indice suivant
-    if((validation_metrics>abs(data_cor3_opti[niter,length(X_replace)+1]))){
+    if((abs(validation_metrics)>abs(data_cor3_opti[niter,length(X_replace)+1]))){
 
       niter<-niter+1
       for(w in 1:length(X_replace)){
@@ -135,7 +133,7 @@ for(j in 2:length(vector)){
 
   end_time = Sys.time()
 
-  if(as.numeric(difftime(end_time,start_time,units = "sec"))>ceiling((time_running/length(vector)))){
+  if(as.numeric(difftime(end_time,start_time,units = "sec"))>ceiling((runtime/length(vector)))){
     cat("algo stopped time out")
     break}
 }

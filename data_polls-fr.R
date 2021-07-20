@@ -20,7 +20,7 @@ page <- url %>%
 
 data_poll_fr <- data.frame(1,1,1,1)
 
-colnames(data_poll_fr) <- c("Nom","Age","Parti","Twitter")
+colnames(data_poll_fr) <- c("nom","age","parti","twitter")
 
 
 # Boucle pour rentrer dans toutes les pages -------------

@@ -85,13 +85,13 @@ calibrate <- function (
 
   #on sépare le data en deux data, un avec les individus qui servent à calibrer (data_target) et l'autre le reste
   data <- input
-  data_users <- data[-calib,]
+
 
   #rownames(data_users)[0] <- "word" #on donne un nom a la première ligne
   data_target <- data[calib,]
 
 
-
+ data_users<- data[!rownames(data) %in% calib, ]
 
 
   ###### trouvons les beta à fixer
