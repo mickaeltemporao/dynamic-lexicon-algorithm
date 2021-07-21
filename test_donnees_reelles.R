@@ -19,3 +19,5 @@ y<-opti_10(TM2gram_test_without_na,
            "Vpl_ID",
            best_vector,
            runtime=100)
+
+
