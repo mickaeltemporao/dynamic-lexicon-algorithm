@@ -46,7 +46,7 @@ best_algo_10_return
 
 ```
 
-Maintenant nous allons runner l'algorithme optimisé avec un timerun de 100 secondes ainsi qu'en reduisant la taille du vecteur restant a 10% de la taille initiale :
+Maintenant nous allons lancer l'algorithme optimisé avec un timerun de 100 secondes ainsi qu'en reduisant la taille du vecteur restant a 10% de la taille initiale :
 
 ```{r, eval=FALSE}
 y<-opti_10(TM2gram_test_without_na,
@@ -64,13 +64,64 @@ data_cor3_opti[1:2,]
 ```
 
 Nous avons donc un meilleur score de `abs(data_cor3_opti[2,267])` alors que l'algorithme précédent donnait un score de 0.39.
+
 Nous allons donc devoir augmenter la taille pour augmenter la précision :
 
-```{r}
-y<-opti_10(TM2gram_test_without_na,
+```{r, eval=FALSE}
+opti_10(TM2gram_test_without_na,
            op_without_na,
            "Vpl_ID",
            best_vector,
            runtime=100)
 ```
 
+Les données sont enregistrées dans la data result1
+```{r}
+result1[1:2,267]
+```
+
+Les résultats ne sont toujours pas satisfaisant et toujours en dessous de l'algortihme précédent.
+
+Pour augmenter la précision de l'algorithme augmentons le temps à 300 secondes :
+
+```{r, eval=FALSE}
+opti_10(TM2gram_test_without_na,
+           op_without_na,
+           "Vpl_ID",
+           best_vector,
+           runtime=300)
+
+```
+Les données sont enregistrées dans la data result2 :
+```{r}
+result2
+```
+
+Les résultats ne sont toujours pas satisfaisant et toujours en dessous de l'algortihme précédent.
+
+Augmentons encore le temps à 3600 secondes pour que l'algorithme puisse trouver un meilleur vecteur.
+
+Nous avons lancé le test deux fois pour  pouvoir avoir une moyenne de score :
+```{r, eval=FALSE}
+opti_10(TM2gram_test_without_na,
+           op_without_na,
+           "Vpl_ID",
+           best_vector,
+           runtime=600)
+```
+
+Les données sont enregistrées dans les data result11 et result11  :
+
+```{r}
+result11 
+
+```
+
+```{r}
+result12
+
+```
+
+Nos résultats ne sont pas satisfaisant, ceci est due au fait que l'algorithme ne tourne pas assez longtemps.
+
+Il faut donc augmenter le timerun pour que le vecteur calib se complète.
