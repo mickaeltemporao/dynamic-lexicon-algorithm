@@ -65,7 +65,7 @@ for(j in 1){
   validation_metrics <- cor(op_match$opinions,op_match[,3])
 
 
-  if((abs(validation_metrics)>0.1)){ # si le score est meilleur alors on garde et on passe a l'indice suivant
+  if((abs(validation_metrics)>0.05)){ # si le score est meilleur alors on garde et on passe a l'indice suivant
 niter<-niter+1
 for(w in 1:length(X_replace)){
   data_cor3_opti[niter,w]<-X_replace[w]
@@ -83,7 +83,7 @@ for(j in 2:length(vector)){
   start_time = Sys.time()
   for(i in X3){
 
-    X_replace<-as.numeric(insert(vector,j,i))
+    X_replace<-insert(vector,j,i)
 
 
     x <- calibrate(input,complet=T,X_replace)

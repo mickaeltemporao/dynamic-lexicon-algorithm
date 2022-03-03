@@ -1,0 +1,127 @@
+---
+title: "Dynamical-Lexicon-Approach how to use the package DLA"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{comment-utiliser-mon-package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = T,
+  echo=T,
+  warning=F,
+  message=F,
+  eval=F
+)
+```
+
+
+
+### Résultats de l'algorithme
+
+Dans cette vignette nous allons lancer l'algorithme sur les données réelles à savoir les données de la Nouvelle-Zélande et comparer au score q de l'algorithme précédent pour valider ou non la performance de notre algorithme.
+
+On rapelle que l'algorithme précédent calibrait un sous-espace sur les politiciens et utiliser les paramètres calculées sur les users pour calculer la prédiction tandis que notre algorithme se base uniquement sur les users et va aller chercher la meilleure combinaisons de vecteur qui va calibrer le mieux le sous espace.
+
+Runons notre algorithme :
+
+Commencons par runer l'algo_10_review :
+
+```{r, eval=F}
+library(DLA)
+
+
+x <- algo_10_review(TM2gram_test_without_na,
+                    op_without_na,
+                    "Vpl_ID")
+
+
+
+
+```
+```{r}
+best_algo_10_return
+
+```
+
+Maintenant nous allons lancer l'algorithme optimisé avec un timerun de 100 secondes ainsi qu'en reduisant la taille du vecteur restant a 10% de la taille initiale :
+
+```{r, eval=FALSE}
+y<-opti_10(TM2gram_test_without_na,
+           op_without_na,
+           "Vpl_ID",
+           best_vector,
+           runtime=100)
+
+
+```
+
+```{r}
+data_cor3_opti[1:2,]
+
+```
+
+Nous avons donc un meilleur score de `abs(data_cor3_opti[2,267])` alors que l'algorithme précédent donnait un score de 0.39.
+
+Nous allons donc devoir augmenter la taille pour augmenter la précision :
+
+```{r, eval=FALSE}
+opti_10(TM2gram_test_without_na,
+           op_without_na,
+           "Vpl_ID",
+           best_vector,
+           runtime=100)
+```
+
+Les données sont enregistrées dans la data result1
+```{r}
+result1[1:2,267]
+```
+
+Les résultats ne sont toujours pas satisfaisant et toujours en dessous de l'algortihme précédent.
+
+Pour augmenter la précision de l'algorithme augmentons le temps à 300 secondes :
+
+```{r, eval=FALSE}
+opti_10(TM2gram_test_without_na,
+           op_without_na,
+           "Vpl_ID",
+           best_vector,
+           runtime=300)
+
+```
+Les données sont enregistrées dans la data result2 :
+```{r}
+result2
+```
+
+Les résultats ne sont toujours pas satisfaisant et toujours en dessous de l'algortihme précédent.
+
+Augmentons encore le temps à 3600 secondes pour que l'algorithme puisse trouver un meilleur vecteur.
+
+Nous avons lancé le test deux fois pour  pouvoir avoir une moyenne de score :
+```{r, eval=FALSE}
+opti_10(TM2gram_test_without_na,
+           op_without_na,
+           "Vpl_ID",
+           best_vector,
+           runtime=600)
+```
+
+Les données sont enregistrées dans les data result11 et result11  :
+
+```{r}
+result11 
+
+```
+
+```{r}
+result12
+
+```
+
+Nos résultats ne sont pas satisfaisant, ceci est due au fait que l'algorithme ne tourne pas assez longtemps.
+
+Il faut donc augmenter le timerun pour que le vecteur calib se complète.
